@@ -1,0 +1,94 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# Visual Studio files
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+.nuget/
+nuget.exe
+
+# Test results
+TestResults/
+
+# Cache files
+StyleCopReport.xml
+*.tmp
+*.temp
+
+# Logs
+logs/
+*.log
+
+# Runtime files
+*.dll.config
+*.exe.config
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+
+# Docker files (but include them for this build)
+# Dockerfile*
+# docker-compose*
+
+# Environment files (for security)
+.env
+.env.*
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+
+# Temporary folders
+tmp/
+temp/
+
+__*

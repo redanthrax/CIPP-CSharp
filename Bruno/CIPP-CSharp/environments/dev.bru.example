@@ -1,0 +1,8 @@
+vars {
+  baseUrl: https://localhost:8000/api
+  tenantId: YOUR_TENANT_ID_HERE
+  clientId: YOUR_CLIENT_ID_HERE
+  clientSecret: YOUR_CLIENT_SECRET_HERE
+  scope: api://YOUR_CLIENT_ID_HERE/access_as_user
+  audience: api://YOUR_CLIENT_ID_HERE
+}

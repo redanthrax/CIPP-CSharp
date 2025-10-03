@@ -1,0 +1,36 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.36105.23
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIPP.Api", "Api\CIPP.Api.csproj", "{CBFA08EA-AECE-205F-7B85-326FD0B81BAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIPP.Frontend", "Frontend\CIPP.Frontend.csproj", "{90CF18BE-437A-4804-9E85-213B3EBFA1C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIPP.Shared", "Shared\CIPP.Shared.csproj", "{62451B76-E393-4902-88EF-5597F2CD02D3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CBFA08EA-AECE-205F-7B85-326FD0B81BAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBFA08EA-AECE-205F-7B85-326FD0B81BAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBFA08EA-AECE-205F-7B85-326FD0B81BAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBFA08EA-AECE-205F-7B85-326FD0B81BAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90CF18BE-437A-4804-9E85-213B3EBFA1C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90CF18BE-437A-4804-9E85-213B3EBFA1C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90CF18BE-437A-4804-9E85-213B3EBFA1C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90CF18BE-437A-4804-9E85-213B3EBFA1C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62451B76-E393-4902-88EF-5597F2CD02D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62451B76-E393-4902-88EF-5597F2CD02D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62451B76-E393-4902-88EF-5597F2CD02D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62451B76-E393-4902-88EF-5597F2CD02D3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {13EA04B8-4FF8-41E7-8F09-C83F9AC24DFC}
+	EndGlobalSection
+EndGlobal

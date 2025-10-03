@@ -1,0 +1,64 @@
+# Build outputs
+bin/
+obj/
+
+# Configuration files with secrets
+appsettings.*.json
+appsettings.json
+.env*
+*.env
+
+# Bruno environment file with secrets
+dev.bru
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.suo
+*.cache
+*.docstates
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+
+# Launch settings (may contain sensitive URLs)
+Properties/launchSettings.json
+**/Properties/launchSettings.json
+
+# Secret files
+*.secrets
+*.secret
+secrets.json
+user-secrets.json
+
+# Azure and deployment
+*.pubxml
+*.pubxml.user
+*.azurepubxml
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+__*

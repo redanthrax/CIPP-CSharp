@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "CIPP-CSharp",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
