@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace CIPP.Frontend.Modules.Authentication;
+namespace CIPP.Frontend.WASM.Modules.Authentication.Interfaces;
 
 public interface IAuthenticationService {
     Task<bool> IsAuthenticatedAsync();

@@ -1,0 +1,64 @@
+@inject IAuthenticationService AuthService
+
+<AuthorizeView>
+    <Authorized>
+        <MudButton Variant="Variant.Text" 
+                   Color="Color.Inherit"
+                   StartIcon="@Icons.Material.Filled.Person"
+                   OnClick="@(() => ShowUserMenu = !ShowUserMenu)">
+            @GetDisplayName(context.User)
+        </MudButton>
+        
+        <MudPopover Open="@ShowUserMenu" 
+                    Fixed="true" 
+                    Class="px-4 pt-4">
+            <div class="d-flex flex-column">
+                <MudText Typo="Typo.body2" Class="mb-2">
+                    @GetUserEmail(context.User)
+                </MudText>
+                <MudDivider Class="mb-2" />
+                <MudButton Variant="Variant.Text" 
+                           StartIcon="@Icons.Material.Filled.Logout"
+                           OnClick="@SignOut">
+                    Sign Out
+                </MudButton>
+            </div>
+        </MudPopover>
+    </Authorized>
+    <NotAuthorized>
+        <MudButton Variant="Variant.Text" 
+                   Color="Color.Inherit"
+                   StartIcon="@Icons.Material.Filled.Login"
+                   OnClick="@SignIn">
+            Sign In
+        </MudButton>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private bool ShowUserMenu = false;
+
+    private async Task SignIn() {
+        ShowUserMenu = false;
+        await AuthService.SignInAsync();
+    }
+
+    private async Task SignOut() {
+        ShowUserMenu = false;
+        await AuthService.SignOutAsync();
+    }
+
+    private string GetDisplayName(System.Security.Claims.ClaimsPrincipal user) {
+        return user.FindFirst("name")?.Value 
+            ?? user.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value 
+            ?? user.FindFirst("preferred_username")?.Value 
+            ?? "User";
+    }
+
+    private string GetUserEmail(System.Security.Claims.ClaimsPrincipal user) {
+        return user.FindFirst("email")?.Value 
+            ?? user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value 
+            ?? user.FindFirst("preferred_username")?.Value 
+            ?? "";
+    }
+}

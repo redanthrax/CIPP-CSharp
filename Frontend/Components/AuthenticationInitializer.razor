@@ -1,0 +1,14 @@
+@implements IDisposable
+@inject CIPP.Frontend.Modules.Authentication.Services.AuthenticationInitializationService AuthService
+
+@code {
+    private CIPP.Frontend.Modules.Authentication.Services.AuthenticationInitializationService? _authService;
+
+    protected override void OnInitialized() {
+        _authService = AuthService;
+    }
+
+    public void Dispose() {
+        _authService?.Dispose();
+    }
+}

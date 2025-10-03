@@ -1,0 +1,69 @@
+@inject IThemeService ThemeService
+@implements IDisposable
+
+<MudThemeProvider Theme="@ThemeService.CurrentTheme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(AppRoot).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
+                <NotAuthorized>
+                    @if (context.User.Identity?.IsAuthenticated != true)
+                    {
+                        <LayoutView Layout="@typeof(Layout.MainLayout)">
+                            <div class="d-flex justify-center align-center pa-8">
+                                <MudPaper Class="pa-8 text-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.Login" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
+                                    <MudText Typo="Typo.h5" Class="mb-4">Authentication Required</MudText>
+                                    <MudText Typo="Typo.body1" Class="mb-6">Please sign in to continue.</MudText>
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/authentication/login">
+                                        Sign In
+                                    </MudButton>
+                                </MudPaper>
+                            </div>
+                        </LayoutView>
+                    }
+                    else
+                    {
+                        <div class="pa-4">
+                            <MudAlert Severity="Severity.Warning">
+                                You are not authorized to access this page.
+                            </MudAlert>
+                        </div>
+                    }
+                </NotAuthorized>
+                <Authorizing>
+                    <div class="d-flex justify-center align-center" style="height: 100vh;">
+                        <MudProgressCircular Size="Size.Large" Indeterminate="true" />
+                    </div>
+                </Authorizing>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Not found - CIPP</PageTitle>
+            <LayoutView Layout="@typeof(Layout.MainLayout)">
+                <div class="pa-8 text-center">
+                    <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Secondary" Class="mb-4" />
+                    <MudText Typo="Typo.h4" Class="mb-4">Page Not Found</MudText>
+                    <MudText Typo="Typo.body1" Class="mb-6">Sorry, there's nothing at this address.</MudText>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">Go to Dashboard</MudButton>
+                </div>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+
+@code {
+    protected override async Task OnInitializedAsync() {
+        ThemeService.OnThemeChanged += StateHasChanged;
+        await ThemeService.InitializeAsync();
+    }
+
+    public void Dispose() {
+        ThemeService.OnThemeChanged -= StateHasChanged;
+    }
+}

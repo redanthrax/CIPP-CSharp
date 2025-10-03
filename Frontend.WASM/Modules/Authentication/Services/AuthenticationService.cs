@@ -1,19 +1,20 @@
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using CIPP.Frontend.WASM.Modules.Authentication.Interfaces;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using System.Security.Claims;
 
-namespace CIPP.Frontend.Modules.Authentication;
+namespace CIPP.Frontend.WASM.Modules.Authentication.Services;
 
 public class AuthenticationService : IAuthenticationService {
     private readonly AuthenticationStateProvider _authenticationStateProvider;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly NavigationManager _navigationManager;
 
     public AuthenticationService(
         AuthenticationStateProvider authenticationStateProvider,
-        IHttpContextAccessor httpContextAccessor) {
+        NavigationManager navigationManager) {
         _authenticationStateProvider = authenticationStateProvider;
-        _httpContextAccessor = httpContextAccessor;
+        _navigationManager = navigationManager;
     }
 
     public async Task<bool> IsAuthenticatedAsync() {
@@ -47,23 +48,17 @@ public class AuthenticationService : IAuthenticationService {
     }
 
     public async Task SignInAsync() {
-        var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext != null) {
-            await httpContext.ChallengeAsync(OpenIdConnectDefaults.AuthenticationScheme);
-        }
+        _navigationManager.NavigateToLogin("authentication/login");
+        await Task.CompletedTask;
     }
 
     public async Task SignOutAsync() {
-        var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext != null) {
-            await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
-        }
+        _navigationManager.NavigateToLogout("authentication/logout");
+        await Task.CompletedTask;
     }
 
     public async Task RedirectToLoginAsync() {
-        var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext != null) {
-            await httpContext.ChallengeAsync(OpenIdConnectDefaults.AuthenticationScheme);
-        }
+        _navigationManager.NavigateToLogin("authentication/login");
+        await Task.CompletedTask;
     }
 }

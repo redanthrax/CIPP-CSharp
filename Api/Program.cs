@@ -47,6 +47,25 @@ builder.Services.AddHangfireServer(options =>
     options.SchedulePollingInterval = TimeSpan.FromSeconds(15);
 });
 
+// Add CORS for WASM frontend
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+var allowCredentials = builder.Configuration.GetValue<bool>("Cors:AllowCredentials", false);
+
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowWasmFrontend", policy => {
+        if (corsOrigins.Length > 0) {
+            policy.WithOrigins(corsOrigins);
+        }
+        
+        policy.AllowAnyHeader()
+              .AllowAnyMethod();
+              
+        if (allowCredentials) {
+            policy.AllowCredentials();
+        }
+    });
+});
+
 builder.Services.AddSignalR();
 builder.Services.AddModules(builder.Configuration);
 builder.Services.AddSingleton<IMetricServer>(provider =>
@@ -70,6 +89,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseSerilogRequestLogging();
 app.UseHttpMetrics();
+app.UseCors("AllowWasmFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
