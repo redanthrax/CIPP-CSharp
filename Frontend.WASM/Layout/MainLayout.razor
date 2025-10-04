@@ -3,12 +3,21 @@
 
 <MudLayout>
     <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" 
-                       Color="Color.Inherit" 
-                       Edge="Edge.Start"
-                       OnClick="@(() => DrawerToggle())" />
+        <AuthorizeView>
+            <Authorized>
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" 
+                               Color="Color.Inherit" 
+                               Edge="Edge.Start"
+                               OnClick="@(() => DrawerToggle())" />
+            </Authorized>
+        </AuthorizeView>
         <MudText Typo="Typo.h6">CIPP - Cyberdrain Improved Partner Portal</MudText>
         <MudSpacer />
+        <AuthorizeView>
+            <Authorized>
+                <TenantSelector />
+            </Authorized>
+        </AuthorizeView>
         <LoginDisplay />
         <MudIconButton Icon="@DarkLightModeButtonIcon" 
                        Color="Color.Inherit" 
@@ -16,14 +25,18 @@
                        OnClick="@(() => ThemeService.ToggleThemeAsync())" />
     </MudAppBar>
     
-    <MudDrawer @bind-Open="@_drawerOpen" 
-               ClipMode="DrawerClipMode.Always" 
-               Elevation="1">
-        <div class="pa-4">
-            <MudText Typo="Typo.h6" Color="Color.Primary">Navigation</MudText>
-        </div>
-        <NavMenu />
-    </MudDrawer>
+    <AuthorizeView>
+        <Authorized>
+            <MudDrawer @bind-Open="@_drawerOpen" 
+                       ClipMode="DrawerClipMode.Always" 
+                       Elevation="1">
+                <div class="pa-4">
+                    <MudText Typo="Typo.h6" Color="Color.Primary">Navigation</MudText>
+                </div>
+                <NavMenu />
+            </MudDrawer>
+        </Authorized>
+    </AuthorizeView>
     
     <MudMainContent>
         <div class="pa-4">

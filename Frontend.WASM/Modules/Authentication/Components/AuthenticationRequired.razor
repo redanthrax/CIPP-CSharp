@@ -3,39 +3,51 @@
         @ChildContent
     </Authorized>
     <NotAuthorized>
-        <MudContainer MaxWidth="MaxWidth.Small" Class="mt-16">
-            <MudPaper Elevation="4" Class="pa-8 text-center">
-                <MudIcon Icon="@Icons.Material.Filled.Lock" 
-                         Size="Size.Large" 
-                         Color="Color.Primary" 
-                         Class="mb-4" />
-                <MudText Typo="Typo.h4" Class="mb-4">
-                    Authentication Required
-                </MudText>
-                <MudText Typo="Typo.body1" Class="mb-6">
-                    You need to be signed in to access this page.
-                </MudText>
-                <MudButton Variant="Variant.Filled" 
-                           Color="Color.Primary"
-                           StartIcon="@Icons.Material.Filled.Login"
-                           OnClick="@SignIn">
-                    Sign In
-                </MudButton>
-            </MudPaper>
-        </MudContainer>
+        <div class="auth-container">
+            <MudContainer MaxWidth="MaxWidth.Small">
+                <MudPaper Elevation="8" Class="auth-card pa-12 text-center">
+                    <MudIcon Icon="@Icons.Material.Filled.Lock" 
+                             Size="Size.Large" 
+                             Color="Color.Primary" 
+                             Class="auth-icon mb-6" />
+                    <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Primary">
+                        CIPP
+                    </MudText>
+                    <MudText Typo="Typo.h6" Class="mb-2">
+                        Authentication Required
+                    </MudText>
+                    <MudText Typo="Typo.body1" Class="mb-8" Style="color: var(--cipp-text-color);">
+                        You need to be signed in with your Microsoft account to access this page.
+                    </MudText>
+                    <MudButton Variant="Variant.Filled" 
+                               Color="Color.Primary"
+                               Size="Size.Large"
+                               StartIcon="@Icons.Material.Filled.Login"
+                               OnClick="@SignIn"
+                               Class="px-8">
+                        Sign In with Microsoft
+                    </MudButton>
+                </MudPaper>
+            </MudContainer>
+        </div>
     </NotAuthorized>
     <Authorizing>
-        <MudContainer MaxWidth="MaxWidth.Small" Class="mt-16">
-            <MudPaper Elevation="4" Class="pa-8 text-center">
-                <MudProgressCircular Size="Size.Large" 
-                                     Indeterminate="true" 
-                                     Color="Color.Primary"
-                                     Class="mb-4" />
-                <MudText Typo="Typo.h6">
-                    Authenticating...
-                </MudText>
-            </MudPaper>
-        </MudContainer>
+        <div class="auth-container">
+            <MudContainer MaxWidth="MaxWidth.Small">
+                <MudPaper Elevation="8" Class="auth-card pa-12 text-center">
+                    <MudProgressCircular Size="Size.Large" 
+                                         Indeterminate="true" 
+                                         Color="Color.Primary"
+                                         Class="mb-6" />
+                    <MudText Typo="Typo.h6" Class="mb-2">
+                        Authenticating...
+                    </MudText>
+                    <MudText Typo="Typo.body2" Style="color: var(--cipp-text-color);">
+                        Please wait while we verify your credentials.
+                    </MudText>
+                </MudPaper>
+            </MudContainer>
+        </div>
     </Authorizing>
 </AuthorizeView>
 

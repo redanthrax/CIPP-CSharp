@@ -90,16 +90,6 @@
                                     </MudText>
                                 </CellTemplate>
                             </PropertyColumn>
-                            <PropertyColumn Property="x => x.TenantId" Title="Tenant ID">
-                                <CellTemplate>
-                                    <MudTextField Value="@context.Item.TenantId" 
-                                                  ReadOnly="true" 
-                                                  Variant="Variant.Text"
-                                                  Adornment="Adornment.End"
-                                                  AdornmentIcon="@Icons.Material.Filled.ContentCopy"
-                                                  OnAdornmentClick="@(() => CopyToClipboard(context.Item.TenantId))" />
-                                </CellTemplate>
-                            </PropertyColumn>
                             <TemplateColumn Title="Actions">
                                 <CellTemplate>
                                     <MudButtonGroup Size="Size.Small" Variant="Variant.Outlined">
@@ -203,10 +193,4 @@
         "deleted" => Color.Error,
         _ => Color.Default
     };
-
-    private void CopyToClipboard(string text) {
-        // Note: This would require JSInterop in a real implementation
-        Logger.LogInformation("Copy to clipboard requested for: {Text}", text);
-        // TODO: Implement clipboard copy functionality
-    }
 }

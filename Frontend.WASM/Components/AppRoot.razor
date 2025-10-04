@@ -13,31 +13,53 @@
                 <NotAuthorized>
                     @if (context.User.Identity?.IsAuthenticated != true)
                     {
-                        <LayoutView Layout="@typeof(Layout.MainLayout)">
-                            <div class="d-flex justify-center align-center pa-8">
-                                <MudPaper Class="pa-8 text-center">
-                                    <MudIcon Icon="@Icons.Material.Filled.Login" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
-                                    <MudText Typo="Typo.h5" Class="mb-4">Authentication Required</MudText>
-                                    <MudText Typo="Typo.body1" Class="mb-6">Please sign in to continue.</MudText>
-                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/authentication/login">
-                                        Sign In
+                        <div class="auth-container">
+                            <MudContainer MaxWidth="MaxWidth.Small">
+                                <MudPaper Elevation="8" Class="auth-card pa-12 text-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Primary" Class="auth-icon mb-6" />
+                                    <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Primary">CIPP</MudText>
+                                    <MudText Typo="Typo.h6" Class="mb-2">Authentication Required</MudText>
+                                    <MudText Typo="Typo.body1" Class="mb-8" Style="color: var(--cipp-text-color);">Please sign in with your Microsoft account to continue accessing the Cyberdrain Improved Partner Portal.</MudText>
+                                    <MudButton Variant="Variant.Filled" 
+                                               Color="Color.Primary" 
+                                               Size="Size.Large"
+                                               StartIcon="@Icons.Material.Filled.Login"
+                                               Href="/authentication/login"
+                                               Class="px-8">
+                                        Sign In with Microsoft
                                     </MudButton>
                                 </MudPaper>
-                            </div>
-                        </LayoutView>
+                            </MudContainer>
+                        </div>
                     }
                     else
                     {
-                        <div class="pa-4">
-                            <MudAlert Severity="Severity.Warning">
-                                You are not authorized to access this page.
-                            </MudAlert>
+                        <div class="auth-container">
+                            <MudContainer MaxWidth="MaxWidth.Small">
+                                <MudPaper Elevation="8" Class="auth-card pa-12 text-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.Block" Size="Size.Large" Color="Color.Warning" Class="auth-icon mb-6" />
+                                    <MudText Typo="Typo.h5" Class="mb-4">Access Denied</MudText>
+                                    <MudText Typo="Typo.body1" Class="mb-8" Style="color: var(--cipp-text-color);">You are not authorized to access this page. Please contact your administrator if you believe this is an error.</MudText>
+                                    <MudButton Variant="Variant.Outlined" 
+                                               Color="Color.Primary" 
+                                               StartIcon="@Icons.Material.Filled.Home"
+                                               Href="/">
+                                        Return to Dashboard
+                                    </MudButton>
+                                </MudPaper>
+                            </MudContainer>
                         </div>
                     }
                 </NotAuthorized>
                 <Authorizing>
-                    <div class="d-flex justify-center align-center" style="height: 100vh;">
-                        <MudProgressCircular Size="Size.Large" Indeterminate="true" />
+                    <div class="auth-container">
+                        <MudContainer MaxWidth="MaxWidth.Small">
+                            <MudPaper Elevation="8" Class="auth-card pa-12 text-center">
+                                <MudProgressCircular Size="Size.Large" Indeterminate="true" Color="Color.Primary" Class="mb-6" />
+                                <MudText Typo="Typo.h6" Class="mb-2">Authenticating...</MudText>
+                                <MudText Typo="Typo.body2" Style="color: var(--cipp-text-color);">Please wait while we verify your credentials.</MudText>
+                            </MudPaper>
+                        </MudContainer>
                     </div>
                 </Authorizing>
             </AuthorizeRouteView>
@@ -45,14 +67,21 @@
         </Found>
         <NotFound>
             <PageTitle>Not found - CIPP</PageTitle>
-            <LayoutView Layout="@typeof(Layout.MainLayout)">
-                <div class="pa-8 text-center">
-                    <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Secondary" Class="mb-4" />
-                    <MudText Typo="Typo.h4" Class="mb-4">Page Not Found</MudText>
-                    <MudText Typo="Typo.body1" Class="mb-6">Sorry, there's nothing at this address.</MudText>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">Go to Dashboard</MudButton>
-                </div>
-            </LayoutView>
+            <div class="auth-container">
+                <MudContainer MaxWidth="MaxWidth.Small">
+                    <MudPaper Elevation="8" Class="auth-card pa-12 text-center">
+                        <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Secondary" Class="auth-icon mb-6" />
+                        <MudText Typo="Typo.h4" Class="mb-4">Page Not Found</MudText>
+                        <MudText Typo="Typo.body1" Class="mb-8" Style="color: var(--cipp-text-color);">Sorry, the page you're looking for doesn't exist or has been moved.</MudText>
+                        <MudButton Variant="Variant.Filled" 
+                                   Color="Color.Primary" 
+                                   StartIcon="@Icons.Material.Filled.Home"
+                                   Href="/">
+                            Go to Dashboard
+                        </MudButton>
+                    </MudPaper>
+                </MudContainer>
+            </div>
         </NotFound>
     </Router>
 </CascadingAuthenticationState>

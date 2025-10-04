@@ -1,0 +1,21 @@
+@using CIPP.Frontend.WASM.Modules.Authentication.Services
+<MudAutocomplete T="List<TenantDto>" Value="@_tenants" />
+
+@code {
+    private List<TenantDto> _tenants = new List<TenantDto>(){
+        new TenantDto(Guid.Empty, "Loading...", "", "", "", DateTime.MinValue, "", null)
+    };
+    private TenantDto? _selectedTenant;
+
+    [Inject] private ICippApiClient _apiClient { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await _apiClient.GetPagedAsync<TenantDto>(endpoint: "tenants", pageSize: 1000);
+        if (result == null || result.Items == null)
+        {
+            _tenants = new List<TenantDto>();
+            return;
+        }
+    }
+}

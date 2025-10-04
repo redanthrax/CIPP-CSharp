@@ -9,6 +9,7 @@ public interface IThemeService {
     event Action? OnThemeChanged;
     Task InitializeAsync();
     Task ToggleThemeAsync();
+    Task SetThemeAsync(bool isDarkMode);
 }
 
 public class ThemeService : IThemeService {
@@ -26,45 +27,111 @@ public class ThemeService : IThemeService {
 
     public async Task InitializeAsync() {
         try {
-            _isDarkMode = await _jsRuntime.InvokeAsync<bool>("localStorage.getItem", "darkMode");
-            _currentTheme = _isDarkMode ? GetDarkTheme() : new MudTheme();
+            var storedTheme = await _jsRuntime.InvokeAsync<string?>("localStorageHelper.getItem", "cipp-theme");
+            _isDarkMode = storedTheme == "dark";
+            _currentTheme = _isDarkMode ? GetDarkTheme() : GetLightTheme();
         }
         catch {
             _isDarkMode = false;
-            _currentTheme = new MudTheme();
+            _currentTheme = GetLightTheme();
         }
+        await UpdateThemeAttributeAsync();
         OnThemeChanged?.Invoke();
     }
 
     public async Task ToggleThemeAsync() {
         _isDarkMode = !_isDarkMode;
-        _currentTheme = _isDarkMode ? GetDarkTheme() : new MudTheme();
+        _currentTheme = _isDarkMode ? GetDarkTheme() : GetLightTheme();
         
         try {
-            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "darkMode", _isDarkMode);
+            var themeValue = _isDarkMode ? "dark" : "light";
+            await _jsRuntime.InvokeVoidAsync("localStorageHelper.setItem", "cipp-theme", themeValue);
         }
-        catch {
-            // Ignore if localStorage isn't available
-        }
+        catch { }
         
+        await UpdateThemeAttributeAsync();
         OnThemeChanged?.Invoke();
     }
 
+    public async Task SetThemeAsync(bool isDarkMode) {
+        if (_isDarkMode == isDarkMode) return;
+        
+        _isDarkMode = isDarkMode;
+        _currentTheme = _isDarkMode ? GetDarkTheme() : GetLightTheme();
+        
+        try {
+            var themeValue = _isDarkMode ? "dark" : "light";
+            await _jsRuntime.InvokeVoidAsync("localStorageHelper.setItem", "cipp-theme", themeValue);
+        }
+        catch { }
+        
+        await UpdateThemeAttributeAsync();
+        OnThemeChanged?.Invoke();
+    }
+
+    private async Task UpdateThemeAttributeAsync() {
+        try {
+            var themeValue = _isDarkMode ? "dark" : "light";
+            await _jsRuntime.InvokeVoidAsync("localStorageHelper.setThemeAttribute", themeValue);
+        }
+        catch { }
+    }
+
+    private MudTheme GetLightTheme() => new MudTheme {
+        PaletteLight = new PaletteLight {
+            Black = "#110e00",
+            Background = "#ffffff",
+            BackgroundGray = "#f5f5f5",
+            Surface = "#ffffff",
+            DrawerBackground = "#ffffff",
+            DrawerText = "rgba(0,0,0, 0.87)",
+            AppbarBackground = "#f77f00",
+            AppbarText = "#ffffff",
+            TextPrimary = "rgba(0,0,0, 0.87)",
+            TextSecondary = "rgba(0,0,0, 0.60)",
+            ActionDefault = "#adadb1",
+            ActionDisabled = "rgba(0,0,0, 0.26)",
+            ActionDisabledBackground = "rgba(0,0,0, 0.12)",
+            Primary = "#f77f00",
+            PrimaryContrastText = "#ffffff",
+            Secondary = "#fcbf49",
+            SecondaryContrastText = "#000000",
+            Tertiary = "#f9844a",
+            TertiaryContrastText = "#ffffff",
+            Info = "#2196f3",
+            Success = "#4caf50",
+            Warning = "#ff9800",
+            Error = "#f44336",
+            Dark = "#424242"
+        }
+    };
+
     private MudTheme GetDarkTheme() => new MudTheme {
         PaletteLight = new PaletteLight {
-            Black = "#27272f",
-            Background = "#32333d",
-            BackgroundGray = "#27272f",
-            Surface = "#373740",
-            DrawerBackground = "#27272f",
-            DrawerText = "rgba(255,255,255, 0.50)",
-            AppbarBackground = "#373740",
-            AppbarText = "rgba(255,255,255, 0.70)",
-            TextPrimary = "rgba(255,255,255, 0.70)",
-            TextSecondary = "rgba(255,255,255, 0.50)",
-            ActionDefault = "#adadb1",
+            Black = "#1a1a1a",
+            Background = "#212121",
+            BackgroundGray = "#2e2e2e",
+            Surface = "#2e2e2e",
+            DrawerBackground = "#1a1a1a",
+            DrawerText = "rgba(255,255,255, 0.70)",
+            AppbarBackground = "#1a1a1a",
+            AppbarText = "rgba(255,255,255, 0.87)",
+            TextPrimary = "rgba(255,255,255, 0.87)",
+            TextSecondary = "rgba(255,255,255, 0.60)",
+            ActionDefault = "#ffffff",
             ActionDisabled = "rgba(255,255,255, 0.26)",
-            ActionDisabledBackground = "rgba(255,255,255, 0.12)"
+            ActionDisabledBackground = "rgba(255,255,255, 0.12)",
+            Primary = "#f77f00",
+            PrimaryContrastText = "#ffffff",
+            Secondary = "#fcbf49",
+            SecondaryContrastText = "#000000",
+            Tertiary = "#f9844a",
+            TertiaryContrastText = "#ffffff",
+            Info = "#2196f3",
+            Success = "#4caf50",
+            Warning = "#ff9800",
+            Error = "#f44336",
+            Dark = "#424242"
         }
     };
 }

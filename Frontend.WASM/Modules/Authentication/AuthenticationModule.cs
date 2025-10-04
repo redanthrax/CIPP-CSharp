@@ -1,12 +1,11 @@
 using CIPP.Frontend.WASM.Modules.Authentication.Handlers;
 using CIPP.Frontend.WASM.Modules.Authentication.Interfaces;
 using CIPP.Frontend.WASM.Modules.Authentication.Services;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
 namespace CIPP.Frontend.WASM.Modules.Authentication;
 
-public static class AuthenticationExtensions {
-    public static IServiceCollection AddCippAuthentication(this IServiceCollection services, IConfiguration configuration) {
+public static class AuthenticationModule {
+    public static IServiceCollection AddAuthenticationModule(this IServiceCollection services, IConfiguration configuration) {
         services.AddMsalAuthentication(options => {
             configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
             var scopes = configuration.GetSection("Api:Scopes").Get<string[]>();
