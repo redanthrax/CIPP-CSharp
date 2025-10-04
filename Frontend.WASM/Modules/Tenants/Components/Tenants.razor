@@ -1,7 +1,6 @@
 @page "/tenants"
 @attribute [Authorize]
 @inject ICippApiClient ApiClient
-@inject ILogger<Tenants> Logger
 
 <PageTitle>Tenants - CIPP</PageTitle>
 
@@ -159,8 +158,6 @@
         StateHasChanged();
 
         try {
-            Logger.LogInformation("Loading tenants with noCache: {NoCache}", noCache);
-            
             var pagedResponse = await ApiClient.GetPagedAsync<TenantDto>(
                 endpoint: "/tenants", 
                 noCache: noCache,
@@ -170,14 +167,11 @@
             if (pagedResponse?.Items != null) {
                 _tenantsList = pagedResponse.Items;
                 _lastUpdated = DateTime.Now;
-                Logger.LogInformation("Loaded {Count} tenants", _tenantsList.Count);
             } else {
                 _tenantsList = new List<TenantDto>();
-                Logger.LogWarning("Received null or empty tenant response");
             }
         }
         catch (Exception ex) {
-            Logger.LogError(ex, "Failed to load tenants");
             _error = ex.Message;
             _tenantsList = new List<TenantDto>();
         }
