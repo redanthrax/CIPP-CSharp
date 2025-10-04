@@ -8,6 +8,10 @@ public static class SwaggerExtensions
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
+                // Configure v1 endpoint
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "CIPP API V1");
+                
+                // OAuth configuration
                 options.OAuthClientId(app.Configuration["Authentication:AzureAd:ClientId"]);
                 options.OAuthScopes(app.Configuration["Authentication:AzureAd:Scope"]);
                 options.OAuthUsePkce();

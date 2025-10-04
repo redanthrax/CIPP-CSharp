@@ -16,6 +16,8 @@ public class SwaggerModule
             var tenantId = configuration["Authentication:AzureAd:TenantId"];
             var clientId = configuration["Authentication:AzureAd:ClientId"];
             var scope = configuration["Authentication:AzureAd:Scope"] ?? "api://default";
+            
+            // Configure security definitions
             options.AddSecurityDefinition("EntraId", new OpenApiSecurityScheme
             {
                 Type = SecuritySchemeType.OAuth2,
@@ -65,11 +67,22 @@ public class SwaggerModule
                     Array.Empty<string>()
                 }
             });
+            
+            // Configure API version (v1 only for now)
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "CIPP API",
                 Version = "v1",
                 Description = "Cyberdrain Improved Partner Portal API"
+            });
+            
+            // Configure API versioning for Swagger
+            options.DocInclusionPredicate((version, apiDesc) =>
+            {
+                if (apiDesc.GroupName == null) 
+                    return version == "v1"; // Default unversioned endpoints to v1
+                    
+                return apiDesc.GroupName == version;
             });
         });
     }

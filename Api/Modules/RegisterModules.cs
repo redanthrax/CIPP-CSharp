@@ -1,4 +1,5 @@
 using System.Reflection;
+using Asp.Versioning;
 public static class RegisterModules {
     public static void AddModules(this IServiceCollection services, IConfiguration configuration)
     {
@@ -58,6 +59,19 @@ public static class RegisterModules {
             null);
         return registerServicesMethod != null && configureEndpointsMethod != null;
     }
+    
+    private static bool ShouldExcludeFromVersioning(Type moduleType)
+    {
+        var excludedNamespaces = new[] 
+        {
+            "Frontend",
+            "Swagger",
+            "Versioning" // Don't version the versioning module itself
+        };
+        
+        return excludedNamespaces.Any(excluded => 
+            moduleType.Namespace?.Contains(excluded, StringComparison.OrdinalIgnoreCase) == true);
+    }
     private static void RegisterModule(IServiceCollection services, IConfiguration configuration, Type moduleType)
     {
         try
@@ -84,11 +98,30 @@ public static class RegisterModules {
             {
                 throw new InvalidOperationException($"Failed to create instance of module {moduleType.Name}");
             }
+            
             var moduleName = moduleType.Name.EndsWith("Module") 
                 ? moduleType.Name.Substring(0, moduleType.Name.Length - 6).ToLowerInvariant()
                 : moduleType.Name.ToLowerInvariant();
-            var moduleGroup = app.MapGroup($"/api/{moduleName}")
-                .WithTags(moduleType.Name.Replace("Module", ""));
+                
+            var shouldExcludeFromVersioning = ShouldExcludeFromVersioning(moduleType);
+            RouteGroupBuilder moduleGroup;
+            if (shouldExcludeFromVersioning)
+            {
+                moduleGroup = app.MapGroup($"/api/{moduleName}")
+                    .WithTags(moduleType.Name.Replace("Module", ""));
+            }
+            else
+            {
+                var versionSet = app.NewApiVersionSet()
+                    .HasApiVersion(new ApiVersion(1, 0))
+                    .ReportApiVersions()
+                    .Build();
+                    
+                moduleGroup = app.MapGroup($"/api/v{{version:apiVersion}}/{moduleName}")
+                    .WithApiVersionSet(versionSet)
+                    .WithTags(moduleType.Name.Replace("Module", ""));
+            }
+            
             var configureEndpointsMethod = moduleType.GetMethod("ConfigureEndpoints");
             configureEndpointsMethod?.Invoke(moduleInstance, new object[] { moduleGroup });
         }
