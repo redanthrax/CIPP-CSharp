@@ -1,4 +1,5 @@
 using Microsoft.OpenApi.Models;
+using CIPP.Api.Extensions;
 namespace CIPP.Api.Modules.Swagger;
 public class SwaggerModule
 {
@@ -79,8 +80,11 @@ public class SwaggerModule
             // Configure API versioning for Swagger
             options.DocInclusionPredicate((version, apiDesc) =>
             {
+                if (apiDesc.ActionDescriptor.EndpointMetadata.OfType<InternalAttribute>().Any())
+                    return false;
+                    
                 if (apiDesc.GroupName == null) 
-                    return version == "v1"; // Default unversioned endpoints to v1
+                    return version == "v1";
                     
                 return apiDesc.GroupName == version;
             });

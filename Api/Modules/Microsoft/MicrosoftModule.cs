@@ -1,6 +1,7 @@
 using CIPP.Api.Modules.Microsoft.Services;
+using CIPP.Api.Extensions;
 namespace CIPP.Api.Modules.Microsoft;
-public class MicrosoftModule
+public class MicrosoftModule : IInternalModule
 {
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {

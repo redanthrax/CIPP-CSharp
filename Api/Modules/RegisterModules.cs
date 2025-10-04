@@ -1,5 +1,6 @@
 using System.Reflection;
 using Asp.Versioning;
+using CIPP.Api.Extensions;
 public static class RegisterModules {
     public static void AddModules(this IServiceCollection services, IConfiguration configuration)
     {
@@ -62,11 +63,14 @@ public static class RegisterModules {
     
     private static bool ShouldExcludeFromVersioning(Type moduleType)
     {
+        if (typeof(IInternalModule).IsAssignableFrom(moduleType))
+            return true;
+            
         var excludedNamespaces = new[] 
         {
             "Frontend",
             "Swagger",
-            "Versioning" // Don't version the versioning module itself
+            "Versioning"
         };
         
         return excludedNamespaces.Any(excluded => 
@@ -104,11 +108,19 @@ public static class RegisterModules {
                 : moduleType.Name.ToLowerInvariant();
                 
             var shouldExcludeFromVersioning = ShouldExcludeFromVersioning(moduleType);
+            var isInternalModule = typeof(IInternalModule).IsAssignableFrom(moduleType);
+            
             RouteGroupBuilder moduleGroup;
+            
             if (shouldExcludeFromVersioning)
             {
                 moduleGroup = app.MapGroup($"/api/{moduleName}")
                     .WithTags(moduleType.Name.Replace("Module", ""));
+                    
+                if (isInternalModule)
+                {
+                    moduleGroup = moduleGroup.Internal();
+                }
             }
             else
             {
@@ -120,6 +132,11 @@ public static class RegisterModules {
                 moduleGroup = app.MapGroup($"/api/v{{version:apiVersion}}/{moduleName}")
                     .WithApiVersionSet(versionSet)
                     .WithTags(moduleType.Name.Replace("Module", ""));
+                    
+                if (isInternalModule)
+                {
+                    moduleGroup = moduleGroup.Internal();
+                }
             }
             
             var configureEndpointsMethod = moduleType.GetMethod("ConfigureEndpoints");
