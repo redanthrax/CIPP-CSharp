@@ -2,28 +2,27 @@
 
 <AuthorizeView>
     <Authorized>
-        <MudButton Variant="Variant.Text" 
-                   Color="Color.Inherit"
-                   StartIcon="@Icons.Material.Filled.Person"
-                   OnClick="@(() => ShowUserMenu = !ShowUserMenu)">
-            @GetDisplayName(context.User)
-        </MudButton>
-        
-        <MudPopover Open="@ShowUserMenu" 
-                    Fixed="true" 
-                    Class="px-4 pt-4">
-            <div class="d-flex flex-column">
-                <MudText Typo="Typo.body2" Class="mb-2">
-                    @GetUserEmail(context.User)
-                </MudText>
-                <MudDivider Class="mb-2" />
+        <MudMenu>
+            <ActivatorContent>
                 <MudButton Variant="Variant.Text" 
-                           StartIcon="@Icons.Material.Filled.Logout"
-                           OnClick="@SignOut">
-                    Sign Out
+                           Color="Color.Inherit"
+                           StartIcon="@Icons.Material.Filled.Person"
+                           EndIcon="@Icons.Material.Filled.ArrowDropDown">
+                    @GetDisplayName(context.User)
                 </MudButton>
-            </div>
-        </MudPopover>
+            </ActivatorContent>
+            <ChildContent>
+                <div class="px-4 pt-4 pb-2" style="min-width: 200px;">
+                    <MudText Typo="Typo.body2" Class="mb-2">
+                        @GetUserEmail(context.User)
+                    </MudText>
+                    <MudDivider Class="mb-2" />
+                    <MudMenuItem OnClick="@SignOut" Icon="@Icons.Material.Filled.Logout">
+                        Sign Out
+                    </MudMenuItem>
+                </div>
+            </ChildContent>
+        </MudMenu>
     </Authorized>
     <NotAuthorized>
         <MudButton Variant="Variant.Text" 
@@ -36,15 +35,11 @@
 </AuthorizeView>
 
 @code {
-    private bool ShowUserMenu = false;
-
     private async Task SignIn() {
-        ShowUserMenu = false;
         await AuthService.SignInAsync();
     }
 
     private async Task SignOut() {
-        ShowUserMenu = false;
         await AuthService.SignOutAsync();
     }
 

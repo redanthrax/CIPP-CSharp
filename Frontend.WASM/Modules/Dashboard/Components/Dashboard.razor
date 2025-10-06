@@ -123,27 +123,25 @@
         _error = null;
 
         try {
-            Logger.LogInformation("Loading dashboard data");
+            Logger.LogInformation(message: "Loading dashboard data");
             
-            // Load dashboard stats
-            var statsResponse = await ApiClient.GetAsync<DashboardStats>("/dashboard/stats");
+            Response<DashboardStats>? statsResponse = await ApiClient.GetAsync<DashboardStats>("/dashboard/stats");
             if (statsResponse.Success) {
                 _stats = statsResponse.Data;
             } else {
-                Logger.LogWarning("Failed to load dashboard stats: {Error}", statsResponse.Message);
+                Logger.LogWarning(message: "Failed to load dashboard stats: {Error}", statsResponse.Message);
                 _error = statsResponse.Message;
             }
 
-            // Load recent activity
-            var activityResponse = await ApiClient.GetAsync<List<ActivityItem>>("/dashboard/activity");
+            Response<List<ActivityItem>>? activityResponse = await ApiClient.GetAsync<List<ActivityItem>>("/dashboard/activity");
             if (activityResponse.Success) {
                 _recentActivity = activityResponse.Data;
             } else {
-                Logger.LogWarning("Failed to load recent activity: {Error}", activityResponse.Message);
+                Logger.LogWarning(message: "Failed to load recent activity: {Error}", activityResponse.Message);
             }
 
         } catch (Exception ex) {
-            Logger.LogError(ex, "Error loading dashboard data");
+            Logger.LogError(ex, message: "Error loading dashboard data");
             _error = "Failed to load dashboard data. Please try again.";
         } finally {
             _loading = false;

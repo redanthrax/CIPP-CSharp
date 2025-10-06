@@ -66,15 +66,10 @@ public static class RegisterModules {
         if (typeof(IInternalModule).IsAssignableFrom(moduleType))
             return true;
             
-        var excludedNamespaces = new[] 
-        {
-            "Frontend",
-            "Swagger",
-            "Versioning"
-        };
-        
-        return excludedNamespaces.Any(excluded => 
-            moduleType.Namespace?.Contains(excluded, StringComparison.OrdinalIgnoreCase) == true);
+        if (typeof(IVersioningExcluded).IsAssignableFrom(moduleType))
+            return true;
+            
+        return false;
     }
     private static void RegisterModule(IServiceCollection services, IConfiguration configuration, Type moduleType)
     {

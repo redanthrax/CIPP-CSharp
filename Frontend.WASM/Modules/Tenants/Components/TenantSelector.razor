@@ -53,7 +53,8 @@
 
         try
         {
-            var result = await _apiClient.GetPagedAsync<TenantDto>(endpoint: "tenants", pageNumber: 1, pageSize: 1000);
+            PagedResponse<TenantDto>? result = 
+                await _apiClient.GetPagedAsync<TenantDto>(endpoint: "tenants", pageNumber: 1, pageSize: 1000);
             if (result?.Items != null && result.Items.Any())
             {
                 _tenants = result.Items.ToList();
@@ -65,7 +66,7 @@
                 _hasError = result == null;
             }
         }
-        catch (Exception ex)
+        catch
         {
             _tenants = new List<TenantDto>();
             _hasError = true;
@@ -83,14 +84,14 @@
 
         try
         {
-            await Task.Delay(100, cancellationToken);
+            await Task.Delay(millisecondsDelay: 100, cancellationToken);
             if (string.IsNullOrWhiteSpace(searchValue))
             {
                 return _tenants;
             }
 
-            var searchTerm = searchValue.ToLowerInvariant();
-            var filteredTenants = _tenants.Where(t => 
+            string? searchTerm = searchValue.ToLowerInvariant();
+            IEnumerable<TenantDto>? filteredTenants = _tenants.Where(t => 
                 (t.DisplayName?.ToLowerInvariant().Contains(searchTerm) == true) ||
                 (t.DefaultDomainName?.ToLowerInvariant().Contains(searchTerm) == true) ||
                 (t.TenantId?.ToLowerInvariant().Contains(searchTerm) == true)
@@ -102,7 +103,7 @@
         {
             return Enumerable.Empty<TenantDto>();
         }
-        catch (Exception ex)
+        catch
         {
             return _tenants;
         }

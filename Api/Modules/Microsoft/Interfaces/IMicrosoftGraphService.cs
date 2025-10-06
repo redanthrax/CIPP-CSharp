@@ -1,6 +1,6 @@
 using Microsoft.Graph.Beta;
 using Microsoft.Graph.Beta.Models;
-namespace CIPP.Api.Modules.Microsoft.Services;
+namespace CIPP.Api.Modules.Microsoft.Interfaces;
 public interface IMicrosoftGraphService
 {
     Task<GraphServiceClient> GetGraphServiceClientAsync(string? tenantId = null);
@@ -13,7 +13,6 @@ public interface IMicrosoftGraphService
     Task<GroupCollectionResponse?> GetGroupsAsync(string? tenantId = null, string? filter = null, int? top = null);
     Task<ServicePrincipalCollectionResponse?> GetServicePrincipalsAsync(string? tenantId = null, string? filter = null, int? top = null);
     
-    // Partner/Customer tenant methods
     Task<ContractCollectionResponse?> GetPartnerTenantsAsync(string? filter = null, int? top = null, int? skip = null);
     Task<Contract?> GetPartnerTenantAsync(string contractId);
     Task<DomainCollectionResponse?> GetTenantDomainsAsync(string tenantId, string? filter = null);

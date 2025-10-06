@@ -1,10 +1,12 @@
 using CIPP.Api.Modules.Microsoft.Services;
 using CIPP.Api.Extensions;
+using CIPP.Api.Modules.Microsoft.Interfaces;
 namespace CIPP.Api.Modules.Microsoft;
 public class MicrosoftModule : IInternalModule
 {
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<IGraphExceptionHandler, GraphExceptionHandler>();
         services.AddScoped<IMicrosoftGraphService, MicrosoftGraphService>();
         services.AddHttpClient("Microsoft", client =>
         {

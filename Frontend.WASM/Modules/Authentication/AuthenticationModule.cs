@@ -1,6 +1,7 @@
 using CIPP.Frontend.WASM.Modules.Authentication.Handlers;
 using CIPP.Frontend.WASM.Modules.Authentication.Interfaces;
 using CIPP.Frontend.WASM.Modules.Authentication.Services;
+using CIPP.Frontend.WASM.Services;
 
 namespace CIPP.Frontend.WASM.Modules.Authentication;
 

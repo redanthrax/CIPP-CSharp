@@ -107,7 +107,6 @@ code {
     color: var(--cipp-primary-color);
 }
 
-/* Authentication Pages */
 .auth-container {
     background: linear-gradient(135deg, var(--cipp-bg-color) 0%, var(--cipp-surface-color) 100%);
     min-height: 100vh;

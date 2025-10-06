@@ -1,8 +1,9 @@
 using Asp.Versioning;
+using CIPP.Api.Extensions;
 
 namespace CIPP.Api.Modules.Versioning;
 
-public class VersioningModule {
+public class VersioningModule : IVersioningExcluded {
     public void RegisterServices(IServiceCollection services, IConfiguration configuration) {
         services.AddApiVersioning(options => {
             options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -18,6 +19,5 @@ public class VersioningModule {
 
     public void ConfigureEndpoints(RouteGroupBuilder moduleGroup) {
         // This module doesn't need to register any endpoints
-        // It only configures the versioning services
     }
 }

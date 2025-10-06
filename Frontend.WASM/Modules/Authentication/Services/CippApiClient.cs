@@ -1,4 +1,5 @@
 using CIPP.Frontend.WASM.Modules.Authentication.Interfaces;
+using CIPP.Frontend.WASM.Modules.ApiVersioning.Interfaces;
 using CIPP.Shared.DTOs;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using System.Net.Http.Headers;
@@ -13,6 +14,7 @@ public class CippApiClient : ICippApiClient {
     private readonly IConfiguration _configuration;
     private readonly ILogger<CippApiClient> _logger;
     private readonly IAuthenticationService _authenticationService;
+    private readonly IApiVersionService _apiVersionService;
     private readonly JsonSerializerOptions _jsonOptions;
 
     public CippApiClient(
@@ -20,12 +22,14 @@ public class CippApiClient : ICippApiClient {
         IAccessTokenProvider tokenProvider,
         IConfiguration configuration,
         ILogger<CippApiClient> logger,
-        IAuthenticationService authenticationService) {
+        IAuthenticationService authenticationService,
+        IApiVersionService apiVersionService) {
         _httpClient = httpClient;
         _tokenProvider = tokenProvider;
         _configuration = configuration;
         _logger = logger;
         _authenticationService = authenticationService;
+        _apiVersionService = apiVersionService;
 
         _jsonOptions = new JsonSerializerOptions {
             PropertyNameCaseInsensitive = true,
@@ -56,10 +60,11 @@ public class CippApiClient : ICippApiClient {
         }
     }
 
-    public async Task<Response<T>> GetAsync<T>(string endpoint) {
+    public async Task<Response<T>> GetAsync<T>(string endpoint, string? apiVersion = null) {
         try {
             await PrepareAuthenticatedRequest();
-            var response = await _httpClient.GetAsync(endpoint.TrimStart('/'));
+            var versionedEndpoint = _apiVersionService.GetVersionedUrl(endpoint, apiVersion);
+            var response = await _httpClient.GetAsync(versionedEndpoint);
             var content = await response.Content.ReadAsStringAsync();
             
             if (response.IsSuccessStatusCode) {
@@ -68,7 +73,7 @@ public class CippApiClient : ICippApiClient {
             }
             else {
                 _logger.LogWarning("API returned {StatusCode}: {Content}", response.StatusCode, content);
-                return Response<T>.ErrorResult($"API returned {response.StatusCode}: {response.ReasonPhrase}");
+                return ParseErrorResponse<T>(content, response.StatusCode, response.ReasonPhrase);
             }
         }
         catch (Exception ex) {
@@ -77,10 +82,11 @@ public class CippApiClient : ICippApiClient {
         }
     }
 
-    public async Task<PagedResponse<T>> GetPagedAsync<T>(string endpoint, int pageNumber = 1, int pageSize = 50, bool noCache = false) {
+    public async Task<PagedResponse<T>> GetPagedAsync<T>(string endpoint, int pageNumber = 1, int pageSize = 50, bool noCache = false, string? apiVersion = null) {
         try {
             await PrepareAuthenticatedRequest();
-            var url = $"{endpoint.TrimStart('/')}?pageNumber={pageNumber}&pageSize={pageSize}&noCache={noCache}";
+            var versionedEndpoint = _apiVersionService.GetVersionedUrl(endpoint, apiVersion);
+            var url = $"{versionedEndpoint}?pageNumber={pageNumber}&pageSize={pageSize}&noCache={noCache}";
             _logger.LogDebug("Making paged GET request to {Url}", url);
             
             var response = await _httpClient.GetAsync(url);
@@ -107,15 +113,16 @@ public class CippApiClient : ICippApiClient {
         }
     }
 
-    public async Task<Response<T>> PostAsync<T>(string endpoint, object data) {
+    public async Task<Response<T>> PostAsync<T>(string endpoint, object data, string? apiVersion = null) {
         try {
             await PrepareAuthenticatedRequest();
-            _logger.LogDebug("Making POST request to {Endpoint}", endpoint);
+            var versionedEndpoint = _apiVersionService.GetVersionedUrl(endpoint, apiVersion);
+            _logger.LogDebug("Making POST request to {Endpoint}", versionedEndpoint);
             
             var json = JsonSerializer.Serialize(data, _jsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             
-            var response = await _httpClient.PostAsync(endpoint.TrimStart('/'), content);
+            var response = await _httpClient.PostAsync(versionedEndpoint, content);
             var responseContent = await response.Content.ReadAsStringAsync();
             
             if (response.IsSuccessStatusCode) {
@@ -124,7 +131,7 @@ public class CippApiClient : ICippApiClient {
             }
             else {
                 _logger.LogWarning("POST API returned {StatusCode}: {Content}", response.StatusCode, responseContent);
-                return Response<T>.ErrorResult($"API returned {response.StatusCode}: {response.ReasonPhrase}");
+                return ParseErrorResponse<T>(responseContent, response.StatusCode, response.ReasonPhrase);
             }
         }
         catch (Exception ex) {
@@ -133,15 +140,16 @@ public class CippApiClient : ICippApiClient {
         }
     }
 
-    public async Task<Response<T>> PutAsync<T>(string endpoint, object data) {
+    public async Task<Response<T>> PutAsync<T>(string endpoint, object data, string? apiVersion = null) {
         try {
             await PrepareAuthenticatedRequest();
-            _logger.LogDebug("Making PUT request to {Endpoint}", endpoint);
+            var versionedEndpoint = _apiVersionService.GetVersionedUrl(endpoint, apiVersion);
+            _logger.LogDebug("Making PUT request to {Endpoint}", versionedEndpoint);
             
             var json = JsonSerializer.Serialize(data, _jsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             
-            var response = await _httpClient.PutAsync(endpoint.TrimStart('/'), content);
+            var response = await _httpClient.PutAsync(versionedEndpoint, content);
             var responseContent = await response.Content.ReadAsStringAsync();
             
             if (response.IsSuccessStatusCode) {
@@ -150,7 +158,7 @@ public class CippApiClient : ICippApiClient {
             }
             else {
                 _logger.LogWarning("PUT API returned {StatusCode}: {Content}", response.StatusCode, responseContent);
-                return Response<T>.ErrorResult($"API returned {response.StatusCode}: {response.ReasonPhrase}");
+                return ParseErrorResponse<T>(responseContent, response.StatusCode, response.ReasonPhrase);
             }
         }
         catch (Exception ex) {
@@ -159,12 +167,13 @@ public class CippApiClient : ICippApiClient {
         }
     }
 
-    public async Task<Response<bool>> DeleteAsync(string endpoint) {
+    public async Task<Response<bool>> DeleteAsync(string endpoint, string? apiVersion = null) {
         try {
             await PrepareAuthenticatedRequest();
-            _logger.LogDebug("Making DELETE request to {Endpoint}", endpoint);
+            var versionedEndpoint = _apiVersionService.GetVersionedUrl(endpoint, apiVersion);
+            _logger.LogDebug("Making DELETE request to {Endpoint}", versionedEndpoint);
             
-            var response = await _httpClient.DeleteAsync(endpoint.TrimStart('/'));
+            var response = await _httpClient.DeleteAsync(versionedEndpoint);
             
             if (response.IsSuccessStatusCode) {
                 return Response<bool>.SuccessResult(true, "Resource deleted successfully");
@@ -172,12 +181,53 @@ public class CippApiClient : ICippApiClient {
             else {
                 var content = await response.Content.ReadAsStringAsync();
                 _logger.LogWarning("DELETE API returned {StatusCode}: {Content}", response.StatusCode, content);
-                return Response<bool>.ErrorResult($"API returned {response.StatusCode}: {response.ReasonPhrase}");
+                return ParseErrorResponse<bool>(content, response.StatusCode, response.ReasonPhrase);
             }
         }
         catch (Exception ex) {
             _logger.LogError(ex, "Error calling DELETE {Endpoint}", endpoint);
             return Response<bool>.ErrorResult($"API call failed: {ex.Message}");
         }
+    }
+
+    private static Response<T> ParseErrorResponse<T>(string responseContent, System.Net.HttpStatusCode statusCode, string? reasonPhrase)
+    {
+        try
+        {
+            var errorResponse = JsonSerializer.Deserialize<Response<T>>(responseContent, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            if (errorResponse != null)
+            {
+                return errorResponse;
+            }
+        }
+        catch (JsonException)
+        {
+        }
+
+        var message = $"API returned {statusCode}: {reasonPhrase ?? statusCode.ToString()}";
+        var errors = new List<string>();
+
+        if (!string.IsNullOrEmpty(responseContent))
+        {
+            if (responseContent.TrimStart().StartsWith("<"))
+            {
+                errors.Add($"Server returned HTML response (Status: {statusCode})");
+            }
+            else if (responseContent.Length > 200)
+            {
+                errors.Add($"Response: {responseContent[..200]}...");
+            }
+            else
+            {
+                errors.Add($"Response: {responseContent}");
+            }
+        }
+
+        return Response<T>.ErrorResult(message, errors);
     }
 }

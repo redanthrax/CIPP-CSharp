@@ -2,13 +2,14 @@ using CIPP.Api.Modules.Authorization.Extensions;
 using CIPP.Api.Modules.Authorization.Endpoints;
 using CIPP.Api.Modules.Authorization.Interfaces;
 using CIPP.Api.Modules.Authorization.Services;
+using CIPP.Api.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using System.Reflection;
 using DispatchR.Extensions;
 
 namespace CIPP.Api.Modules.Authorization;
 
-public class AuthorizationModule {
+public class AuthorizationModule : IInternalModule {
     public void RegisterServices(IServiceCollection services, IConfiguration configuration) {
         services.AddHttpContextAccessor();
         services.AddDispatchR(Assembly.GetExecutingAssembly(), withPipelines: true, withNotifications: true);

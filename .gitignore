@@ -23,10 +23,6 @@ dev.bru
 [Rr]elease/
 [Rr]eleases/
 
-# Launch settings (may contain sensitive URLs)
-Properties/launchSettings.json
-**/Properties/launchSettings.json
-
 # Secret files
 *.secrets
 *.secret

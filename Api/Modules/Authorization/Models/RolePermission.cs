@@ -15,7 +15,6 @@ public class RolePermission : IEntityConfiguration<RolePermission> {
 
     public static void Configure(ModelBuilder modelBuilder) {
         modelBuilder.Entity<RolePermission>(entity => {
-            // Composite primary key
             entity.HasKey(e => new { e.RoleId, e.PermissionId });
             
             entity.Property(e => e.CreatedAt)
@@ -25,7 +24,6 @@ public class RolePermission : IEntityConfiguration<RolePermission> {
                 .IsRequired()
                 .HasMaxLength(100);
 
-            // Foreign key relationships
             entity.HasOne(e => e.Role)
                 .WithMany(r => r.RolePermissions)
                 .HasForeignKey(e => e.RoleId)

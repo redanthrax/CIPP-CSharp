@@ -1,8 +1,10 @@
 using CIPP.Api.Modules.Authentication.ApiKey;
 using CIPP.Api.Modules.Authentication.EntraId;
+using CIPP.Api.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 namespace CIPP.Api.Modules.Authentication;
-public class AuthenticationModule
+
+public class AuthenticationModule : IInternalModule
 {
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
@@ -19,9 +21,6 @@ public class AuthenticationModule
     }
     public void ConfigureEndpoints(RouteGroupBuilder moduleGroup)
     {
-        moduleGroup.MapPost("/test-auth", () => "Authentication module loaded")
-            .WithName("TestAuth")
-            .WithSummary("Test authentication module")
-            .RequireAuthorization("CombinedAuth");
+        // No endpoints to configure for authentication module
     }
 }

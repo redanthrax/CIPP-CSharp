@@ -1,7 +1,7 @@
 using Microsoft.OpenApi.Models;
 using CIPP.Api.Extensions;
 namespace CIPP.Api.Modules.Swagger;
-public class SwaggerModule
+public class SwaggerModule : IVersioningExcluded
 {
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
@@ -18,7 +18,6 @@ public class SwaggerModule
             var clientId = configuration["Authentication:AzureAd:ClientId"];
             var scope = configuration["Authentication:AzureAd:Scope"] ?? "api://default";
             
-            // Configure security definitions
             options.AddSecurityDefinition("EntraId", new OpenApiSecurityScheme
             {
                 Type = SecuritySchemeType.OAuth2,
@@ -69,7 +68,6 @@ public class SwaggerModule
                 }
             });
             
-            // Configure API version (v1 only for now)
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "CIPP API",
@@ -77,7 +75,6 @@ public class SwaggerModule
                 Description = "Cyberdrain Improved Partner Portal API"
             });
             
-            // Configure API versioning for Swagger
             options.DocInclusionPredicate((version, apiDesc) =>
             {
                 if (apiDesc.ActionDescriptor.EndpointMetadata.OfType<InternalAttribute>().Any())

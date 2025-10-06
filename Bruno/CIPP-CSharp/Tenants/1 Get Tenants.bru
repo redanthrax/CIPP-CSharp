@@ -1,0 +1,29 @@
+meta {
+  name: Get Tenants
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/tenants?pageNumber=1&pageSize=50
+  body: none
+  auth: inherit
+}
+
+params:query {
+  pageNumber: 1
+  pageSize: 50
+  ~filter: 
+  ~sortBy: DisplayName
+  ~sortDescending: false
+  ~noCache: false
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+settings {
+  encodeUrl: true
+}

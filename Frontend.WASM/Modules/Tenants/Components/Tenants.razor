@@ -1,6 +1,8 @@
 @page "/tenants"
 @attribute [Authorize]
 @inject ICippApiClient ApiClient
+@inject ILogger<Tenants> Logger
+@inject INotificationService NotificationService
 
 <PageTitle>Tenants - CIPP</PageTitle>
 
@@ -158,7 +160,7 @@
         StateHasChanged();
 
         try {
-            var pagedResponse = await ApiClient.GetPagedAsync<TenantDto>(
+            PagedResponse<TenantDto>? pagedResponse = await ApiClient.GetPagedAsync<TenantDto>(
                 endpoint: "/tenants", 
                 noCache: noCache,
                 pageSize: 100

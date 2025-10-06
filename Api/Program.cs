@@ -5,14 +5,18 @@ using Hangfire.Redis.StackExchange;
 using Microsoft.EntityFrameworkCore;
 using Prometheus;
 using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
+
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
     .CreateLogger();
+
 builder.Host.UseSerilog();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(connectionString);
@@ -47,7 +51,6 @@ builder.Services.AddHangfireServer(options =>
     options.SchedulePollingInterval = TimeSpan.FromSeconds(15);
 });
 
-// Add CORS for WASM frontend
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 var allowCredentials = builder.Configuration.GetValue<bool>("Cors:AllowCredentials", false);
 

@@ -2,10 +2,10 @@ using CIPP.Api.Data;
 using CIPP.Api.Modules.Tenants.Interfaces;
 using CIPP.Api.Modules.Tenants.Models;
 using CIPP.Api.Modules.Tenants.Queries;
-using CIPP.Api.Modules.Microsoft.Services;
 using CIPP.Shared.DTOs;
 using Microsoft.EntityFrameworkCore;
 using DispatchR.Abstractions.Send;
+using CIPP.Api.Modules.Microsoft.Interfaces;
 
 namespace CIPP.Api.Modules.Tenants.Handlers;
 

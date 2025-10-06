@@ -1,0 +1,20 @@
+meta {
+  name: Sync Tenant From Graph
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/v1/tenants/{{tenantGuid}}/sync
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+vars:pre-request {
+  tenantGuid: {{exampleTenant}}
+}
