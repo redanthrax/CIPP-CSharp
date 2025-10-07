@@ -1,0 +1,27 @@
+<MudNavMenu>
+    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
+        Dashboard
+    </MudNavLink>
+    <MudNavLink Href="/tenants" Icon="@Icons.Material.Filled.Business">
+        Tenants
+    </MudNavLink>
+    <MudNavGroup Title="CIPP">
+        <MudNavLink Href="/cipp/settings" Icon="@Icons.Material.Filled.Settings">
+            Application Settings
+        </MudNavLink>
+        <MudNavLink Href="/cipp/usersroles" Icon="@Icons.Material.Filled.Person">
+            Users and Roles
+        </MudNavLink>
+    </MudNavGroup>
+</MudNavMenu>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

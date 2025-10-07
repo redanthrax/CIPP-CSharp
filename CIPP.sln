@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIPP.Api", "Api\CIPP.Api.cs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIPP.Shared", "Shared\CIPP.Shared.csproj", "{62451B76-E393-4902-88EF-5597F2CD02D3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend.WASM", "Frontend.WASM", "{30139C1C-8028-2303-5CCC-64EE119A48CD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{30139C1C-8028-2303-5CCC-64EE119A48CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIPP.Frontend.WASM", "Frontend.WASM\CIPP.Frontend.WASM.csproj", "{EFAC44E2-7B87-4618-BE22-E268838EF5A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIPP.Frontend", "Frontend\CIPP.Frontend.csproj", "{EFAC44E2-7B87-4618-BE22-E268838EF5A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
