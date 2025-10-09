@@ -16,4 +16,5 @@ public interface IMicrosoftGraphService
     Task<ContractCollectionResponse?> GetPartnerTenantsAsync(string? filter = null, int? top = null, int? skip = null);
     Task<Contract?> GetPartnerTenantAsync(string contractId);
     Task<DomainCollectionResponse?> GetTenantDomainsAsync(string tenantId, string? filter = null);
+    Task<bool> ValidateDomainAvailabilityAsync(string domainName);
 }

@@ -1,0 +1,294 @@
+@page "/tenants/groups/{GroupId:guid}/edit"
+@attribute [Authorize]
+@using CIPP.Frontend.Modules.Tenants.Interfaces
+@using CIPP.Shared.DTOs.Tenants
+@using CIPP.Frontend.Modules.Notifications.Interfaces
+
+@inject ITenantService TenantService
+@inject INotificationService NotificationService
+@inject NavigationManager Navigation
+
+<PageTitle>Edit Tenant Group - CIPP</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    @if (_isLoading) {
+        <MudCard>
+            <MudCardContent>
+                <div class="d-flex justify-center pa-4">
+                    <MudProgressCircular Indeterminate="true" />
+                </div>
+                <MudText Class="text-center mt-2" Color="Color.Secondary">
+                    Loading tenant group details...
+                </MudText>
+            </MudCardContent>
+        </MudCard>
+    }
+    else if (_groupDetails == null) {
+        <MudAlert Severity="Severity.Error" Class="mb-4">
+            Tenant group not found or failed to load group details.
+            <MudButton Color="Color.Error" 
+                       Variant="Variant.Text" 
+                       Size="Size.Small"
+                       OnClick="LoadGroupDetails"
+                       Class="ml-2">
+                Retry
+            </MudButton>
+        </MudAlert>
+    }
+    else {
+        <MudPaper Class="pa-6">
+            <MudStack Spacing="4">
+                <!-- Header -->
+                <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.h4">Edit Tenant Group - @_groupDetails.Name</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            Created @_groupDetails.CreatedAt.ToString("MMM dd, yyyy")
+                        </MudText>
+                    </MudStack>
+                    <MudButton Variant="Variant.Text" 
+                              StartIcon="@Icons.Material.Filled.ArrowBack"
+                                      OnClick="NavigateBackToGroups">
+                        Back to Groups
+                    </MudButton>
+                </MudStack>
+
+                <!-- Form -->
+                <EditForm Model="_editRequest" OnValidSubmit="UpdateGroup">
+                    <DataAnnotationsValidator />
+                    <MudCard>
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">Group Properties</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudStack Spacing="3">
+                                <MudTextField @bind-Value="_editRequest.Name"
+                                              Label="Group Name"
+                                              Placeholder="Enter the name for this group"
+                                              Required="true"
+                                              Validation="@(new Func<string, string>(ValidateGroupName))" />
+
+                                <MudTextField @bind-Value="_editRequest.Description"
+                                              Label="Group Description"
+                                              Placeholder="Enter a description for this group (optional)"
+                                              Lines="3" />
+
+                                <!-- Current Members -->
+                                <MudText Typo="Typo.subtitle1" Class="mt-4">Group Members</MudText>
+                                <MudDivider />
+                                
+                                @if (_isLoadingTenants) {
+                                    <MudSkeleton />
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">Loading available tenants...</MudText>
+                                }
+                                else if (_availableTenants?.Any() == true) {
+                                    <MudSelect T="TenantDto" 
+                                              Label="Select Tenants"
+                                              @bind-SelectedValues="_selectedTenants"
+                                              ToStringFunc="@(tenant => tenant?.DisplayName ?? "")"
+                                              MultiSelection="true"
+                                              Placeholder="Select tenants to add to this group"
+                                              Clearable="true">
+                                        @if (_availableTenants != null)
+                                        {
+                                            @foreach (var tenant in _availableTenants)
+                                            {
+                                                <MudSelectItem Value="@tenant">
+                                                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                                        <MudIcon Icon="@Icons.Material.Filled.Business" Size="Size.Small" />
+                                                        <MudStack Spacing="0">
+                                                            <MudText Typo="Typo.body2">@tenant.DisplayName</MudText>
+                                                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                                                @tenant.DefaultDomainName
+                                                            </MudText>
+                                                        </MudStack>
+                                                    </MudStack>
+                                                </MudSelectItem>
+                                            }
+                                        }
+                                    </MudSelect>
+                                }
+
+                                <!-- Selected Members Preview -->
+                                @if (_selectedTenants?.Any() == true) {
+                                    <MudText Typo="Typo.subtitle2" Class="mt-3">Selected Members (@_selectedTenants.Count())</MudText>
+                                    <MudStack Row Spacing="1" Class="flex-wrap">
+                                        @foreach (var tenant in _selectedTenants) {
+                                            <MudChip T="string" Size="Size.Small" 
+                                                    Color="Color.Primary" 
+                                                    Variant="Variant.Filled"
+                                                    OnClose="() => RemoveTenant(tenant)">
+                                                @tenant.DisplayName
+                                            </MudChip>
+                                        }
+                                    </MudStack>
+                                }
+                                else {
+                                    <MudAlert Severity="Severity.Info" Dense="true">
+                                        No members selected. The group will be empty.
+                                    </MudAlert>
+                                }
+                            </MudStack>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudSpacer />
+                            <MudButton Variant="Variant.Text" 
+                                      OnClick="NavigateBackToGroups"
+                                      Disabled="@_isUpdating">
+                                Cancel
+                            </MudButton>
+                            <MudButton Variant="Variant.Filled" 
+                                      Color="Color.Primary"
+                                      ButtonType="ButtonType.Submit"
+                                      StartIcon="@Icons.Material.Filled.Save"
+                                      Disabled="@_isUpdating">
+                                @if (_isUpdating) {
+                                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                                    <span>Updating...</span>
+                                }
+                                else {
+                                    <span>Save Changes</span>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </EditForm>
+            </MudStack>
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public Guid GroupId { get; set; }
+
+    private TenantGroupDto? _groupDetails;
+    private CreateTenantGroupDto _editRequest = new();
+    private List<TenantDto>? _availableTenants;
+    private IEnumerable<TenantDto> _selectedTenants = new List<TenantDto>();
+    
+    private bool _isLoading = true;
+    private bool _isLoadingTenants = false;
+    private bool _isUpdating = false;
+
+    protected override async Task OnInitializedAsync() {
+        await LoadGroupDetails();
+        await LoadAvailableTenants();
+    }
+
+    private async Task LoadGroupDetails() {
+        _isLoading = true;
+        StateHasChanged();
+
+        try {
+            var result = await TenantService.GetTenantGroupAsync(GroupId);
+            if (result.Success && result.Data != null) {
+                _groupDetails = result.Data;
+                
+                _editRequest = new CreateTenantGroupDto(
+                    _groupDetails.Name,
+                    _groupDetails.Description,
+                    _groupDetails.MemberTenantIds
+                );
+            }
+            else {
+                NotificationService.ShowError($"Failed to load tenant group: {result.Message}");
+            }
+        }
+        catch (Exception ex) {
+            NotificationService.ShowError($"Error loading tenant group: {ex.Message}");
+        }
+        finally {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadAvailableTenants() {
+        _isLoadingTenants = true;
+        StateHasChanged();
+
+        try {
+            var result = await TenantService.GetTenantsAsync(pageNumber: 1, pageSize: 1000, allTenants: true);
+            if (result?.Items != null) {
+                _availableTenants = result.Items.ToList();
+                
+                if (_groupDetails?.MemberTenantIds?.Any() == true) {
+                    _selectedTenants = _availableTenants
+                        .Where(t => _groupDetails.MemberTenantIds.Contains(t.Id))
+                        .ToList();
+                }
+            }
+            else {
+                _availableTenants = new List<TenantDto>();
+            }
+        }
+        catch (Exception ex) {
+            NotificationService.ShowError($"Error loading tenants: {ex.Message}");
+            _availableTenants = new List<TenantDto>();
+        }
+        finally {
+            _isLoadingTenants = false;
+            StateHasChanged();
+        }
+    }
+
+
+    private void RemoveTenant(TenantDto tenant) {
+        _selectedTenants = _selectedTenants.Where(t => t.Id != tenant.Id);
+        StateHasChanged();
+    }
+
+    private string ValidateGroupName(string name) {
+        if (string.IsNullOrWhiteSpace(name)) {
+            return "Group name is required";
+        }
+
+        if (name.Length < 2) {
+            return "Group name must be at least 2 characters";
+        }
+
+        if (name.Length > 100) {
+            return "Group name must be 100 characters or less";
+        }
+
+        return "";
+    }
+    
+    private void NavigateBackToGroups()
+    {
+        Navigation.NavigateTo("/tenants/groups");
+    }
+
+    private async Task UpdateGroup() {
+        _isUpdating = true;
+        StateHasChanged();
+
+        try {
+            var memberIds = _selectedTenants.Select(t => t.Id).ToList();
+            var updateRequest = new CreateTenantGroupDto(
+                _editRequest.Name,
+                string.IsNullOrWhiteSpace(_editRequest.Description) ? null : _editRequest.Description,
+                memberIds.Any() ? memberIds : null
+            );
+
+            var result = await TenantService.UpdateTenantGroupAsync(GroupId, updateRequest);
+
+            if (result.Success && result.Data != null) {
+                NotificationService.ShowSuccess($"Tenant group '{result.Data.Name}' updated successfully!");
+                Navigation.NavigateTo("/tenants/groups");
+            }
+            else {
+                NotificationService.ShowError($"Failed to update tenant group: {result.Message ?? "Unknown error"}");
+            }
+        }
+        catch (Exception ex) {
+            NotificationService.ShowError($"Error updating tenant group: {ex.Message}");
+        }
+        finally {
+            _isUpdating = false;
+            StateHasChanged();
+        }
+    }
+}

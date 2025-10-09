@@ -9,4 +9,5 @@ public interface INotificationService {
     void ShowWarning(string message, string? title = null);
     void ShowApiErrors(string primaryMessage, List<string> errors, string? title = null);
     void ShowDetailedError(string message, List<string> details, string? title = null);
+    Task<bool> ShowConfirmationAsync(string title, string message, string yesText = "Yes", string noText = "No");
 }

@@ -6,6 +6,6 @@ public record CreateTenantCommand(
     string DisplayName,
     string DefaultDomainName,
     string Status,
-    string CreatedBy,
+    Guid CreatedBy,
     string? Metadata = null
 ) : IRequest<CreateTenantCommand, Task<Tenant>>;

@@ -1,0 +1,163 @@
+@using CIPP.Shared.DTOs.Tenants
+@using CIPP.Frontend.Modules.Tenants.Interfaces
+
+@inject ITenantService TenantService
+
+<MudAutocomplete T="TenantSelectorOptionDto"
+                 Value="@Value"
+                 ValueChanged="@OnValueChanged"
+                 @ref="_mudAutocomplete"
+                 SearchFunc="@SearchTenantOptions"
+                 Label="@Label"
+                 ToStringFunc="@(t => t?.Label ?? "")"
+                 Required="@Required"
+                 Clearable="@Clearable"
+                 Disabled="@(_isLoading || Disabled)"
+                 ShowProgressIndicator="@_isLoading">
+    <ItemTemplate Context="tenant">
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+            <MudText>@tenant.Label</MudText>
+            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" 
+                   Color="@GetTypeColor(tenant.Type)">
+                @tenant.Type
+            </MudChip>
+            @if (!string.IsNullOrEmpty(tenant.OffboardingDefaults))
+            {
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Color="Color.Warning">
+                    Excluded
+                </MudChip>
+            }
+        </MudStack>
+    </ItemTemplate>
+</MudAutocomplete>
+
+@if (_hasError)
+{
+    <MudAlert Severity="Severity.Warning" Dense="true" Class="mt-2">
+        Failed to load tenants. 
+        <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Inherit" 
+                   OnClick="LoadTenantOptionsAsync" EndIcon="@Icons.Material.Filled.Refresh">
+            Retry
+        </MudButton>
+    </MudAlert>
+}
+
+@code {
+    [Parameter] public TenantSelectorOptionDto? Value { get; set; }
+    [Parameter] public EventCallback<TenantSelectorOptionDto?> ValueChanged { get; set; }
+    [Parameter] public string Label { get; set; } = "Select Tenant";
+    [Parameter] public bool Required { get; set; } = false;
+    [Parameter] public bool Clearable { get; set; } = true;
+    [Parameter] public bool Disabled { get; set; } = false;
+    [Parameter] public bool IncludeAllTenants { get; set; } = true;
+    [Parameter] public bool IncludeGroups { get; set; } = false;
+    [Parameter] public bool IncludeOffboardingDefaults { get; set; } = false;
+
+    private MudAutocomplete<TenantSelectorOptionDto>? _mudAutocomplete;
+    private List<TenantSelectorOptionDto> _tenantOptions = new();
+    private bool _isLoading = true;
+    private bool _hasError = false;
+    private bool _previousIncludeAllTenants;
+    private bool _previousIncludeGroups;
+    private bool _previousIncludeOffboardingDefaults;
+    private bool _isInitialized = false;
+
+    protected override async Task OnInitializedAsync() {
+        await LoadTenantOptionsAsync();
+        _previousIncludeAllTenants = IncludeAllTenants;
+        _previousIncludeGroups = IncludeGroups;
+        _previousIncludeOffboardingDefaults = IncludeOffboardingDefaults;
+        _isInitialized = true;
+    }
+
+    protected override async Task OnParametersSetAsync() {
+        // Only reload data if the key parameters that affect data loading have actually changed
+        if (_isInitialized && 
+            (_previousIncludeAllTenants != IncludeAllTenants ||
+             _previousIncludeGroups != IncludeGroups ||
+             _previousIncludeOffboardingDefaults != IncludeOffboardingDefaults)) {
+            
+            await LoadTenantOptionsAsync();
+            _previousIncludeAllTenants = IncludeAllTenants;
+            _previousIncludeGroups = IncludeGroups;
+            _previousIncludeOffboardingDefaults = IncludeOffboardingDefaults;
+        }
+        
+        // Value parameter synchronization is handled automatically by @bind-Value
+        // This component is designed to be stable during parent re-renders
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task LoadTenantOptionsAsync() {
+        var wasLoading = _isLoading;
+        _isLoading = true;
+        _hasError = false;
+        
+        if (!wasLoading) {
+            StateHasChanged(); // Only trigger re-render if we weren't already loading
+        }
+
+        try {
+            var response = await TenantService.GetTenantSelectorOptionsAsync(
+                allTenants: IncludeAllTenants, 
+                includeGroups: IncludeGroups, 
+                includeOffboardingDefaults: IncludeOffboardingDefaults
+            );
+
+            if (response?.Success == true && response.Data != null) {
+                _tenantOptions = response.Data;
+                _hasError = false;
+            } else {
+                _tenantOptions = new List<TenantSelectorOptionDto>();
+                _hasError = true;
+            }
+        } catch {
+            _tenantOptions = new List<TenantSelectorOptionDto>();
+            _hasError = true;
+        } finally {
+            _isLoading = false;
+            StateHasChanged(); // Force re-render when loading completes
+        }
+    }
+
+    private Task<IEnumerable<TenantSelectorOptionDto>> SearchTenantOptions(string value, CancellationToken token) {
+        if (string.IsNullOrWhiteSpace(value)) {
+            return Task.FromResult<IEnumerable<TenantSelectorOptionDto>>(_tenantOptions);
+        }
+
+        var searchTerm = value.ToLowerInvariant();
+        return Task.FromResult(_tenantOptions.Where(t => 
+            t.Label.ToLowerInvariant().Contains(searchTerm) ||
+            t.DisplayName.ToLowerInvariant().Contains(searchTerm) ||
+            t.DefaultDomainName.ToLowerInvariant().Contains(searchTerm) ||
+            t.Value.ToLowerInvariant().Contains(searchTerm)
+        ));
+    }
+
+
+
+    private async Task OnValueChanged(TenantSelectorOptionDto? value) {
+        Console.WriteLine($"TenantSelectorOptions {Label}: OnValueChanged called with {value?.Label ?? "null"}");
+        
+        // Update the Value parameter and notify parent
+        if (ValueChanged.HasDelegate) {
+            await ValueChanged.InvokeAsync(value);
+        }
+    }
+    
+    // Debug method to track when component re-renders
+    protected override void OnAfterRender(bool firstRender) {
+        if (firstRender) {
+            Console.WriteLine($"TenantSelectorOptions {Label}: First render");
+        } else {
+            Console.WriteLine($"TenantSelectorOptions {Label}: Re-render, Value = {Value?.Label ?? "null"}");
+        }
+        base.OnAfterRender(firstRender);
+    }
+    
+    private Color GetTypeColor(string type) => type.ToLower() switch {
+        "group" => Color.Primary,
+        "tenant" => Color.Secondary,
+        _ => Color.Default
+    };
+}

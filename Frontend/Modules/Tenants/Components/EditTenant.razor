@@ -1,0 +1,556 @@
+@page "/tenants/{TenantId:guid}/edit"
+@attribute [Authorize]
+@using CIPP.Frontend.Modules.Tenants.Interfaces
+@using CIPP.Shared.DTOs.Tenants
+@using CIPP.Frontend.Modules.Notifications.Interfaces
+
+@inject ITenantService TenantService
+@inject INotificationService NotificationService
+@inject NavigationManager Navigation
+
+<PageTitle>Edit Tenant - CIPP</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    @if (_isLoading) {
+        <MudCard>
+            <MudCardContent>
+                <div class="d-flex justify-center pa-4">
+                    <MudProgressCircular Indeterminate="true" />
+                </div>
+                <MudText Class="text-center mt-2" Color="Color.Secondary">
+                    Loading tenant details...
+                </MudText>
+            </MudCardContent>
+        </MudCard>
+    }
+    else if (_tenantDetails == null) {
+        <MudAlert Severity="Severity.Error" Class="mb-4">
+            Tenant not found or failed to load tenant details.
+            <MudButton Color="Color.Error" 
+                       Variant="Variant.Text" 
+                       Size="Size.Small"
+                       OnClick="LoadTenantDetails"
+                       Class="ml-2">
+                Retry
+            </MudButton>
+        </MudAlert>
+    }
+    else {
+        <MudPaper Class="pa-6">
+            <MudStack Spacing="4">
+                <!-- Header -->
+                <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.h4">
+                            Edit Tenant - @(_tenantDetails.TenantAlias ?? _tenantDetails.DisplayName)
+                        </MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            @_tenantDetails.DefaultDomainName
+                        </MudText>
+                    </MudStack>
+                    
+                    <MudButton Variant="Variant.Text" 
+                              StartIcon="@Icons.Material.Filled.ArrowBack"
+                              OnClick="NavigateBackToTenants">
+                        Back to Tenants
+                    </MudButton>
+                </MudStack>
+
+                <!-- Tabs -->
+                <MudTabs @ref="_tabs" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" 
+                         PanelClass="pa-6" KeepPanelsAlive="true">
+                    
+                    <!-- General Tab -->
+                    <MudTabPanel Text="General" Icon="@Icons.Material.Filled.Info">
+                        <MudGrid>
+                            <MudItem xs="12" md="4">
+                                <!-- Tenant Details Card -->
+                                <MudCard>
+                                    <MudCardHeader>
+                                        <CardHeaderContent>
+                                            <MudText Typo="Typo.h6">Tenant Details</MudText>
+                                        </CardHeaderContent>
+                                    </MudCardHeader>
+                                    <MudCardContent>
+                                        <MudStack Spacing="2">
+                                            <MudStack Row>
+                                                <MudText Typo="Typo.subtitle2" Class="flex-shrink-0" Style="min-width: 100px;">
+                                                    Display Name:
+                                                </MudText>
+                                                <MudText Typo="Typo.body2">@_tenantDetails.DisplayName</MudText>
+                                            </MudStack>
+                                            <MudStack Row>
+                                                <MudText Typo="Typo.subtitle2" Class="flex-shrink-0" Style="min-width: 100px;">
+                                                    Tenant ID:
+                                                </MudText>
+                                                <MudText Typo="Typo.body2" Style="font-family: monospace; font-size: 0.8em;">
+                                                    @_tenantDetails.TenantId
+                                                </MudText>
+                                            </MudStack>
+                                            <MudStack Row>
+                                                <MudText Typo="Typo.subtitle2" Class="flex-shrink-0" Style="min-width: 100px;">
+                                                    Status:
+                                                </MudText>
+                                                <MudChip T="string" Size="Size.Small" 
+                                                         Color="@GetStatusColor(_tenantDetails.Status)"
+                                                         Variant="Variant.Filled">
+                                                    @_tenantDetails.Status
+                                                </MudChip>
+                                            </MudStack>
+                                            <MudStack Row>
+                                                <MudText Typo="Typo.subtitle2" Class="flex-shrink-0" Style="min-width: 100px;">
+                                                    Created:
+                                                </MudText>
+                                                <MudText Typo="Typo.body2">
+                                                    @_tenantDetails.CreatedAt.ToString("MMM dd, yyyy HH:mm")
+                                                </MudText>
+                                            </MudStack>
+                                        </MudStack>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
+                            
+                            <MudItem xs="12" md="8">
+                                <!-- Edit Properties Form -->
+                                <MudCard>
+                                    <MudCardHeader>
+                                        <CardHeaderContent>
+                                            <MudText Typo="Typo.h6">Properties</MudText>
+                                        </CardHeaderContent>
+                                    </MudCardHeader>
+                                    <MudCardContent>
+                                        <EditForm Model="_editRequest" OnValidSubmit="SaveGeneral">
+                                            <MudStack Spacing="3">
+                                                <MudTextField @bind-Value="_editRequest.TenantAlias"
+                                                              Label="Tenant Alias"
+                                                              Placeholder="Enter a custom alias for this tenant to be displayed in CIPP"
+                                                              HelperText="Custom display name for this tenant" />
+
+                                                <MudSelect T="TenantGroupDto" 
+                                                          Label="Tenant Groups"
+                                                          @bind-SelectedValues="_selectedGroups"
+                                                          ToStringFunc="@(group => group?.Name ?? "")"
+                                                          MultiSelection="true"
+                                                          Placeholder="Select the groups this tenant belongs to">
+                                                    @if (_availableGroups != null)
+                                                    {
+                                                        @foreach (var group in _availableGroups)
+                                                        {
+                                                            <MudSelectItem Value="@group">
+                                                                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                                                    <MudIcon Icon="@Icons.Material.Filled.Group" Size="Size.Small" />
+                                                                    <MudStack Spacing="0">
+                                                                        <MudText Typo="Typo.body2">@group.Name</MudText>
+                                                                        @if (!string.IsNullOrEmpty(group.Description)) {
+                                                                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                                                                @group.Description
+                                                                            </MudText>
+                                                                        }
+                                                                    </MudStack>
+                                                                </MudStack>
+                                                            </MudSelectItem>
+                                                        }
+                                                    }
+                                                </MudSelect>
+
+                                                <MudStack Row Justify="Justify.FlexEnd" Class="mt-4">
+                                                    <MudButton Variant="Variant.Filled" 
+                                                              Color="Color.Primary"
+                                                              ButtonType="ButtonType.Submit"
+                                                              StartIcon="@Icons.Material.Filled.Save"
+                                                              Disabled="@_saving">
+                                                        @if (_saving) {
+                                                            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                                                            <span>Saving...</span>
+                                                        }
+                                                        else {
+                                                            <span>Save Changes</span>
+                                                        }
+                                                    </MudButton>
+                                                </MudStack>
+                                            </MudStack>
+                                        </EditForm>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
+                        </MudGrid>
+                    </MudTabPanel>
+
+                    <!-- Custom Variables Tab -->
+                    <MudTabPanel Text="Custom Variables" Icon="@Icons.Material.Filled.Settings">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Custom Variables</MudText>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                    <MudButton Color="Color.Primary" 
+                                              Variant="Variant.Filled"
+                                              StartIcon="@Icons.Material.Filled.Add"
+                                              OnClick="AddCustomVariable">
+                                        Add Variable
+                                    </MudButton>
+                                </CardHeaderActions>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                @if (_customVariables?.Any() == true) {
+                                    <MudStack Spacing="3">
+                                        @foreach (var variable in _customVariables) {
+                                            <MudPaper Class="pa-3" Outlined="true">
+                                                <MudGrid>
+                                                    <MudItem xs="12" md="4">
+                                                        <MudTextField @bind-Value="variable.Key"
+                                                                      Label="Variable Name"
+                                                                      Placeholder="Enter variable name" />
+                                                    </MudItem>
+                                                    <MudItem xs="12" md="6">
+                                                        <MudTextField @bind-Value="variable.Value"
+                                                                      Label="Variable Value"
+                                                                      Placeholder="Enter variable value" />
+                                                    </MudItem>
+                                                    <MudItem xs="12" md="2" Class="d-flex align-center">
+                                                        <MudButton Color="Color.Error" 
+                                                                  Variant="Variant.Text"
+                                                                  StartIcon="@Icons.Material.Filled.Delete"
+                                                                  OnClick="() => RemoveCustomVariable(variable)">
+                                                            Remove
+                                                        </MudButton>
+                                                    </MudItem>
+                                                </MudGrid>
+                                            </MudPaper>
+                                        }
+                                        
+                                        <MudStack Row Justify="Justify.FlexEnd" Class="mt-4">
+                                            <MudButton Variant="Variant.Filled" 
+                                                      Color="Color.Primary"
+                                                      StartIcon="@Icons.Material.Filled.Save"
+                                                      OnClick="SaveCustomVariables"
+                                                      Disabled="@_saving">
+                                                @if (_saving) {
+                                                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                                                    <span>Saving...</span>
+                                                }
+                                                else {
+                                                    <span>Save Variables</span>
+                                                }
+                                            </MudButton>
+                                        </MudStack>
+                                    </MudStack>
+                                }
+                                else {
+                                    <MudPaper Class="pa-8 text-center" Elevation="0">
+                                        <MudIcon Icon="@Icons.Material.Filled.SettingsApplications" 
+                                                Size="Size.Large" 
+                                                Color="Color.Secondary" 
+                                                Class="mb-4" />
+                                        <MudText Typo="Typo.h6" Color="Color.Secondary">
+                                            No Custom Variables
+                                        </MudText>
+                                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                                            Add custom variables to store tenant-specific configuration.
+                                        </MudText>
+                                    </MudPaper>
+                                }
+                            </MudCardContent>
+                        </MudCard>
+                    </MudTabPanel>
+
+                    <!-- Offboarding Defaults Tab -->
+                    <MudTabPanel Text="Offboarding Defaults" Icon="@Icons.Material.Filled.PersonRemove">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Tenant-Specific Offboarding Defaults</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudStack Spacing="4">
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                        Configure default offboarding settings specifically for this tenant. These settings will override user defaults when offboarding users in this tenant.
+                                    </MudText>
+                                    
+                                    <MudGrid>
+                                        @foreach (var setting in _offboardingSettings) {
+                                            <MudItem xs="12" md="6">
+                                                <MudCheckBox @bind-Value="setting.Value"
+                                                            Label="@setting.Key.Replace("_", " ")"
+                                                            Color="Color.Primary" />
+                                            </MudItem>
+                                        }
+                                    </MudGrid>
+                                    
+                                    <MudStack Row Justify="Justify.SpaceBetween" Class="mt-4">
+                                        <MudButton Variant="Variant.Outlined" 
+                                                  Color="Color.Secondary"
+                                                  StartIcon="@Icons.Material.Filled.RestartAlt"
+                                                  OnClick="ResetOffboardingDefaults">
+                                            Reset All to Off
+                                        </MudButton>
+                                        
+                                        <MudButton Variant="Variant.Filled" 
+                                                  Color="Color.Primary"
+                                                  StartIcon="@Icons.Material.Filled.Save"
+                                                  OnClick="SaveOffboardingDefaults"
+                                                  Disabled="@_saving">
+                                            @if (_saving) {
+                                                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                                                <span>Saving...</span>
+                                            }
+                                            else {
+                                                <span>Save Defaults</span>
+                                            }
+                                        </MudButton>
+                                    </MudStack>
+                                    
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                        Click "Reset All to Off" to turn off all options, then click "Save" to clear tenant defaults.
+                                    </MudText>
+                                </MudStack>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudTabPanel>
+                </MudTabs>
+            </MudStack>
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public Guid TenantId { get; set; }
+    
+    private MudTabs? _tabs;
+    private TenantDetailsDto? _tenantDetails;
+    private EditTenantRequestDto _editRequest = new();
+    
+    private List<TenantGroupDto> _availableGroups = new();
+    private IEnumerable<TenantGroupDto> _selectedGroups = new List<TenantGroupDto>();
+    
+    private List<CustomVariable> _customVariables = new();
+    private List<OffboardingSetting> _offboardingSettings = new();
+    
+    private bool _isLoading = true;
+    private bool _saving = false;
+    
+    protected override async Task OnInitializedAsync() {
+        await LoadTenantDetails();
+        await LoadTenantGroups();
+    }
+
+    private async Task LoadTenantDetails() {
+        _isLoading = true;
+        StateHasChanged();
+        
+        try {
+            var result = await TenantService.GetTenantDetailsAsync(TenantId);
+            if (result.Success && result.Data != null) {
+                _tenantDetails = result.Data;
+                
+                // Initialize edit request
+                _editRequest = new EditTenantRequestDto
+                {
+                    Id = _tenantDetails.Id,
+                    TenantAlias = _tenantDetails.TenantAlias,
+                    TenantGroups = _tenantDetails.Groups?.Select(g => g.Id).ToList(),
+                    CustomVariables = null,
+                    OffboardingDefaults = _tenantDetails.Metadata
+                };
+                
+                // Initialize selected groups
+                _selectedGroups = _tenantDetails.Groups ?? new List<TenantGroupDto>();
+                
+                // Initialize custom variables (from metadata)
+                InitializeCustomVariables();
+                
+                // Initialize offboarding settings
+                InitializeOffboardingSettings();
+            }
+            else {
+                NotificationService.ShowError($"Failed to load tenant: {result.Message}");
+            }
+        }
+        catch (Exception ex) {
+            NotificationService.ShowError($"Error loading tenant: {ex.Message}");
+        }
+        finally {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadTenantGroups() {
+        StateHasChanged();
+        
+        try {
+            var result = await TenantService.GetTenantGroupsAsync(pageSize: 1000);
+            if (result?.Items != null) {
+                _availableGroups = result.Items.ToList();
+            }
+        }
+        catch (Exception ex) {
+            NotificationService.ShowError($"Error loading tenant groups: {ex.Message}");
+        }
+        finally {
+            StateHasChanged();
+        }
+    }
+
+    private void InitializeCustomVariables() {
+        _customVariables.Clear();
+        // Parse custom variables from metadata if available
+        // This would depend on how you store custom variables in the metadata
+    }
+
+    private void InitializeOffboardingSettings() {
+        _offboardingSettings = new List<OffboardingSetting> {
+            new() { Key = "Convert_To_Shared", Value = false },
+            new() { Key = "Remove_Groups", Value = false },
+            new() { Key = "Hide_From_GAL", Value = false },
+            new() { Key = "Remove_Licenses", Value = false },
+            new() { Key = "Remove_Calendar_Invites", Value = false },
+            new() { Key = "Revoke_Sessions", Value = false },
+            new() { Key = "Remove_Permissions", Value = false },
+            new() { Key = "Remove_Rules", Value = false },
+            new() { Key = "Reset_Password", Value = false },
+            new() { Key = "Keep_Copy", Value = false },
+            new() { Key = "Delete_User", Value = false },
+            new() { Key = "Remove_Mobile", Value = false },
+            new() { Key = "Disable_SignIn", Value = false },
+            new() { Key = "Remove_MFA_Devices", Value = false },
+            new() { Key = "Remove_Teams_Phone_DID", Value = false },
+            new() { Key = "Clear_Immutable_Id", Value = false }
+        };
+        
+        // Parse existing offboarding defaults if available
+        if (!string.IsNullOrEmpty(_tenantDetails?.Metadata)) {
+            try {
+                // Parse JSON and update settings
+                // This would depend on how you store offboarding defaults
+            }
+            catch {
+                // Keep defaults if parsing fails
+            }
+        }
+    }
+
+
+    private async Task SaveGeneral() {
+        _saving = true;
+        StateHasChanged();
+        
+        try {
+            _editRequest.TenantGroups = _selectedGroups.Select(g => g.Id).ToList();
+            
+            var result = await TenantService.UpdateTenantAsync(_editRequest);
+            
+            if (result.Success) {
+                NotificationService.ShowSuccess("Tenant updated successfully!");
+                await LoadTenantDetails(); // Reload to get updated data
+            }
+            else {
+                NotificationService.ShowError($"Failed to update tenant: {result.Message}");
+            }
+        }
+        catch (Exception ex) {
+            NotificationService.ShowError($"Error updating tenant: {ex.Message}");
+        }
+        finally {
+            _saving = false;
+            StateHasChanged();
+        }
+    }
+
+    private void AddCustomVariable() {
+        _customVariables.Add(new CustomVariable { Key = "", Value = "" });
+        StateHasChanged();
+    }
+
+    private void RemoveCustomVariable(CustomVariable variable) {
+        _customVariables.Remove(variable);
+        StateHasChanged();
+    }
+
+    private async Task SaveCustomVariables() {
+        _saving = true;
+        StateHasChanged();
+        
+        try {
+            var customVars = _customVariables
+                .Where(v => !string.IsNullOrWhiteSpace(v.Key))
+                .ToDictionary(v => v.Key, v => (object)(v.Value ?? ""));
+                
+            _editRequest.CustomVariables = customVars;
+            
+            var result = await TenantService.UpdateTenantAsync(_editRequest);
+            
+            if (result.Success) {
+                NotificationService.ShowSuccess("Custom variables saved successfully!");
+            }
+            else {
+                NotificationService.ShowError($"Failed to save custom variables: {result.Message}");
+            }
+        }
+        catch (Exception ex) {
+            NotificationService.ShowError($"Error saving custom variables: {ex.Message}");
+        }
+        finally {
+            _saving = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ResetOffboardingDefaults() {
+        foreach (var setting in _offboardingSettings) {
+            setting.Value = false;
+        }
+        StateHasChanged();
+    }
+
+    private async Task SaveOffboardingDefaults() {
+        _saving = true;
+        StateHasChanged();
+        
+        try {
+            var offboardingDict = _offboardingSettings.ToDictionary(s => s.Key, s => s.Value);
+            var offboardingJson = System.Text.Json.JsonSerializer.Serialize(offboardingDict);
+            _editRequest.OffboardingDefaults = offboardingJson;
+            
+            var result = await TenantService.UpdateTenantAsync(_editRequest);
+            
+            if (result.Success) {
+                NotificationService.ShowSuccess("Offboarding defaults saved successfully!");
+            }
+            else {
+                NotificationService.ShowError($"Failed to save offboarding defaults: {result.Message}");
+            }
+        }
+        catch (Exception ex) {
+            NotificationService.ShowError($"Error saving offboarding defaults: {ex.Message}");
+        }
+        finally {
+            _saving = false;
+            StateHasChanged();
+        }
+    }
+
+    private Color GetStatusColor(string status) => status?.ToLower() switch {
+        "active" => Color.Success,
+        "suspended" => Color.Warning,
+        "deleted" => Color.Error,
+        _ => Color.Default
+    };
+    
+    private void NavigateBackToTenants()
+    {
+        Navigation.NavigateTo("/tenants");
+    }
+
+    public class CustomVariable {
+        public string Key { get; set; } = "";
+        public string Value { get; set; } = "";
+    }
+    
+    public class OffboardingSetting {
+        public string Key { get; set; } = "";
+        public bool Value { get; set; }
+    }
+}

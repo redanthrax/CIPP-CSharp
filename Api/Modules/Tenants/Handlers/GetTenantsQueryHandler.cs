@@ -1,4 +1,5 @@
 using CIPP.Api.Data;
+using CIPP.Api.Modules.Authorization.Interfaces;
 using CIPP.Api.Modules.Tenants.Interfaces;
 using CIPP.Api.Modules.Tenants.Models;
 using CIPP.Api.Modules.Tenants.Queries;
@@ -15,17 +16,20 @@ public class GetTenantsQueryHandler : IRequestHandler<GetTenantsQuery, Task<Page
     private readonly ITenantCacheService _cacheService;
     private readonly IMicrosoftGraphService _graphService;
     private readonly ILogger<GetTenantsQueryHandler> _logger;
+    private readonly ICurrentUserService _currentUserService;
 
     public GetTenantsQueryHandler(
         ApplicationDbContext context, 
         ITenantCacheService cacheService,
         IMicrosoftGraphService graphService,
-        ILogger<GetTenantsQueryHandler> logger)
+        ILogger<GetTenantsQueryHandler> logger,
+        ICurrentUserService currentUserService)
     {
         _context = context;
         _cacheService = cacheService;
         _graphService = graphService;
         _logger = logger;
+        _currentUserService = currentUserService;
     }
     
     public async Task<PagedResponse<Tenant>> Handle(GetTenantsQuery request, CancellationToken cancellationToken)
@@ -171,6 +175,7 @@ public class GetTenantsQueryHandler : IRequestHandler<GetTenantsQuery, Task<Page
                 }
                 else
                 {
+                    var currentUserId = _currentUserService.GetCurrentUserId() ?? Guid.Empty;
                     var newTenant = new Tenant
                     {
                         Id = Guid.NewGuid(),
@@ -180,7 +185,7 @@ public class GetTenantsQueryHandler : IRequestHandler<GetTenantsQuery, Task<Page
                             $"{customerIdString}.onmicrosoft.com",
                         Status = "Active",
                         CreatedAt = DateTime.UtcNow,
-                        CreatedBy = "System",
+                        CreatedBy = currentUserId,
                         Metadata = System.Text.Json.JsonSerializer.Serialize(new { 
                             ContractType = contract.ContractType,
                             SyncedFromGraph = true,

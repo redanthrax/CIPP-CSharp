@@ -1,6 +1,8 @@
 @page "/tenants"
 @attribute [Authorize]
+@using CIPP.Frontend.Modules.Tenants.Interfaces
 @inject ICippApiClient ApiClient
+@inject ITenantService TenantService
 @inject ILogger<Tenants> Logger
 @inject INotificationService NotificationService
 
@@ -15,17 +17,28 @@
                     <MudText Typo="Typo.h6">Available Tenants</MudText>
                 </CardHeaderContent>
                 <CardHeaderActions>
-                    <MudButton Color="Color.Primary" 
-                              Variant="Variant.Filled" 
-                              StartIcon="@Icons.Material.Filled.Refresh"
-                              OnClick="@(() => LoadTenants(noCache: true))"
-                              Disabled="@_loading">
-                        @if (_loading) {
-                            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
-                        } else {
-                            <span>Refresh</span>
-                        }
-                    </MudButton>
+                    <MudButtonGroup Variant="Variant.Outlined">
+                        <MudButton Color="Color.Success" 
+                                  StartIcon="@Icons.Material.Filled.Add"
+                                  Href="/tenants/add">
+                            Add Tenant
+                        </MudButton>
+                        <MudButton Color="Color.Secondary" 
+                                  StartIcon="@Icons.Material.Filled.Group"
+                                  Href="/tenants/groups">
+                            Manage Groups
+                        </MudButton>
+                        <MudButton Color="Color.Primary" 
+                                  StartIcon="@Icons.Material.Filled.Refresh"
+                                  OnClick="@(() => LoadTenants(noCache: true))"
+                                  Disabled="@_loading">
+                            @if (_loading) {
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                            } else {
+                                <span>Refresh</span>
+                            }
+                        </MudButton>
+                    </MudButtonGroup>
                 </CardHeaderActions>
             </MudCardHeader>
             <MudCardContent>
@@ -95,13 +108,33 @@
                                 <CellTemplate>
                                     <MudButtonGroup Size="Size.Small" Variant="Variant.Outlined">
                                         <MudButton StartIcon="@Icons.Material.Filled.Visibility"
-                                                   Size="Size.Small">
+                                                   Size="Size.Small"
+                                                   Href="@($"/tenants/{context.Item.Id}/details")"
+                                                   Color="Color.Info">
                                             View
                                         </MudButton>
-                                        <MudButton StartIcon="@Icons.Material.Filled.Settings"
-                                                   Size="Size.Small">
-                                            Manage
+                                        <MudButton StartIcon="@Icons.Material.Filled.Edit"
+                                                   Size="Size.Small"
+                                                   Href="@($"/tenants/{context.Item.Id}/edit")"
+                                                   Color="Color.Primary">
+                                            Edit
                                         </MudButton>
+                                        <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small">
+                                            <MudMenuItem Icon="@Icons.Material.Filled.Link"
+                                                        OnClick="@(() => OpenPortals(context.Item))">
+                                                Portal Links
+                                            </MudMenuItem>
+                                            <MudMenuItem Icon="@Icons.Material.Filled.Backup"
+                                                        Href="@($"/tenants/{context.Item.Id}/backup")">
+                                                Configure Backup
+                                            </MudMenuItem>
+                                            <MudDivider />
+                                            <MudMenuItem Icon="@Icons.Material.Filled.Delete"
+                                                        IconColor="Color.Error"
+                                                        OnClick="@(() => DeleteTenant(context.Item))">
+                                                Delete
+                                            </MudMenuItem>
+                                        </MudMenu>
                                     </MudButtonGroup>
                                 </CellTemplate>
                             </TemplateColumn>
@@ -160,10 +193,11 @@
         StateHasChanged();
 
         try {
-            PagedResponse<TenantDto>? pagedResponse = await ApiClient.GetPagedAsync<TenantDto>(
-                endpoint: "/tenants", 
-                noCache: noCache,
-                pageSize: 100
+            PagedResponse<TenantDto>? pagedResponse = await TenantService.GetTenantsAsync(
+                pageNumber: 1, 
+                pageSize: 100,
+                allTenants: true,
+                noCache: noCache
             );
             
             if (pagedResponse?.Items != null) {
@@ -189,4 +223,39 @@
         "deleted" => Color.Error,
         _ => Color.Default
     };
+
+    private void OpenPortals(TenantDto tenant) {
+        var portalLinks = new List<string> {
+            $"https://portal.office.com/?auth_upn={tenant.DefaultDomainName}",
+            $"https://admin.exchange.com/?realm={tenant.DefaultDomainName}",
+            $"https://entra.microsoft.com/{tenant.TenantId}",
+            $"https://portal.azure.com/{tenant.TenantId}",
+            $"https://endpoint.microsoft.com/{tenant.TenantId}"
+        };
+
+        // This would typically open a dialog with portal links
+        NotificationService.ShowInfo($"Portal links available for {tenant.DisplayName}");
+    }
+
+    private async Task DeleteTenant(TenantDto tenant) {
+        var confirmed = await NotificationService.ShowConfirmationAsync(
+            "Delete Tenant", 
+            $"Are you sure you want to delete tenant '{tenant.DisplayName}'? This action cannot be undone.");
+            
+        if (confirmed) {
+            try {
+                var result = await TenantService.DeleteTenantAsync(tenant.Id);
+            if (result.Success) {
+                    NotificationService.ShowSuccess($"Tenant '{tenant.DisplayName}' deleted successfully.");
+                    await LoadTenants(noCache: true);
+                }
+                else {
+                    NotificationService.ShowError($"Failed to delete tenant: {result.Message}");
+                }
+            }
+            catch (Exception ex) {
+                NotificationService.ShowError($"Error deleting tenant: {ex.Message}");
+            }
+        }
+    }
 }

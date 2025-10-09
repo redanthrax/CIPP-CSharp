@@ -2,6 +2,7 @@ using Azure.Identity;
 using CIPP.Api.Modules.Microsoft.Interfaces;
 using Microsoft.Graph.Beta;
 using Microsoft.Graph.Beta.Models;
+using Microsoft.Graph.Beta.Models.ODataErrors;
 namespace CIPP.Api.Modules.Microsoft.Services;
 public class MicrosoftGraphService : IMicrosoftGraphService
 {
@@ -291,5 +292,30 @@ public class MicrosoftGraphService : IMicrosoftGraphService
                 return null;
             }
         }, tenantId, $"getting domains for tenant {tenantId}");
+    }
+
+    public async Task<bool> ValidateDomainAvailabilityAsync(string domainName)
+    {
+        return await _exceptionHandler.HandleAsync(async () =>
+        {
+            try
+            {
+                _logger.LogInformation("Validating domain availability for: {DomainName}", domainName);
+                var graphClient = await GetGraphServiceClientAsync();
+                var response = await graphClient.Domains[domainName].GetAsync();
+                _logger.LogInformation("Domain {DomainName} is already taken", domainName);
+                return false;
+            }
+            catch (ODataError ex) when (ex.Error?.Code == "Request_ResourceNotFound")
+            {
+                _logger.LogInformation("Domain {DomainName} appears to be available", domainName);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Unable to validate domain availability for {DomainName}, assuming not available", domainName);
+                return false;
+            }
+        }, null, $"validating domain availability for {domainName}");
     }
 }

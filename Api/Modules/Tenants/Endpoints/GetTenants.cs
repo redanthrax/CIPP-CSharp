@@ -46,7 +46,11 @@ public static class GetTenants
                 t.Status,
                 t.CreatedAt,
                 t.CreatedBy,
-                t.Metadata
+                t.Metadata,
+                t.TenantAlias,
+                t.Excluded,
+                t.ExcludeUser,
+                t.ExcludeDate
             )).ToList();
             var pagedTenantDtos = new PagedResponse<TenantDto>
             {

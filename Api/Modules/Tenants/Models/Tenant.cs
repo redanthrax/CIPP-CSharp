@@ -6,20 +6,29 @@ using System.Text.Json;
 namespace CIPP.Api.Modules.Tenants.Models;
 public class Tenant : IEntityConfiguration<Tenant>
 {
-    // Existing core properties
     public required Guid Id { get; set; }
     public required string TenantId { get; set; }
     public required string DisplayName { get; set; }
     public required string DefaultDomainName { get; set; }
     public required string Status { get; set; }
     public required DateTime CreatedAt { get; set; }
-    public required string CreatedBy { get; set; }
+    public required Guid CreatedBy { get; set; }
     public string? Metadata { get; set; }
     
     public string? InitialDomainName { get; set; }
     public List<string> DomainList { get; set; } = new();
     public int GraphErrorCount { get; set; } = 0;
     public DateTime? LastSyncAt { get; set; }
+    
+    public string? TenantAlias { get; set; }
+    public bool Excluded { get; set; } = false;
+    public Guid? ExcludeUser { get; set; }
+    public DateTime? ExcludeDate { get; set; }
+    public string? DelegatedPrivilegeStatus { get; set; }
+    public bool RequiresRefresh { get; set; } = false;
+    public string? LastGraphError { get; set; }
+    public DateTime? LastRefresh { get; set; }
+    public string? OriginalDisplayName { get; set; }
     
     public TenantCapabilities? Capabilities { get; set; }
     
@@ -38,10 +47,16 @@ public class Tenant : IEntityConfiguration<Tenant>
             entity.Property(e => e.DefaultDomainName).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
             entity.Property(e => e.CreatedAt).IsRequired();
-            entity.Property(e => e.CreatedBy).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.CreatedBy).IsRequired();
             entity.Property(e => e.Metadata).HasMaxLength(500);
-            
             entity.Property(e => e.InitialDomainName).HasMaxLength(200);
+            entity.Property(e => e.TenantAlias).HasMaxLength(200);
+            entity.Property(e => e.Excluded).HasDefaultValue(false);
+            entity.Property(e => e.ExcludeUser);
+            entity.Property(e => e.DelegatedPrivilegeStatus).HasMaxLength(50);
+            entity.Property(e => e.RequiresRefresh).HasDefaultValue(false);
+            entity.Property(e => e.LastGraphError).HasMaxLength(1000);
+            entity.Property(e => e.OriginalDisplayName).HasMaxLength(200);
             
             entity.Property(e => e.DomainList)
                   .HasConversion(
@@ -64,6 +79,9 @@ public class Tenant : IEntityConfiguration<Tenant>
             entity.HasIndex(e => e.TenantId).IsUnique();
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.LastSyncAt);
+            entity.HasIndex(e => e.Excluded);
+            entity.HasIndex(e => e.DelegatedPrivilegeStatus);
+            entity.HasIndex(e => e.RequiresRefresh);
         });
     }
 }

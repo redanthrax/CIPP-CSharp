@@ -1,0 +1,321 @@
+@page "/tenant/administration/alert-configuration"
+@attribute [Authorize]
+@using CIPP.Frontend.Modules.Authentication.Interfaces
+@using CIPP.Shared.DTOs.Alerts
+@using CIPP.Frontend.Modules.Notifications.Interfaces
+@using System.ComponentModel.DataAnnotations
+
+@inject ICippApiClient ApiClient
+@inject INotificationService NotificationService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Alert Configuration - CIPP</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+    <MudStack Spacing="4">
+        <!-- Header -->
+        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h4">Alert Configuration</MudText>
+            <MudButtonGroup>
+                <MudButton Variant="Variant.Filled"
+                          Color="Color.Primary"
+                          StartIcon="@Icons.Material.Filled.Add"
+                          OnClick="@(() => Navigation.NavigateTo("/tenant/administration/alert-configuration/add"))">
+                    Add Alert
+                </MudButton>
+                <MudButton Variant="Variant.Outlined"
+                          StartIcon="@Icons.Material.Filled.Refresh"
+                          OnClick="RefreshData"
+                          Disabled="@_loading">
+                    Refresh
+                </MudButton>
+            </MudButtonGroup>
+        </MudStack>
+
+        <!-- Filters and Search -->
+        <MudPaper Class="pa-4" Elevation="2">
+            <MudStack Row Spacing="3" AlignItems="AlignItems.End">
+                <MudTextField @bind-Value="_searchText"
+                             Label="Search Alerts"
+                             Placeholder="Search by tenant, conditions, or actions..."
+                             Adornment="Adornment.Start"
+                             AdornmentIcon="@Icons.Material.Filled.Search"
+                             Immediate="true"
+                             DebounceInterval="300"
+                             OnDebounceIntervalElapsed="OnSearchChanged"
+                             Style="min-width: 300px;" />
+                
+                <MudSelect @bind-Value="_eventTypeFilter" 
+                          Label="Event Type Filter" 
+                          Clearable="true"
+                          Style="min-width: 150px;">
+                    <MudSelectItem Value="@((string?)null)">All Types</MudSelectItem>
+                    <MudSelectItem Value="@("Audit log Alert")">Audit Log Alert</MudSelectItem>
+                    <MudSelectItem Value="@("Scheduled Task")">Scheduled Task</MudSelectItem>
+                </MudSelect>
+
+                <MudSelect @bind-Value="_logTypeFilter" 
+                          Label="Log Type Filter" 
+                          Clearable="true"
+                          Style="min-width: 150px;">
+                    <MudSelectItem Value="@((string?)null)">All Log Types</MudSelectItem>
+                    <MudSelectItem Value="@("Audit.AzureActiveDirectory")">Azure AD</MudSelectItem>
+                    <MudSelectItem Value="@("Audit.Exchange")">Exchange</MudSelectItem>
+                    <MudSelectItem Value="@("Scripted")">Scripted</MudSelectItem>
+                </MudSelect>
+            </MudStack>
+        </MudPaper>
+
+        <!-- Data Grid -->
+        <MudPaper Class="overflow-hidden" Elevation="2">
+            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="pa-4 pb-0">
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Click on an alert to view details or use the action menu
+                </MudText>
+            </MudStack>
+            <MudDataGrid T="AlertConfigurationDto" 
+                         Items="@_filteredAlerts" 
+                         @ref="_dataGrid"
+                         Loading="@_loading"
+                         Filterable="true"
+                         SortMode="@SortMode.Multiple"
+                         Groupable="false"
+                         RowsPerPage="25"
+                         Hover="true"
+                         Dense="true"
+                         RowClick="@OnRowClick">
+                <Columns>
+                    <PropertyColumn Property="x => x.EventType" Title="Event Type" Sortable="true" Filterable="true">
+                        <CellTemplate>
+                            <MudChip T="string" Size="Size.Small" 
+                                    Color="@GetEventTypeColor(context.Item.EventType)"
+                                    Variant="Variant.Filled">
+                                @context.Item.EventType
+                            </MudChip>
+                        </CellTemplate>
+                    </PropertyColumn>
+
+                    <PropertyColumn Property="x => x.Tenants" Title="Tenants" Sortable="false" Filterable="false">
+                        <CellTemplate>
+                            @if (context.Item.Tenants?.Any() == true)
+                            {
+                                <MudText Typo="Typo.body2">
+                                    @string.Join(", ", context.Item.Tenants.Take(2).Select(t => t.Label))
+                                    @if (context.Item.Tenants.Count > 2)
+                                    {
+                                        <text> (+@(context.Item.Tenants.Count - 2) more)</text>
+                                    }
+                                </MudText>
+                            }
+                        </CellTemplate>
+                    </PropertyColumn>
+
+                    <PropertyColumn Property="x => x.Conditions" Title="Conditions" Sortable="false" Filterable="true">
+                        <CellTemplate>
+                            <MudText Typo="Typo.body2" Style="max-width: 300px; word-wrap: break-word;">
+                                @context.Item.Conditions
+                            </MudText>
+                        </CellTemplate>
+                    </PropertyColumn>
+
+                    <PropertyColumn Property="x => x.Actions" Title="Actions" Sortable="false" Filterable="true">
+                        <CellTemplate>
+                            <MudText Typo="Typo.body2">
+                                @context.Item.Actions
+                            </MudText>
+                        </CellTemplate>
+                    </PropertyColumn>
+
+                    <PropertyColumn Property="x => x.RepeatsEvery" Title="Frequency" Sortable="true" Filterable="false">
+                        <CellTemplate>
+                            <MudText Typo="Typo.body2">
+                                @context.Item.RepeatsEvery
+                            </MudText>
+                        </CellTemplate>
+                    </PropertyColumn>
+
+                    <PropertyColumn Property="x => x.LogType" Title="Log Type" Sortable="true" Filterable="true">
+                        <CellTemplate>
+                            @if (!string.IsNullOrEmpty(context.Item.LogType) && context.Item.LogType != "Unknown")
+                            {
+                                <MudChip T="string" Size="Size.Small" 
+                                        Color="@GetLogTypeColor(context.Item.LogType)"
+                                        Variant="Variant.Outlined">
+                                    @GetLogTypeDisplayName(context.Item.LogType)
+                                </MudChip>
+                            }
+                        </CellTemplate>
+                    </PropertyColumn>
+
+                    <TemplateColumn Title="Actions" Sortable="false" Filterable="false">
+                        <CellTemplate>
+                            <MudStack Row Spacing="1">
+                                <MudTooltip Text="Edit Alert">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                                  Size="Size.Small"
+                                                  Color="Color.Primary"
+                                                  OnClick="@(() => EditAlert(context.Item))" />
+                                </MudTooltip>
+                                <MudTooltip Text="Clone Alert">
+                                    <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                                                  Size="Size.Small"
+                                                  Color="Color.Success"
+                                                  OnClick="@(() => CloneAlert(context.Item))" />
+                                </MudTooltip>
+                                <MudTooltip Text="Delete Alert">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                  Size="Size.Small"
+                                                  Color="Color.Error"
+                                                  OnClick="@(() => DeleteAlert(context.Item))" />
+                                </MudTooltip>
+                            </MudStack>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+
+                <PagerContent>
+                    <MudDataGridPager T="AlertConfigurationDto" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudPaper>
+    </MudStack>
+</MudContainer>
+
+@code {
+    private MudDataGrid<AlertConfigurationDto>? _dataGrid;
+    private List<AlertConfigurationDto> _alerts = new();
+    private List<AlertConfigurationDto> _filteredAlerts = new();
+    
+    private bool _loading = false;
+    private string _searchText = "";
+    private string? _eventTypeFilter = null;
+    private string? _logTypeFilter = null;
+
+    protected override async Task OnInitializedAsync() {
+        await LoadAlerts();
+    }
+
+    private async Task LoadAlerts() {
+        _loading = true;
+        StateHasChanged();
+
+        try {
+            var result = await ApiClient.GetAsync<List<AlertConfigurationDto>>("/v1/alerts");
+            if (result?.Success == true && result.Data != null) {
+                _alerts = result.Data;
+                ApplyFilters();
+            } else {
+                NotificationService.ShowError($"Error loading alerts: {result?.Message ?? "Unknown error"}");
+            }
+        } catch (Exception ex) {
+            NotificationService.ShowError($"Error loading alerts: {ex.Message}");
+        } finally {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ApplyFilters() {
+        _filteredAlerts = _alerts.Where(alert => {
+            // Search filter
+            if (!string.IsNullOrEmpty(_searchText)) {
+                var searchLower = _searchText.ToLowerInvariant();
+                var searchMatch = alert.Conditions.ToLowerInvariant().Contains(searchLower) ||
+                                alert.Actions.ToLowerInvariant().Contains(searchLower) ||
+                                alert.Tenants.Any(t => t.Label.ToLowerInvariant().Contains(searchLower));
+                
+                if (!searchMatch) {
+                    return false;
+                }
+            }
+
+            // Event type filter
+            if (!string.IsNullOrEmpty(_eventTypeFilter) && 
+                !string.Equals(alert.EventType, _eventTypeFilter, StringComparison.OrdinalIgnoreCase)) {
+                return false;
+            }
+
+            // Log type filter
+            if (!string.IsNullOrEmpty(_logTypeFilter) && 
+                !string.Equals(alert.LogType, _logTypeFilter, StringComparison.OrdinalIgnoreCase)) {
+                return false;
+            }
+
+            return true;
+        }).ToList();
+
+        StateHasChanged();
+    }
+
+    private async Task OnSearchChanged() {
+        ApplyFilters();
+        await Task.CompletedTask;
+    }
+
+    private async Task RefreshData() {
+        await LoadAlerts();
+        NotificationService.ShowSuccess("Alert configurations refreshed successfully");
+    }
+
+    private Color GetEventTypeColor(string eventType) => eventType?.ToLower() switch {
+        "audit log alert" => Color.Info,
+        "scheduled task" => Color.Primary,
+        _ => Color.Default
+    };
+
+    private Color GetLogTypeColor(string logType) => logType?.ToLower() switch {
+        "audit.azureactivedirectory" => Color.Primary,
+        "audit.exchange" => Color.Secondary,
+        "scripted" => Color.Tertiary,
+        _ => Color.Default
+    };
+
+    private string GetLogTypeDisplayName(string logType) => logType switch {
+        "Audit.AzureActiveDirectory" => "Azure AD",
+        "Audit.Exchange" => "Exchange",
+        "Scripted" => "Scripted",
+        _ => logType
+    };
+
+    private void OnRowClick(DataGridRowClickEventArgs<AlertConfigurationDto> args) {
+        if (args.MouseEventArgs.Detail == 2) { // Double click
+            EditAlert(args.Item);
+        }
+    }
+
+    private void EditAlert(AlertConfigurationDto alert) {
+        Navigation.NavigateTo($"/tenant/administration/alert-configuration/edit?id={alert.RowKey}");
+    }
+
+    private void CloneAlert(AlertConfigurationDto alert) {
+        Navigation.NavigateTo($"/tenant/administration/alert-configuration/edit?id={alert.RowKey}&clone=true");
+    }
+
+    private async Task DeleteAlert(AlertConfigurationDto alert) {
+        var result = await ShowDeleteConfirmation(alert);
+        if (result) {
+            await PerformDeleteAlert(alert);
+        }
+    }
+
+    private async Task<bool> ShowDeleteConfirmation(AlertConfigurationDto alert) {
+        // This would ideally use a MudDialog, but for now we'll use a simple confirm
+        return await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"Are you sure you want to delete the alert '{alert.Conditions}'? This action cannot be undone.");
+    }
+
+    private async Task PerformDeleteAlert(AlertConfigurationDto alert) {
+        try {
+            var result = await ApiClient.DeleteAsync($"/v1/alerts/{alert.RowKey}?eventType={alert.EventType}");
+            if (result?.Success == true) {
+                NotificationService.ShowSuccess("Alert deleted successfully");
+                await LoadAlerts(); // Refresh the list
+            } else {
+                NotificationService.ShowError($"Error deleting alert: {result?.Message ?? "Unknown error"}");
+            }
+        } catch (Exception ex) {
+            NotificationService.ShowError($"Error deleting alert: {ex.Message}");
+        }
+    }
+}

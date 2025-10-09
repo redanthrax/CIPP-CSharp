@@ -1,5 +1,6 @@
 using CIPP.Api.Modules.Tenants.Commands;
 using CIPP.Api.Modules.Authorization.Extensions;
+using CIPP.Api.Modules.Authorization.Interfaces;
 using CIPP.Shared.DTOs;
 using CIPP.Shared.DTOs.Tenants;
 using DispatchR;
@@ -14,16 +15,21 @@ public static class CreateTenant
             .WithDescription("Creates a new tenant in the system")
             .RequirePermission("Tenant.Create", "Create new tenants in the system");
     }
-    private static async Task<IResult> Handle(CreateTenantDto createTenantDto, IMediator mediator, CancellationToken cancellationToken)
+    private static async Task<IResult> Handle(
+        CreateTenantDto createTenantDto, 
+        IMediator mediator,
+        ICurrentUserService currentUserService,
+        CancellationToken cancellationToken)
     {
         try
         {
+            var currentUserId = currentUserService.GetCurrentUserId() ?? Guid.Empty;
             var command = new CreateTenantCommand(
                 createTenantDto.TenantId,
                 createTenantDto.DisplayName,
                 createTenantDto.DefaultDomainName,
                 createTenantDto.Status,
-                "System", 
+                currentUserId,
                 createTenantDto.Metadata
             );
             var tenant = await mediator.Send(command, cancellationToken);

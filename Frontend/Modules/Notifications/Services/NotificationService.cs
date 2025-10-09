@@ -6,10 +6,12 @@ namespace CIPP.Frontend.Modules.Notifications.Services;
 public class NotificationService : INotificationService {
     private readonly ISnackbar _snackbar;
     private readonly ILogger<NotificationService> _logger;
+    private readonly IDialogService _dialogService;
 
-    public NotificationService(ISnackbar snackbar, ILogger<NotificationService> logger) {
+    public NotificationService(ISnackbar snackbar, ILogger<NotificationService> logger, IDialogService dialogService) {
         _snackbar = snackbar;
         _logger = logger;
+        _dialogService = dialogService;
     }
 
     public void ShowSuccess(string message, string? title = null) {
@@ -67,5 +69,15 @@ public class NotificationService : INotificationService {
         
         _logger.LogError("Detailed error notification: {Message}. Details: {Details}", 
             message, string.Join("; ", details));
+    }
+
+    public async Task<bool> ShowConfirmationAsync(string title, string message, string yesText = "Yes", string noText = "No") {
+        var result = await _dialogService.ShowMessageBox(
+            title, 
+            message, 
+            yesText, 
+            cancelText: noText);
+        
+        return result == true;
     }
 }

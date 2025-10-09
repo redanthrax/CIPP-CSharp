@@ -22,6 +22,84 @@ namespace CIPP.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CIPP.Api.Modules.Alerts.Models.AlertConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Actions")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AlertType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Conditions")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ExcludedTenants")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("HangfireJobId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastExecuted")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastExecutionResult")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("LogType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("RawConfiguration")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ScheduleCron")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TenantFilter")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("WebhookSubscriptionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AlertType");
+
+                    b.HasIndex("HangfireJobId")
+                        .IsUnique()
+                        .HasFilter("\"HangfireJobId\" IS NOT NULL");
+
+                    b.HasIndex("IsActive");
+
+                    b.ToTable("AlertConfigurations", (string)null);
+                });
+
             modelBuilder.Entity("CIPP.Api.Modules.Authorization.Models.ApiKey", b =>
                 {
                     b.Property<Guid>("Id")
@@ -285,15 +363,17 @@ namespace CIPP.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("DefaultDomainName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("DelegatedPrivilegeStatus")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
@@ -304,12 +384,30 @@ namespace CIPP.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("ExcludeDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ExcludeUser")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Excluded")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<int>("GraphErrorCount")
                         .HasColumnType("integer");
 
                     b.Property<string>("InitialDomainName")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("LastGraphError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime?>("LastRefresh")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("LastSyncAt")
                         .HasColumnType("timestamp with time zone");
@@ -318,10 +416,23 @@ namespace CIPP.Api.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("OriginalDisplayName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("RequiresRefresh")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TenantAlias")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
@@ -330,7 +441,13 @@ namespace CIPP.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DelegatedPrivilegeStatus");
+
+                    b.HasIndex("Excluded");
+
                     b.HasIndex("LastSyncAt");
+
+                    b.HasIndex("RequiresRefresh");
 
                     b.HasIndex("Status");
 
@@ -386,6 +503,73 @@ namespace CIPP.Api.Migrations
                         .HasFilter("[IsInitial] = 1");
 
                     b.ToTable("TenantDomain");
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Tenants.Models.TenantGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("TenantGroup");
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Tenants.Models.TenantGroupMembership", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantGroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantGroupId", "TenantId")
+                        .IsUnique();
+
+                    b.ToTable("TenantGroupMembership");
                 });
 
             modelBuilder.Entity("CIPP.Api.Modules.Tenants.Models.TenantProperty", b =>
@@ -525,6 +709,25 @@ namespace CIPP.Api.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("CIPP.Api.Modules.Tenants.Models.TenantGroupMembership", b =>
+                {
+                    b.HasOne("CIPP.Api.Modules.Tenants.Models.TenantGroup", "TenantGroup")
+                        .WithMany("Memberships")
+                        .HasForeignKey("TenantGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CIPP.Api.Modules.Tenants.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("TenantGroup");
+                });
+
             modelBuilder.Entity("CIPP.Api.Modules.Tenants.Models.TenantProperty", b =>
                 {
                     b.HasOne("CIPP.Api.Modules.Tenants.Models.Tenant", "Tenant")
@@ -565,6 +768,11 @@ namespace CIPP.Api.Migrations
                     b.Navigation("Domains");
 
                     b.Navigation("Properties");
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Tenants.Models.TenantGroup", b =>
+                {
+                    b.Navigation("Memberships");
                 });
 #pragma warning restore 612, 618
         }

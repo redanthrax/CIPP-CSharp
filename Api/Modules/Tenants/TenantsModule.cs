@@ -21,8 +21,17 @@ public class TenantsModule
     {
         moduleGroup.MapGetTenants();
         moduleGroup.MapGetTenantById();
+        moduleGroup.MapGetTenantDetails();
         moduleGroup.MapCreateTenant();
+        moduleGroup.MapUpdateTenant();
+        moduleGroup.MapExcludeTenant();
+        moduleGroup.MapGetTenantGroups();
+        moduleGroup.MapGetTenantGroup();
+        moduleGroup.MapCreateTenantGroup();
+        moduleGroup.MapUpdateTenantGroup();
+        moduleGroup.MapDeleteTenantGroup();
         moduleGroup.MapGetTenantCapabilities();
         moduleGroup.MapSyncTenantFromGraph();
+        moduleGroup.MapValidateDomain();
     }
 }

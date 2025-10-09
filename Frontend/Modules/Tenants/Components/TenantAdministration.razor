@@ -1,0 +1,603 @@
+@page "/tenant/administration/tenants"
+@attribute [Authorize]
+@using CIPP.Frontend.Modules.Tenants.Interfaces
+@using CIPP.Shared.DTOs.Tenants
+@using CIPP.Frontend.Modules.Notifications.Interfaces
+@using System.ComponentModel.DataAnnotations
+
+@inject ITenantService TenantService
+@inject INotificationService NotificationService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Tenant Administration - CIPP</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+    <MudStack Spacing="4">
+        <!-- Header -->
+        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h4">Tenant Administration</MudText>
+            <MudButtonGroup>
+                <MudButton Variant="Variant.Filled"
+                          Color="Color.Primary"
+                          StartIcon="@Icons.Material.Filled.Add"
+                          OnClick="@(() => Navigation.NavigateTo("/tenants/add"))">
+                    Add Tenant
+                </MudButton>
+                <MudButton Variant="Variant.Outlined"
+                          StartIcon="@Icons.Material.Filled.Refresh"
+                          OnClick="RefreshData"
+                          Disabled="@_loading">
+                    Refresh
+                </MudButton>
+            </MudButtonGroup>
+        </MudStack>
+
+        <!-- Tabs -->
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" 
+                 PanelClass="pa-6" KeepPanelsAlive="true">
+            
+            <!-- Tenants Tab -->
+            <MudTabPanel Text="Tenants" Icon="@Icons.Material.Filled.Business">
+                <MudStack Spacing="4">
+                    <!-- Filters and Search -->
+                    <MudPaper Class="pa-4" Elevation="2">
+                        <MudStack Row Spacing="3" AlignItems="AlignItems.End">
+                            <MudTextField @bind-Value="_searchText"
+                                         Label="Search Tenants"
+                                         Placeholder="Search by name, domain, or ID..."
+                                         Adornment="Adornment.Start"
+                                         AdornmentIcon="@Icons.Material.Filled.Search"
+                                         Immediate="true"
+                                         DebounceInterval="300"
+                                         OnDebounceIntervalElapsed="OnSearchChanged"
+                                         Style="min-width: 300px;" />
+                            
+                            <MudSelect @bind-Value="_statusFilter" 
+                                      Label="Status Filter" 
+                                      Clearable="true"
+                                      Style="min-width: 150px;">
+                                <MudSelectItem Value="@((string?)null)">All Statuses</MudSelectItem>
+                                <MudSelectItem Value="@("Active")">Active</MudSelectItem>
+                                <MudSelectItem Value="@("Suspended")">Suspended</MudSelectItem>
+                                <MudSelectItem Value="@("Deleted")">Deleted</MudSelectItem>
+                            </MudSelect>
+
+                            <MudCheckBox @bind-Value="_onlyExcluded" 
+                                        @bind-Value:after="OnSearchChanged"
+                                        Label="Show Only Excluded" 
+                                        Color="Color.Warning" />
+                        </MudStack>
+                    </MudPaper>
+
+                    <!-- Bulk Operations -->
+                    @if (_selectedTenants.Any())
+                    {
+                        <MudPaper Class="pa-4" Elevation="2">
+                            <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.subtitle1">
+                                    @_selectedTenants.Count tenant(s) selected
+                                </MudText>
+                                <MudButtonGroup Size="Size.Small">
+                                    <MudButton StartIcon="@Icons.Material.Filled.Edit"
+                                              Color="Color.Primary"
+                                              OnClick="BulkEditSelected">
+                                        Bulk Edit
+                                    </MudButton>
+                                    <MudButton StartIcon="@Icons.Material.Filled.Block"
+                                              Color="Color.Warning"
+                                              OnClick="BulkExcludeSelected">
+                                        Exclude
+                                    </MudButton>
+                                    <MudButton StartIcon="@Icons.Material.Filled.CheckCircle"
+                                              Color="Color.Success"
+                                              OnClick="BulkIncludeSelected">
+                                        Include
+                                    </MudButton>
+                                    <MudButton StartIcon="@Icons.Material.Filled.Delete"
+                                              Color="Color.Error"
+                                              OnClick="BulkDeleteSelected">
+                                        Delete
+                                    </MudButton>
+                                </MudButtonGroup>
+                                <MudSpacer />
+                                <MudButton Size="Size.Small"
+                                          Variant="Variant.Text"
+                                          OnClick="ClearSelection">
+                                    Clear Selection
+                                </MudButton>
+                            </MudStack>
+                        </MudPaper>
+                    }
+
+                    <!-- Data Grid -->
+                    <MudPaper Class="overflow-hidden" Elevation="2">
+                        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="pa-4 pb-0">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Double-click a tenant to view details
+                            </MudText>
+                        </MudStack>
+                        <MudDataGrid T="TenantDto" 
+                                     Items="@_filteredTenants" 
+                                     @ref="_dataGrid"
+                                     MultiSelection="true"
+                                     @bind-SelectedItems="_selectedTenants"
+                                     Loading="@_loading"
+                                     Filterable="true"
+                                     SortMode="@SortMode.Multiple"
+                                     Groupable="false"
+                                     RowsPerPage="25"
+                                     Hover="true"
+                                     Dense="true"
+                                     RowClick="@OnRowClick"
+                                     RowStyleFunc="@GetRowStyle">
+                            <Columns>
+                                <SelectColumn T="TenantDto" />
+                                
+                                <PropertyColumn Property="x => x.DisplayName" Title="Tenant Name" Sortable="true" Filterable="true">
+                                    <CellTemplate>
+                                        <MudStack Spacing="1">
+                                            <MudText Typo="Typo.body2" Style="font-weight: 500;">
+                                                @context.Item.DisplayName
+                                            </MudText>
+                                            @if (!string.IsNullOrEmpty(context.Item.TenantAlias) && context.Item.TenantAlias != context.Item.DisplayName)
+                                            {
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                                    Alias: @context.Item.TenantAlias
+                                                </MudText>
+                                            }
+                                        </MudStack>
+                                    </CellTemplate>
+                                </PropertyColumn>
+
+                                <PropertyColumn Property="x => x.DefaultDomainName" Title="Primary Domain" Sortable="true" Filterable="true">
+                                    <CellTemplate>
+                                        <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                                            <MudText Typo="Typo.body2">@context.Item.DefaultDomainName</MudText>
+                                            <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                                                          Size="Size.Small"
+                                                          OnClick="@(() => CopyToClipboard(context.Item.DefaultDomainName))"
+                                                          title="Copy domain" />
+                                        </MudStack>
+                                    </CellTemplate>
+                                </PropertyColumn>
+
+                                <PropertyColumn Property="x => x.TenantId" Title="Tenant ID" Sortable="true">
+                                    <CellTemplate>
+                                        <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                                            <MudText Typo="Typo.body2" Style="font-family: monospace; font-size: 0.8em;">
+                                                @context.Item.TenantId.ToString()[..8]...
+                                            </MudText>
+                                            <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                                                          Size="Size.Small"
+                                                          OnClick="@(() => CopyToClipboard(context.Item.TenantId.ToString()))"
+                                                          title="Copy full tenant ID" />
+                                        </MudStack>
+                                    </CellTemplate>
+                                </PropertyColumn>
+
+                                <PropertyColumn Property="x => x.Status" Title="Status" Sortable="true" Filterable="true">
+                                    <CellTemplate>
+                                        <MudStack Spacing="1">
+                                            <MudChip T="string" Size="Size.Small" 
+                                                    Color="@GetStatusColor(context.Item.Status)"
+                                                    Variant="Variant.Filled">
+                                                @context.Item.Status
+                                            </MudChip>
+                                            @if (context.Item.Excluded)
+                                            {
+                                                <MudChip T="string" Size="Size.Small" 
+                                                        Color="Color.Warning"
+                                                        Variant="Variant.Outlined">
+                                                    Excluded
+                                                </MudChip>
+                                            }
+                                        </MudStack>
+                                    </CellTemplate>
+                                </PropertyColumn>
+
+                                <TemplateColumn Title="Portal Links" Sortable="false" Filterable="false">
+                                    <CellTemplate>
+                                        <MudStack Row Spacing="1">
+                                            @foreach (var portal in GetPortalLinks(context.Item))
+                                            {
+                                                <MudTooltip Text="@portal.Name">
+                                                    <MudIconButton Icon="@portal.Icon"
+                                                                  Size="Size.Small"
+                                                                  Color="Color.Primary"
+                                                                  OnClick="@(() => OpenPortal(portal.Url))"
+                                                                  Style="min-width: 32px; min-height: 32px;" />
+                                                </MudTooltip>
+                                            }
+                                        </MudStack>
+                                    </CellTemplate>
+                                </TemplateColumn>
+
+                                <PropertyColumn Property="x => x.CreatedAt" Title="Created" Sortable="true">
+                                    <CellTemplate>
+                                        <MudText Typo="Typo.body2">
+                                            @context.Item.CreatedAt.ToString("MMM dd, yyyy")
+                                        </MudText>
+                                    </CellTemplate>
+                                </PropertyColumn>
+
+                            </Columns>
+
+                            <PagerContent>
+                                <MudDataGridPager T="TenantDto" />
+                            </PagerContent>
+                        </MudDataGrid>
+                    </MudPaper>
+                </MudStack>
+            </MudTabPanel>
+
+            <!-- Groups Tab -->
+            <MudTabPanel Text="Groups" Icon="@Icons.Material.Filled.Group">
+                <TenantGroups />
+            </MudTabPanel>
+
+            <!-- Global Variables Tab -->
+            <MudTabPanel Text="Global Variables" Icon="@Icons.Material.Filled.SettingsApplications">
+                <GlobalVariables />
+            </MudTabPanel>
+        </MudTabs>
+    </MudStack>
+</MudContainer>
+
+@code {
+    private MudDataGrid<TenantDto>? _dataGrid;
+    private HashSet<TenantDto> _selectedTenants = new();
+    private List<TenantDto> _tenants = new();
+    private List<TenantDto> _filteredTenants = new();
+    
+    private bool _loading = false;
+    private string _searchText = "";
+    private string? _statusFilter = null;
+    private bool _onlyExcluded = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTenants();
+    }
+
+    private async Task LoadTenants()
+    {
+        _loading = true;
+        StateHasChanged();
+
+        try
+        {
+            var result = await TenantService.GetTenantsAsync(pageNumber: 1, pageSize: 1000, allTenants: true);
+            if (result?.Items != null)
+            {
+                _tenants = result.Items.ToList();
+                ApplyFilters();
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.ShowError($"Error loading tenants: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        _filteredTenants = _tenants.Where(t =>
+        {
+            // Search filter
+            if (!string.IsNullOrEmpty(_searchText))
+            {
+                var searchLower = _searchText.ToLowerInvariant();
+                if (!t.DisplayName.ToLowerInvariant().Contains(searchLower) &&
+                    !t.DefaultDomainName.ToLowerInvariant().Contains(searchLower) &&
+                    !t.TenantId.ToString().ToLowerInvariant().Contains(searchLower) &&
+                    !(t.TenantAlias?.ToLowerInvariant().Contains(searchLower) == true))
+                {
+                    return false;
+                }
+            }
+
+            // Status filter
+            if (!string.IsNullOrEmpty(_statusFilter) && 
+                !string.Equals(t.Status, _statusFilter, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            // Excluded filter
+            if (_onlyExcluded && !t.Excluded)
+            {
+                return false;
+            }
+
+            return true;
+        }).ToList();
+
+        StateHasChanged();
+    }
+
+    private async Task OnSearchChanged()
+    {
+        ApplyFilters();
+        await Task.CompletedTask;
+    }
+
+    private async Task RefreshData()
+    {
+        await LoadTenants();
+        NotificationService.ShowSuccess("Tenant data refreshed successfully");
+    }
+
+    private Color GetStatusColor(string status) => status?.ToLower() switch
+    {
+        "active" => Color.Success,
+        "suspended" => Color.Warning,
+        "deleted" => Color.Error,
+        _ => Color.Default
+    };
+
+    private void OnRowClick(DataGridRowClickEventArgs<TenantDto> args)
+    {
+        if (args.MouseEventArgs.Detail == 2) // Double click
+        {
+            ViewTenant(args.Item.Id);
+        }
+    }
+
+    private string GetRowStyle(TenantDto tenant, int index)
+    {
+        return tenant.Excluded ? "background-color: rgba(255, 193, 7, 0.1);" : "";
+    }
+
+    private List<PortalLink> GetPortalLinks(TenantDto tenant)
+    {
+        var domain = tenant.DefaultDomainName;
+        var tenantId = tenant.TenantId;
+
+        return new List<PortalLink>
+        {
+            new() { Name = "M365 Admin", Url = $"https://admin.microsoft.com?auth_upn={domain}", Icon = Icons.Material.Filled.Settings },
+            new() { Name = "Exchange Admin", Url = $"https://admin.exchange.microsoft.com/?realm={domain}", Icon = Icons.Material.Filled.Mail },
+            new() { Name = "Entra ID", Url = $"https://entra.microsoft.com/{tenantId}", Icon = Icons.Material.Filled.Person },
+            new() { Name = "SharePoint", Url = $"https://{domain.Split('.')[0]}-admin.sharepoint.com", Icon = Icons.Material.Filled.Folder },
+            new() { Name = "Teams Admin", Url = $"https://admin.teams.microsoft.com/?delegatedOrg={tenantId}", Icon = Icons.Material.Filled.Groups },
+            new() { Name = "Azure Portal", Url = $"https://portal.azure.com/{tenantId}", Icon = Icons.Material.Filled.Cloud },
+            new() { Name = "Intune", Url = $"https://endpoint.microsoft.com/{tenantId}", Icon = Icons.Material.Filled.Devices },
+            new() { Name = "Security Center", Url = $"https://security.microsoft.com/?tid={tenantId}", Icon = Icons.Material.Filled.Security },
+            new() { Name = "Compliance", Url = $"https://compliance.microsoft.com/?tid={tenantId}", Icon = Icons.Material.Filled.Gavel },
+            new() { Name = "Power Platform", Url = $"https://admin.powerplatform.microsoft.com/environments?tenantId={tenantId}", Icon = Icons.Material.Filled.PowerSettingsNew },
+            new() { Name = "Power BI", Url = $"https://app.powerbi.com/?tenantId={tenantId}", Icon = Icons.Material.Filled.BarChart }
+        };
+    }
+
+    private async Task OpenPortal(string url)
+    {
+        await JSRuntime.InvokeVoidAsync("open", url, "_blank");
+    }
+
+    private async Task CopyToClipboard(string text)
+    {
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        NotificationService.ShowSuccess("Copied to clipboard");
+    }
+
+    private void ViewTenant(Guid tenantId)
+    {
+        Navigation.NavigateTo($"/tenants/{tenantId}");
+    }
+
+    private void EditTenant(Guid tenantId)
+    {
+        Navigation.NavigateTo($"/tenants/{tenantId}/edit");
+    }
+
+    private void ManageStandards(TenantDto tenant)
+    {
+        Navigation.NavigateTo($"/tenant/standards/list-standards?tenantFilter={tenant.DefaultDomainName}");
+    }
+
+    private async Task ToggleExclusion(TenantDto tenant)
+    {
+        try
+        {
+            var newExclusionState = !tenant.Excluded;
+            var result = await TenantService.ExcludeTenantAsync(new List<Guid> { tenant.Id }, newExclusionState);
+            
+            if (result.Success)
+            {
+                tenant = tenant with { Excluded = newExclusionState };
+                
+                // Update the tenant in the lists
+                var tenantIndex = _tenants.FindIndex(t => t.Id == tenant.Id);
+                if (tenantIndex >= 0)
+                {
+                    _tenants[tenantIndex] = tenant;
+                }
+                
+                ApplyFilters();
+                NotificationService.ShowSuccess($"Tenant {(newExclusionState ? "excluded" : "included")} successfully");
+            }
+            else
+            {
+                NotificationService.ShowError($"Failed to toggle exclusion: {result.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.ShowError($"Error toggling tenant exclusion: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteTenant(TenantDto tenant)
+    {
+        var confirmed = await NotificationService.ShowConfirmationAsync(
+            "Delete Tenant",
+            $"Are you sure you want to delete tenant '{tenant.DisplayName}'? This action cannot be undone.");
+
+        if (confirmed)
+        {
+            try
+            {
+                var result = await TenantService.DeleteTenantAsync(tenant.Id);
+                if (result.Success)
+                {
+                    NotificationService.ShowSuccess($"Tenant '{tenant.DisplayName}' deleted successfully");
+                    await LoadTenants();
+                }
+                else
+                {
+                    NotificationService.ShowError($"Failed to delete tenant: {result.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.ShowError($"Error deleting tenant: {ex.Message}");
+            }
+        }
+    }
+
+    private void ClearSelection()
+    {
+        _selectedTenants.Clear();
+        StateHasChanged();
+    }
+
+    private void BulkEditSelected()
+    {
+        NotificationService.ShowInfo($"Bulk edit for {_selectedTenants.Count} tenants - Feature coming soon");
+    }
+
+    private async Task BulkExcludeSelected()
+    {
+        var confirmed = await NotificationService.ShowConfirmationAsync(
+            "Bulk Exclude Tenants",
+            $"Are you sure you want to exclude {_selectedTenants.Count} selected tenant(s)?");
+
+        if (confirmed)
+        {
+            try
+            {
+                var tenantIds = _selectedTenants.Select(t => t.Id).ToList();
+                var result = await TenantService.ExcludeTenantAsync(tenantIds, true);
+                
+                if (result.Success)
+                {
+                    await LoadTenants(); // Reload to get updated data
+                    NotificationService.ShowSuccess($"{_selectedTenants.Count} tenant(s) excluded successfully");
+                    ClearSelection();
+                }
+                else
+                {
+                    NotificationService.ShowError($"Failed to exclude tenants: {result.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.ShowError($"Error excluding tenants: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task BulkIncludeSelected()
+    {
+        var excludedTenants = _selectedTenants.Where(t => t.Excluded).ToList();
+        if (!excludedTenants.Any())
+        {
+            NotificationService.ShowInfo("No excluded tenants selected");
+            return;
+        }
+
+        var confirmed = await NotificationService.ShowConfirmationAsync(
+            "Bulk Include Tenants",
+            $"Are you sure you want to include {excludedTenants.Count} selected excluded tenant(s)?");
+
+        if (confirmed)
+        {
+            try
+            {
+                var tenantIds = excludedTenants.Select(t => t.Id).ToList();
+                var result = await TenantService.ExcludeTenantAsync(tenantIds, false);
+                
+                if (result.Success)
+                {
+                    await LoadTenants(); // Reload to get updated data
+                    NotificationService.ShowSuccess($"{excludedTenants.Count} tenant(s) included successfully");
+                    ClearSelection();
+                }
+                else
+                {
+                    NotificationService.ShowError($"Failed to include tenants: {result.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.ShowError($"Error including tenants: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task BulkDeleteSelected()
+    {
+        var confirmed = await NotificationService.ShowConfirmationAsync(
+            "Bulk Delete Tenants",
+            $"Are you sure you want to delete {_selectedTenants.Count} selected tenant(s)? This action cannot be undone.");
+
+        if (confirmed)
+        {
+            try
+            {
+                var deletedCount = 0;
+                var errors = new List<string>();
+
+                foreach (var tenant in _selectedTenants.ToList())
+                {
+                    try
+                    {
+                        var result = await TenantService.DeleteTenantAsync(tenant.Id);
+                        if (result.Success)
+                        {
+                            deletedCount++;
+                        }
+                        else
+                        {
+                            errors.Add($"{tenant.DisplayName}: {result.Message}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"{tenant.DisplayName}: {ex.Message}");
+                    }
+                }
+
+                if (deletedCount > 0)
+                {
+                    NotificationService.ShowSuccess($"{deletedCount} tenant(s) deleted successfully");
+                }
+
+                if (errors.Any())
+                {
+                    NotificationService.ShowWarning($"Some deletions failed: {string.Join(", ", errors)}");
+                }
+
+                await LoadTenants();
+                ClearSelection();
+            }
+            catch (Exception ex)
+            {
+                NotificationService.ShowError($"Error in bulk delete operation: {ex.Message}");
+            }
+        }
+    }
+
+    public class PortalLink
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        public string Icon { get; set; } = string.Empty;
+    }
+}

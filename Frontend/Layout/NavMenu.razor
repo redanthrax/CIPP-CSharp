@@ -2,9 +2,73 @@
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
         Dashboard
     </MudNavLink>
-    <MudNavLink Href="/tenants" Icon="@Icons.Material.Filled.Business">
-        Tenants
-    </MudNavLink>
+    <MudNavGroup Title="Tenant Administration" Icon="@Icons.Material.Filled.Business">
+        <MudNavGroup Title="Administration" Icon="@Icons.Material.Filled.AdminPanelSettings">
+            <MudNavLink Href="/tenant/administration/tenants" Icon="@Icons.Material.Filled.List">
+                Tenants
+            </MudNavLink>
+            <MudNavLink Href="/tenant/administration/alert-configuration" Icon="@Icons.Material.Filled.Notifications">
+                Alert Configuration
+            </MudNavLink>
+            <MudNavLink Href="/tenant/administration/audit-logs" Icon="@Icons.Material.Filled.History">
+                Audit Logs
+            </MudNavLink>
+            <MudNavLink Href="/tenant/administration/applications" Icon="@Icons.Material.Filled.Apps">
+                Applications
+            </MudNavLink>
+            <MudNavLink Href="/tenant/administration/securescore" Icon="@Icons.Material.Filled.Security">
+                Secure Score
+            </MudNavLink>
+            <MudNavLink Href="/tenant/administration/app-consent-requests" Icon="@Icons.Material.Filled.AppRegistration">
+                App Consent Requests
+            </MudNavLink>
+            <MudNavLink Href="/tenant/administration/authentication-methods" Icon="@Icons.Material.Filled.VpnKey">
+                Authentication Methods
+            </MudNavLink>
+            <MudNavLink Href="/tenant/administration/partner-relationships" Icon="@Icons.Material.Filled.Handshake">
+                Partner Relationships
+            </MudNavLink>
+        </MudNavGroup>
+        <MudNavLink Href="/tenant/gdap-management" Icon="@Icons.Material.Filled.ManageAccounts">
+            GDAP Management
+        </MudNavLink>
+        <MudNavGroup Title="Standards & Drift" Icon="@Icons.Material.Filled.Rule">
+            <MudNavLink Href="/tenant/standards/list-standards" Icon="@Icons.Material.Filled.Rule">
+                Standards Management
+            </MudNavLink>
+            <MudNavLink Href="/tenant/standards/bpa-report" Icon="@Icons.Material.Filled.Analytics">
+                Best Practice Analyser
+            </MudNavLink>
+            <MudNavLink Href="/tenant/standards/domains-analyser" Icon="@Icons.Material.Filled.Domain">
+                Domains Analyser
+            </MudNavLink>
+        </MudNavGroup>
+        <MudNavGroup Title="Conditional Access" Icon="@Icons.Material.Filled.Policy">
+            <MudNavLink Href="/tenant/conditional/list-policies" Icon="@Icons.Material.Filled.Policy">
+                CA Policies
+            </MudNavLink>
+            <MudNavLink Href="/tenant/conditional/deploy-vacation" Icon="@Icons.Material.Filled.BeachAccess">
+                CA Vacation Mode
+            </MudNavLink>
+            <MudNavLink Href="/tenant/conditional/list-template" Icon="@Icons.Material.Filled.DataObject">
+                CA Templates
+            </MudNavLink>
+            <MudNavLink Href="/tenant/conditional/list-named-locations" Icon="@Icons.Material.Filled.LocationOn">
+                Named Locations
+            </MudNavLink>
+        </MudNavGroup>
+        <MudNavGroup Title="Reports" Icon="@Icons.Material.Filled.Assessment">
+            <MudNavLink Href="/tenant/reports/list-licenses" Icon="@Icons.Material.Filled.Description">
+                Licence Report
+            </MudNavLink>
+            <MudNavLink Href="/tenant/reports/list-csp-licenses" Icon="@Icons.Material.Filled.BusinessCenter">
+                Sherweb Licence Report
+            </MudNavLink>
+            <MudNavLink Href="/tenant/reports/application-consent" Icon="@Icons.Material.Filled.AppSettingsAlt">
+                Consented Applications
+            </MudNavLink>
+        </MudNavGroup>
+    </MudNavGroup>
     <MudNavGroup Title="CIPP">
         <MudNavLink Href="/cipp/settings" Icon="@Icons.Material.Filled.Settings">
             Application Settings

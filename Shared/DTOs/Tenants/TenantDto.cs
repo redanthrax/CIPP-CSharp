@@ -6,6 +6,10 @@ public record TenantDto(
     string DefaultDomainName,
     string Status,
     DateTime CreatedAt,
-    string CreatedBy,
-    string? Metadata = null
+    Guid CreatedBy,
+    string? Metadata = null,
+    string? TenantAlias = null,
+    bool Excluded = false,
+    Guid? ExcludeUser = null,
+    DateTime? ExcludeDate = null
 );

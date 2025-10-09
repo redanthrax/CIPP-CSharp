@@ -1,0 +1,10 @@
+using CIPP.Api.Modules.Tenants.Models;
+using DispatchR.Abstractions.Send;
+
+namespace CIPP.Api.Modules.Tenants.Commands;
+
+public record CreateTenantGroupCommand(
+    string Name,
+    string? Description,
+    List<Guid>? MemberTenantIds = null
+) : IRequest<CreateTenantGroupCommand, Task<TenantGroup>>;

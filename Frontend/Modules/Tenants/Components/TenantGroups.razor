@@ -1,0 +1,216 @@
+@page "/tenants/groups"
+@attribute [Authorize]
+@using CIPP.Frontend.Modules.Tenants.Interfaces
+@using CIPP.Shared.DTOs.Tenants
+@using CIPP.Frontend.Modules.Notifications.Interfaces
+
+@inject ITenantService TenantService
+@inject INotificationService NotificationService
+
+<PageTitle>Tenant Groups - CIPP</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">Tenant Groups</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <MudButtonGroup Variant="Variant.Outlined">
+                    <MudButton Color="Color.Success" 
+                              StartIcon="@Icons.Material.Filled.Add"
+                              Href="/tenants/groups/add">
+                        Add Group
+                    </MudButton>
+                    <MudButton Color="Color.Primary" 
+                              StartIcon="@Icons.Material.Filled.Refresh"
+                              OnClick="@(() => LoadTenantGroups(noCache: true))"
+                              Disabled="@_loading">
+                        @if (_loading) {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                        } else {
+                            <span>Refresh</span>
+                        }
+                    </MudButton>
+                </MudButtonGroup>
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardContent>
+            @if (_loading && (_tenantGroups == null || !_tenantGroups.Any())) {
+                <div class="d-flex justify-center pa-4">
+                    <MudProgressCircular Indeterminate="true" />
+                </div>
+                <MudText Class="text-center mt-2" Color="Color.Secondary">
+                    Loading tenant groups...
+                </MudText>
+            }
+            else if (_error != null) {
+                <MudAlert Severity="Severity.Error" Class="mb-4">
+                    Error loading tenant groups: @_error
+                    <MudButton Color="Color.Error" 
+                               Variant="Variant.Text" 
+                               Size="Size.Small"
+                               OnClick="@(() => LoadTenantGroups())"
+                               Class="ml-2">
+                        Retry
+                    </MudButton>
+                </MudAlert>
+            }
+            else if (_tenantGroups?.Any() == true) {
+                <MudDataGrid T="TenantGroupDto" 
+                             Items="@_tenantGroups" 
+                             Filterable="true" 
+                             SortMode="SortMode.Multiple"
+                             Loading="@_loading"
+                             RowsPerPage="25">
+                    <Columns>
+                        <PropertyColumn Property="x => x.Name" Title="Group Name">
+                            <CellTemplate>
+                                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                    <MudIcon Icon="@Icons.Material.Filled.Group" Size="Size.Small" />
+                                    <MudText Typo="Typo.body2">@context.Item.Name</MudText>
+                                </MudStack>
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn Property="x => x.Description" Title="Description">
+                            <CellTemplate>
+                                <MudText Typo="Typo.body2">
+                                    @(string.IsNullOrEmpty(context.Item.Description) ? "No description" : context.Item.Description)
+                                </MudText>
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn Property="x => x.MemberTenantIds" Title="Members">
+                            <CellTemplate>
+                                <MudChip Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
+                                    @(context.Item.MemberTenantIds?.Count ?? 0) members
+                                </MudChip>
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn Property="x => x.CreatedAt" Title="Created" Format="yyyy-MM-dd HH:mm">
+                            <CellTemplate>
+                                <MudText Typo="Typo.body2">
+                                    @context.Item.CreatedAt.ToString("MMM dd, yyyy")
+                                </MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                    @context.Item.CreatedAt.ToString("HH:mm")
+                                </MudText>
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <TemplateColumn Title="Actions">
+                            <CellTemplate>
+                                <MudButtonGroup Size="Size.Small" Variant="Variant.Outlined">
+                                    <MudButton StartIcon="@Icons.Material.Filled.Edit"
+                                               Size="Size.Small"
+                                               Href="@($"/tenants/groups/{context.Item.Id}/edit")"
+                                               Color="Color.Primary">
+                                        Edit
+                                    </MudButton>
+                                    <MudButton StartIcon="@Icons.Material.Filled.Delete"
+                                               Size="Size.Small"
+                                               OnClick="@(() => DeleteGroup(context.Item))"
+                                               Color="Color.Error">
+                                        Delete
+                                    </MudButton>
+                                </MudButtonGroup>
+                            </CellTemplate>
+                        </TemplateColumn>
+                    </Columns>
+                    <PagerContent>
+                        <MudDataGridPager T="TenantGroupDto" />
+                    </PagerContent>
+                </MudDataGrid>
+                
+                <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-4">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        Total: @_tenantGroups.Count groups
+                    </MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        Last updated: @(_lastUpdated?.ToString("HH:mm:ss") ?? "Never")
+                    </MudText>
+                </MudStack>
+            }
+            else {
+                <MudPaper Class="pa-8 text-center" Elevation="0">
+                    <MudIcon Icon="@Icons.Material.Filled.Group" 
+                             Size="Size.Large" 
+                             Color="Color.Secondary" 
+                             Class="mb-4" />
+                    <MudText Typo="Typo.h6" Color="Color.Secondary">
+                        No tenant groups found
+                    </MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                        Create your first tenant group to organize your tenants.
+                    </MudText>
+                    <MudButton Variant="Variant.Filled" 
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               Href="/tenants/groups/add">
+                        Add First Group
+                    </MudButton>
+                </MudPaper>
+            }
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private List<TenantGroupDto>? _tenantGroups;
+    private bool _loading = false;
+    private string? _error;
+    private DateTime? _lastUpdated;
+
+    protected override async Task OnInitializedAsync() {
+        await LoadTenantGroups();
+    }
+
+    private async Task LoadTenantGroups(bool noCache = false) {
+        _loading = true;
+        _error = null;
+        StateHasChanged();
+
+        try {
+            var pagedResponse = await TenantService.GetTenantGroupsAsync(
+                pageNumber: 1, 
+                pageSize: 1000,
+                noCache: noCache
+            );
+            
+            if (pagedResponse?.Items != null) {
+                _tenantGroups = pagedResponse.Items.ToList();
+                _lastUpdated = DateTime.Now;
+            } else {
+                _tenantGroups = new List<TenantGroupDto>();
+            }
+        }
+        catch (Exception ex) {
+            _error = ex.Message;
+            _tenantGroups = new List<TenantGroupDto>();
+        }
+        finally {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteGroup(TenantGroupDto group) {
+        var confirmed = await NotificationService.ShowConfirmationAsync(
+            "Delete Tenant Group", 
+            $"Are you sure you want to delete the group '{group.Name}'? This action cannot be undone.");
+            
+        if (confirmed) {
+            try {
+                var result = await TenantService.DeleteTenantGroupAsync(group.Id);
+            if (result.Success) {
+                    NotificationService.ShowSuccess($"Tenant group '{group.Name}' deleted successfully.");
+                    await LoadTenantGroups(noCache: true);
+                }
+                else {
+                    NotificationService.ShowError($"Failed to delete tenant group: {result.Message}");
+                }
+            }
+            catch (Exception ex) {
+                NotificationService.ShowError($"Error deleting tenant group: {ex.Message}");
+            }
+        }
+    }
+}
