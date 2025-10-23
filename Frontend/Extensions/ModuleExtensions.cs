@@ -1,5 +1,6 @@
 using CIPP.Frontend.Modules.Authentication;
 using CIPP.Frontend.Modules.ApiVersioning;
+using CIPP.Frontend.Modules.Identity;
 using CIPP.Frontend.Modules.Notifications;
 using CIPP.Frontend.Modules.Tenants;
 using CIPP.Frontend.Services;
@@ -12,11 +13,11 @@ public static class ModuleExtensions {
         services.AddMudServices();
         services.AddScoped<IThemeService, ThemeService>();
         
-        // Application modules
         services.AddApiVersioningModule();
         services.AddNotificationsModule();
         services.AddAuthenticationModule(configuration);
         services.AddTenantsModule();
+        services.AddIdentityModule();
         
         return services;
     }

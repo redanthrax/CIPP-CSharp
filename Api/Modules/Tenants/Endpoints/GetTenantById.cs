@@ -21,7 +21,7 @@ public static class GetTenantById
             var tenant = await mediator.Send(query, CancellationToken.None);
             if (tenant == null)
             {
-                return Results.NotFound($"Tenant with ID {id} not found");
+                return Results.NotFound(Response<TenantDto>.ErrorResult($"Tenant with ID {id} not found"));
             }
             var tenantDto = new TenantDto(
                 tenant.Id,

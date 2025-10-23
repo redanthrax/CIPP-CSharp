@@ -23,9 +23,9 @@ public static class GetTenantDetails {
             var query = new GetTenantDetailsQuery(id);
             var tenantDetails = await mediator.Send(query, cancellationToken);
 
-            return Results.Ok(Response<TenantDetailsDto>.SuccessResult(tenantDetails));
+            return Results.Ok(Response<TenantDetailsDto>.SuccessResult(tenantDetails, "Tenant details retrieved successfully"));
         } catch (InvalidOperationException) {
-            return Results.NotFound($"Tenant with ID {id} not found");
+            return Results.NotFound(Response<TenantDetailsDto>.ErrorResult($"Tenant with ID {id} not found"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

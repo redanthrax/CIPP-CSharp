@@ -22,9 +22,10 @@
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.1" />
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.6" />
-    <PackageReference Include="Microsoft.Graph.Beta" Version="5.122.0-preview" />
+    <PackageReference Include="Microsoft.Graph.Beta" Version="5.123.0-preview" />
+    <PackageReference Include="Microsoft.Graph.Core" Version="3.2.4" />
     <PackageReference Include="Microsoft.Identity.Web" Version="3.8.3" />
-    <PackageReference Include="Microsoft.Graph" Version="5.81.0" />
+    <PackageReference Include="Microsoft.Graph" Version="5.94.0" />
     <PackageReference Include="Azure.Identity" Version="1.16.0" />
     <PackageReference Include="NCrontab" Version="3.3.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />

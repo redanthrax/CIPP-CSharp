@@ -25,7 +25,7 @@ public static class GetTenantGroup {
 
             var tenantGroup = tenantGroups.FirstOrDefault();
             if (tenantGroup == null) {
-                return Results.NotFound($"Tenant group with ID {groupId} not found");
+                return Results.NotFound(Response<TenantGroupDto>.ErrorResult($"Tenant group with ID {groupId} not found"));
             }
 
             var tenantGroupDto = new TenantGroupDto(

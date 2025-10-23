@@ -14,7 +14,6 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
     <MudPaper Class="pa-6">
         <MudStack Spacing="4">
-            <!-- Header -->
             <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.h4">Add Tenant Group</MudText>
                 <MudButton Variant="Variant.Text" 
@@ -24,7 +23,6 @@
                 </MudButton>
             </MudStack>
 
-            <!-- Form -->
             <EditForm Model="_groupRequest" OnValidSubmit="CreateGroup">
                 <DataAnnotationsValidator />
                 <MudCard>
@@ -48,7 +46,6 @@
                                           Lines="3"
                                           For="@(() => _groupRequest.Description)" />
 
-                            <!-- Tenant Members Selection -->
                             <MudText Typo="Typo.subtitle1" Class="mt-4">Group Members</MudText>
                             <MudDivider />
                             
@@ -89,7 +86,6 @@
                                 </MudAlert>
                             }
 
-                            <!-- Selected Members Preview -->
                             @if (_selectedTenants?.Any() == true) {
                                 <MudText Typo="Typo.subtitle2" Class="mt-3">Selected Members (@_selectedTenants.Count())</MudText>
                                 <MudStack Row Spacing="1" Class="flex-wrap">

@@ -17,7 +17,6 @@
             <MudText Typo="Typo.h4" Class="mb-4">Add New Tenant</MudText>
             
             <MudStepper @ref="_stepper" @bind-ActiveIndex="_activeStepIndex" Class="mb-4">
-                <!-- Step 1: Tenant Type -->
                 <MudStep Title="Tenant Type">
                     <ChildContent>
                         <MudStack Spacing="4" Class="pa-4">
@@ -43,13 +42,11 @@
                     </ChildContent>
                 </MudStep>
 
-                <!-- Step 2: Tenant Details -->
                 <MudStep Title="Tenant Details">
                     <ChildContent>
                         <EditForm Model="_tenantRequest" OnValidSubmit="ValidateStep2">
                             <DataAnnotationsValidator />
                             <MudStack Spacing="4" Class="pa-4">
-                                <!-- Company Information -->
                                 <MudText Typo="Typo.h6">Company Information</MudText>
                                 <MudDivider />
                                 
@@ -71,7 +68,6 @@
                                                   Required="true" />
                                 </MudStack>
 
-                                <!-- Address Information -->
                                 <MudText Typo="Typo.h6" Class="mt-4">Address Information</MudText>
                                 <MudDivider />
                                 
@@ -113,7 +109,6 @@
                                     </MudItem>
                                 </MudGrid>
 
-                                <!-- Contact Information -->
                                 <MudText Typo="Typo.h6" Class="mt-4">Contact Information</MudText>
                                 <MudDivider />
                                 
@@ -149,7 +144,6 @@
                     </ChildContent>
                 </MudStep>
 
-                <!-- Step 3: Confirmation -->
                 <MudStep Title="Confirmation">
                     <ChildContent>
                         <MudStack Spacing="4" Class="pa-4">
@@ -189,7 +183,6 @@
                 </MudStep>
             </MudStepper>
 
-            <!-- Navigation Buttons -->
             <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                 <MudButton Variant="Variant.Text" 
                           StartIcon="@Icons.Material.Filled.ArrowBack"

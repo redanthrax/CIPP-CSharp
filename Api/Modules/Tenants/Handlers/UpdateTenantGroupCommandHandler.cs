@@ -17,7 +17,6 @@ public class UpdateTenantGroupCommandHandler : IRequestHandler<UpdateTenantGroup
     }
 
     public async Task<TenantGroup> Handle(UpdateTenantGroupCommand request, CancellationToken cancellationToken) {
-        // Find the existing group
         var existingGroup = await _context.GetEntitySet<TenantGroup>()
             .Include(g => g.Memberships)
             .FirstOrDefaultAsync(g => g.Id == request.GroupId, cancellationToken);
@@ -27,19 +26,13 @@ public class UpdateTenantGroupCommandHandler : IRequestHandler<UpdateTenantGroup
         }
 
         var currentUserId = _currentUserService.GetCurrentUserId() ?? Guid.Empty;
-
-        // Update basic properties
         existingGroup.Name = request.Name;
         existingGroup.Description = request.Description;
         existingGroup.UpdatedAt = DateTime.UtcNow;
         existingGroup.UpdatedBy = currentUserId;
 
-        // Update memberships if provided
         if (request.MemberTenantIds != null) {
-            // Remove existing memberships
             _context.GetEntitySet<TenantGroupMembership>().RemoveRange(existingGroup.Memberships);
-
-            // Add new memberships
             if (request.MemberTenantIds.Any()) {
                 var newMemberships = request.MemberTenantIds.Select(tenantId => new TenantGroupMembership {
                     Id = Guid.NewGuid(),
@@ -54,8 +47,6 @@ public class UpdateTenantGroupCommandHandler : IRequestHandler<UpdateTenantGroup
         }
 
         await _context.SaveChangesAsync(cancellationToken);
-
-        // Return the updated group with memberships
         return await _context.GetEntitySet<TenantGroup>()
             .Include(g => g.Memberships)
             .FirstAsync(g => g.Id == request.GroupId, cancellationToken);

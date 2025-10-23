@@ -1,4 +1,4 @@
-using CIPP.Api.Modules.Microsoft.Interfaces;
+using CIPP.Api.Modules.MsGraph.Interfaces;
 using CIPP.Api.Modules.Tenants.Queries;
 using CIPP.Shared.DTOs.Tenants;
 using DispatchR.Abstractions.Send;

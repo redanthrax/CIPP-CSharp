@@ -1,0 +1,422 @@
+@page "/identity/users"
+@attribute [Authorize]
+@using CIPP.Frontend.Modules.Identity.Interfaces
+@using CIPP.Frontend.Modules.Tenants.Interfaces
+@using CIPP.Shared.DTOs.Identity
+@inject IIdentityUserService IdentityUserService
+@inject ITenantService TenantService
+@inject ILogger<Users> Logger
+@inject INotificationService NotificationService
+@inject NavigationManager Navigation
+
+<PageTitle>Users - CIPP</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudText Typo="Typo.h3" Class="mb-4">User Management</MudText>
+    
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">Users</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <MudStack Row>
+                    <MudSelect T="string" 
+                              Label="Select Tenant" 
+                              Value="_selectedTenantId" 
+                              ValueChanged="@(async (string value) => await OnTenantChanged(value))"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Style="min-width: 250px;">
+                        @if (_tenantOptions != null) {
+                            @foreach (var option in _tenantOptions) {
+                                <MudSelectItem T="string" Value="@option.Value">
+                                    @option.Label
+                                </MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                    <MudButtonGroup Variant="Variant.Outlined">
+                        <MudButton Color="Color.Success" 
+                                  StartIcon="@Icons.Material.Filled.Add"
+                                  OnClick="@(() => OpenCreateUserDialog())"
+                                  Disabled="@(string.IsNullOrEmpty(_selectedTenantId))">
+                            Add User
+                        </MudButton>
+                        <MudButton Color="Color.Primary" 
+                                  StartIcon="@Icons.Material.Filled.Refresh"
+                                  OnClick="@(() => LoadUsers())"
+                                  Disabled="@(_loading || string.IsNullOrEmpty(_selectedTenantId))">
+                            @if (_loading) {
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                            } else {
+                                <span>Refresh</span>
+                            }
+                        </MudButton>
+                    </MudButtonGroup>
+                </MudStack>
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardContent>
+            @if (string.IsNullOrEmpty(_selectedTenantId)) {
+                <MudPaper Class="pa-8 text-center" Elevation="0">
+                    <MudIcon Icon="@Icons.Material.Filled.People" 
+                             Size="Size.Large" 
+                             Color="Color.Secondary" 
+                             Class="mb-4" />
+                    <MudText Typo="Typo.h6" Color="Color.Secondary">
+                        Select a Tenant
+                    </MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                        Please select a tenant from the dropdown above to view users.
+                    </MudText>
+                </MudPaper>
+            }
+            else if (_loading && (_usersList == null || !_usersList.Any())) {
+                <div class="d-flex justify-center pa-4">
+                    <MudProgressCircular Indeterminate="true" />
+                </div>
+                <MudText Class="text-center mt-2" Color="Color.Secondary">
+                    Loading users...
+                </MudText>
+            }
+            else if (_error != null) {
+                <MudAlert Severity="Severity.Error" Class="mb-4">
+                    Error loading users: @_error
+                    <MudButton Color="Color.Error" 
+                               Variant="Variant.Text" 
+                               Size="Size.Small"
+                               OnClick="@(() => LoadUsers())"
+                               Class="ml-2">
+                        Retry
+                    </MudButton>
+                </MudAlert>
+            }
+            else if (_usersList?.Any() == true) {
+                <MudDataGrid T="UserDto" 
+                             Items="@_usersList" 
+                             Filterable="true" 
+                             SortMode="SortMode.Multiple"
+                             Loading="@_loading"
+                             RowsPerPage="25">
+                    <Columns>
+                        <PropertyColumn Property="x => x.DisplayName" Title="Display Name">
+                            <CellTemplate>
+                                <MudStack Row>
+                                    <MudAvatar Size="Size.Small" Color="Color.Primary">
+                                        @GetInitials(context.Item.DisplayName)
+                                    </MudAvatar>
+                                    <div>
+                                        <MudText>@context.Item.DisplayName</MudText>
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                            @context.Item.UserPrincipalName
+                                        </MudText>
+                                    </div>
+                                </MudStack>
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn Property="x => x.Mail" Title="Email">
+                            <CellTemplate>
+                                @if (!string.IsNullOrEmpty(context.Item.Mail)) {
+                                    <MudChip Size="Size.Small" Color="Color.Info" Variant="Variant.Outlined">
+                                        @context.Item.Mail
+                                    </MudChip>
+                                } else {
+                                    <MudText Color="Color.Secondary">—</MudText>
+                                }
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn Property="x => x.JobTitle" Title="Job Title">
+                            <CellTemplate>
+                                @if (!string.IsNullOrEmpty(context.Item.JobTitle)) {
+                                    <MudText>@context.Item.JobTitle</MudText>
+                                } else {
+                                    <MudText Color="Color.Secondary">—</MudText>
+                                }
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn Property="x => x.AccountEnabled" Title="Status">
+                            <CellTemplate>
+                                <MudChip Size="Size.Small" 
+                                         Color="@(context.Item.AccountEnabled ? Color.Success : Color.Error)"
+                                         Variant="Variant.Filled">
+                                    @(context.Item.AccountEnabled ? "Enabled" : "Disabled")
+                                </MudChip>
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn Property="x => x.MfaStatus" Title="MFA">
+                            <CellTemplate>
+                                @if (context.Item.MfaStatus != null) {
+                                    <MudChip Size="Size.Small" 
+                                             Color="@(context.Item.MfaStatus.Enabled ? Color.Success : Color.Warning)"
+                                             Variant="Variant.Filled">
+                                        @(context.Item.MfaStatus.Enabled ? "Enabled" : "Disabled")
+                                    </MudChip>
+                                } else {
+                                    <MudText Color="Color.Secondary">—</MudText>
+                                }
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn Property="x => x.CreatedDateTime" Title="Created" Format="yyyy-MM-dd">
+                            <CellTemplate>
+                                @if (context.Item.CreatedDateTime.HasValue) {
+                                    <MudText Typo="Typo.body2">
+                                        @context.Item.CreatedDateTime.Value.ToString("MMM dd, yyyy")
+                                    </MudText>
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                        @context.Item.CreatedDateTime.Value.ToString("HH:mm")
+                                    </MudText>
+                                } else {
+                                    <MudText Color="Color.Secondary">—</MudText>
+                                }
+                            </CellTemplate>
+                        </PropertyColumn>
+                        <TemplateColumn Title="Actions">
+                            <CellTemplate>
+                                <MudButtonGroup Size="Size.Small" Variant="Variant.Outlined">
+                                    <MudButton StartIcon="@Icons.Material.Filled.Visibility"
+                                               Size="Size.Small"
+                                               OnClick="@(() => ViewUser(context.Item))"
+                                               Color="Color.Info">
+                                        View
+                                    </MudButton>
+                                    <MudButton StartIcon="@Icons.Material.Filled.Edit"
+                                               Size="Size.Small"
+                                               OnClick="@(() => EditUser(context.Item))"
+                                               Color="Color.Primary">
+                                        Edit
+                                    </MudButton>
+                                    <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small">
+                                        <MudMenuItem Icon="@Icons.Material.Filled.Lock"
+                                                    OnClick="@(() => ResetPassword(context.Item))">
+                                            Reset Password
+                                        </MudMenuItem>
+                                        @if (context.Item.MfaStatus?.Enabled == true) {
+                                            <MudMenuItem Icon="@Icons.Material.Filled.SecurityUpdate"
+                                                        OnClick="@(() => DisableMfa(context.Item))">
+                                                Disable MFA
+                                            </MudMenuItem>
+                                        } else {
+                                            <MudMenuItem Icon="@Icons.Material.Filled.Security"
+                                                        OnClick="@(() => EnableMfa(context.Item))">
+                                                Enable MFA
+                                            </MudMenuItem>
+                                        }
+                                        <MudDivider />
+                                        <MudMenuItem Icon="@Icons.Material.Filled.Delete"
+                                                    IconColor="Color.Error"
+                                                    OnClick="@(() => DeleteUser(context.Item))">
+                                            Delete User
+                                        </MudMenuItem>
+                                    </MudMenu>
+                                </MudButtonGroup>
+                            </CellTemplate>
+                        </TemplateColumn>
+                    </Columns>
+                    <PagerContent>
+                        <MudDataGridPager T="UserDto" />
+                    </PagerContent>
+                </MudDataGrid>
+                
+                <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-4">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        Total: @_usersList.Count users
+                    </MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        Last updated: @(_lastUpdated?.ToString("HH:mm:ss") ?? "Never")
+                    </MudText>
+                </MudStack>
+            }
+            else {
+                <MudPaper Class="pa-8 text-center" Elevation="0">
+                    <MudIcon Icon="@Icons.Material.Filled.People" 
+                             Size="Size.Large" 
+                             Color="Color.Secondary" 
+                             Class="mb-4" />
+                    <MudText Typo="Typo.h6" Color="Color.Secondary">
+                        No users found
+                    </MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                        No users were found in the selected tenant.
+                    </MudText>
+                    <MudButton Variant="Variant.Filled" 
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Refresh"
+                               OnClick="@(() => LoadUsers())">
+                        Check Again
+                    </MudButton>
+                </MudPaper>
+            }
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private List<UserDto>? _usersList;
+    private List<TenantSelectorOptionDto>? _tenantOptions;
+    private string? _selectedTenantId;
+    private bool _loading = false;
+    private string? _error;
+    private DateTime? _lastUpdated;
+
+    protected override async Task OnInitializedAsync() {
+        await LoadTenantOptions();
+    }
+
+    private async Task LoadTenantOptions() {
+        try {
+            var response = await TenantService.GetTenantSelectorOptionsAsync();
+            if (response.Success && response.Data != null) {
+                _tenantOptions = response.Data;
+            }
+        }
+        catch (Exception ex) {
+            Logger.LogError(ex, "Error loading tenant options");
+            NotificationService.ShowError($"Error loading tenants: {ex.Message}");
+        }
+    }
+
+    private async Task OnTenantChanged(string tenantId) {
+        _selectedTenantId = tenantId;
+        if (!string.IsNullOrEmpty(tenantId)) {
+            await LoadUsers();
+        } else {
+            _usersList = null;
+        }
+    }
+
+    private async Task LoadUsers() {
+        if (string.IsNullOrEmpty(_selectedTenantId)) return;
+
+        _loading = true;
+        _error = null;
+        StateHasChanged();
+
+        try {
+            var response = await IdentityUserService.GetUsersAsync(_selectedTenantId);
+            if (response.Success && response.Data != null) {
+                _usersList = response.Data;
+                _lastUpdated = DateTime.Now;
+            } else {
+                _error = response.Message ?? "Unknown error";
+                _usersList = new List<UserDto>();
+            }
+        }
+        catch (Exception ex) {
+            _error = ex.Message;
+            _usersList = new List<UserDto>();
+        }
+        finally {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetInitials(string displayName) {
+        if (string.IsNullOrEmpty(displayName)) return "?";
+        var parts = displayName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1) return parts[0][0].ToString().ToUpper();
+        return $"{parts[0][0]}{parts[^1][0]}".ToUpper();
+    }
+
+    private void OpenCreateUserDialog() {
+        NotificationService.ShowInfo("Create user dialog will be implemented");
+    }
+
+    private void ViewUser(UserDto user) {
+        Navigation.NavigateTo($"/identity/users/{user.Id}?tenantId={_selectedTenantId}");
+    }
+
+    private void EditUser(UserDto user) {
+        Navigation.NavigateTo($"/identity/users/{user.Id}/edit?tenantId={_selectedTenantId}");
+    }
+
+    private async Task ResetPassword(UserDto user) {
+        var confirmed = await NotificationService.ShowConfirmationAsync(
+            "Reset Password", 
+            $"Are you sure you want to reset the password for '{user.DisplayName}'?");
+            
+        if (confirmed && !string.IsNullOrEmpty(_selectedTenantId)) {
+            try {
+                var resetRequest = new ResetUserPasswordDto {
+                    AutoGeneratePassword = true,
+                    ForceChangePasswordNextSignIn = true,
+                    TenantId = _selectedTenantId
+                };
+                
+                var result = await IdentityUserService.ResetUserPasswordAsync(_selectedTenantId, user.Id, resetRequest);
+                if (result.Success) {
+                    NotificationService.ShowSuccess($"Password reset successfully. New password: {result.Data}");
+                } else {
+                    NotificationService.ShowError($"Failed to reset password: {result.Message}");
+                }
+            }
+            catch (Exception ex) {
+                NotificationService.ShowError($"Error resetting password: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task EnableMfa(UserDto user) {
+        if (string.IsNullOrEmpty(_selectedTenantId)) return;
+        
+        try {
+            var result = await IdentityUserService.EnableUserMfaAsync(_selectedTenantId, user.Id);
+            if (result.Success) {
+                NotificationService.ShowSuccess($"MFA enabled for '{user.DisplayName}'");
+                await LoadUsers();
+            } else {
+                NotificationService.ShowError($"Failed to enable MFA: {result.Message}");
+            }
+        }
+        catch (Exception ex) {
+            NotificationService.ShowError($"Error enabling MFA: {ex.Message}");
+        }
+    }
+
+    private async Task DisableMfa(UserDto user) {
+        if (string.IsNullOrEmpty(_selectedTenantId)) return;
+        
+        var confirmed = await NotificationService.ShowConfirmationAsync(
+            "Disable MFA", 
+            $"Are you sure you want to disable MFA for '{user.DisplayName}'?");
+            
+        if (confirmed) {
+            try {
+                var result = await IdentityUserService.DisableUserMfaAsync(_selectedTenantId, user.Id);
+                if (result.Success) {
+                    NotificationService.ShowSuccess($"MFA disabled for '{user.DisplayName}'");
+                    await LoadUsers();
+                } else {
+                    NotificationService.ShowError($"Failed to disable MFA: {result.Message}");
+                }
+            }
+            catch (Exception ex) {
+                NotificationService.ShowError($"Error disabling MFA: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task DeleteUser(UserDto user) {
+        if (string.IsNullOrEmpty(_selectedTenantId)) return;
+        
+        var confirmed = await NotificationService.ShowConfirmationAsync(
+            "Delete User", 
+            $"Are you sure you want to delete user '{user.DisplayName}'? This action cannot be undone.");
+            
+        if (confirmed) {
+            try {
+                var result = await IdentityUserService.DeleteUserAsync(_selectedTenantId, user.Id);
+                if (result.Success) {
+                    NotificationService.ShowSuccess($"User '{user.DisplayName}' deleted successfully.");
+                    await LoadUsers();
+                } else {
+                    NotificationService.ShowError($"Failed to delete user: {result.Message}");
+                }
+            }
+            catch (Exception ex) {
+                NotificationService.ShowError($"Error deleting user: {ex.Message}");
+            }
+        }
+    }
+}

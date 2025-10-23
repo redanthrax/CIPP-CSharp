@@ -26,7 +26,7 @@ public static class ValidateDomain
         {
             var query = new ValidateDomainQuery(tenantName);
             var result = await mediator.Send(query, cancellationToken);
-            return Results.Ok(Response<ValidateDomainResponseDto>.SuccessResult(result));
+            return Results.Ok(Response<ValidateDomainResponseDto>.SuccessResult(result, "Domain validated successfully"));
         }
         catch (Exception ex)
         {

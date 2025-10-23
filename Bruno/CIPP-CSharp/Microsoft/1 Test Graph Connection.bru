@@ -1,0 +1,16 @@
+meta {
+  name: Test Graph Connection
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/microsoft/test-graph
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

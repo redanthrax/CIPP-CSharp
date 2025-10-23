@@ -42,7 +42,7 @@ public static class UpdateTenant {
 
             return Results.Ok(Response<TenantDto>.SuccessResult(tenantDto, "Tenant updated successfully"));
         } catch (InvalidOperationException) {
-            return Results.NotFound($"Tenant with ID {id} not found");
+            return Results.NotFound(Response<TenantDto>.ErrorResult($"Tenant with ID {id} not found"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

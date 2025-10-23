@@ -1,7 +1,8 @@
 using CIPP.Api.Data;
 using CIPP.Api.Modules.Alerts.Models;
 using CIPP.Api.Modules.Alerts.Interfaces;
-using CIPP.Api.Modules.Microsoft.Interfaces;
+using CIPP.Api.Modules.MsGraph.Interfaces;
+using CIPP.Shared.DTOs;
 using CIPP.Shared.DTOs.Alerts;
 using CIPP.Shared.DTOs.Tenants;
 using Microsoft.EntityFrameworkCore;
@@ -35,16 +36,34 @@ public class AlertConfigurationService : IAlertConfigurationService {
         };
     }
 
-    public async Task<List<AlertConfigurationDto>> GetAlertConfigurationsAsync() {
+    public async Task<PagedResponse<AlertConfigurationDto>> GetAlertConfigurationsAsync(PagingParameters? paging = null) {
         try {
+            paging ??= new PagingParameters();
+            
             var cachedAlerts = await _cacheService.GetAlertConfigurationsAsync();
             if (cachedAlerts.Any()) {
-                return cachedAlerts;
+                var pagedCached = cachedAlerts
+                    .Skip((paging.PageNumber - 1) * paging.PageSize)
+                    .Take(paging.PageSize)
+                    .ToList();
+                    
+                return new PagedResponse<AlertConfigurationDto> {
+                    Items = pagedCached,
+                    TotalCount = cachedAlerts.Count,
+                    PageNumber = paging.PageNumber,
+                    PageSize = paging.PageSize
+                };
             }
 
-            var alertConfigs = await _dbContext.GetEntitySet<AlertConfiguration>()
+            var query = _dbContext.GetEntitySet<AlertConfiguration>()
                 .Where(a => a.IsActive)
-                .OrderByDescending(a => a.CreatedAt)
+                .OrderByDescending(a => a.CreatedAt);
+                
+            var totalCount = await query.CountAsync();
+            
+            var alertConfigs = await query
+                .Skip((paging.PageNumber - 1) * paging.PageSize)
+                .Take(paging.PageSize)
                 .ToListAsync();
 
             var alerts = new List<AlertConfigurationDto>();
@@ -73,12 +92,20 @@ public class AlertConfigurationService : IAlertConfigurationService {
                 alerts.Add(alert);
             }
 
-            await _cacheService.SetAlertConfigurationsAsync(alerts);
-
-            return alerts;
+            return new PagedResponse<AlertConfigurationDto> {
+                Items = alerts,
+                TotalCount = totalCount,
+                PageNumber = paging.PageNumber,
+                PageSize = paging.PageSize
+            };
         } catch (Exception ex) {
             _logger.LogError(ex, "Failed to get alert configurations");
-            return new List<AlertConfigurationDto>();
+            return new PagedResponse<AlertConfigurationDto> {
+                Items = new List<AlertConfigurationDto>(),
+                TotalCount = 0,
+                PageNumber = paging?.PageNumber ?? 1,
+                PageSize = paging?.PageSize ?? 50
+            };
         }
     }
 

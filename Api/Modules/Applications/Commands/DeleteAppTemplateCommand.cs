@@ -1,0 +1,7 @@
+using DispatchR.Abstractions.Send;
+
+namespace CIPP.Api.Modules.Applications.Commands;
+
+public record DeleteAppTemplateCommand(
+    Guid Id
+) : IRequest<DeleteAppTemplateCommand, Task>;

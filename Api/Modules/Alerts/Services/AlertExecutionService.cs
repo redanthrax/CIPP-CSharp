@@ -1,7 +1,7 @@
 using CIPP.Api.Data;
 using CIPP.Api.Modules.Alerts.Models;
 using CIPP.Api.Modules.Alerts.Interfaces;
-using CIPP.Api.Modules.Microsoft.Interfaces;
+using CIPP.Api.Modules.MsGraph.Interfaces;
 using CIPP.Shared.DTOs.Alerts;
 using CIPP.Shared.DTOs.Tenants;
 using Microsoft.EntityFrameworkCore;

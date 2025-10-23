@@ -1,5 +1,5 @@
 using CIPP.Api.Data;
-using CIPP.Api.Modules.Microsoft.Interfaces;
+using CIPP.Api.Modules.MsGraph.Interfaces;
 using CIPP.Api.Modules.Tenants.Models;
 using CIPP.Api.Modules.Tenants.Queries;
 using CIPP.Shared.DTOs.Tenants;

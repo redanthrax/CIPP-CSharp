@@ -2,8 +2,8 @@ using CIPP.Api.Extensions;
 using CIPP.Api.Modules.Frontend.TenantManagement.Endpoints;
 using CIPP.Api.Modules.Frontend.TenantManagement.Interfaces;
 using CIPP.Api.Modules.Frontend.TenantManagement.Services;
-using CIPP.Api.Modules.Microsoft.Interfaces;
-using CIPP.Api.Modules.Microsoft.Services;
+using CIPP.Api.Modules.MsGraph.Interfaces;
+using CIPP.Api.Modules.MsGraph.Services;
 using DispatchR.Extensions;
 using System.Reflection;
 
@@ -20,11 +20,7 @@ public class FrontendModule : IInternalModule {
     }
     
     public void ConfigureEndpoints(RouteGroupBuilder moduleGroup) {
-        ConfigureTenantManagementEndpoints(moduleGroup);
-    }
-    
-    private static void ConfigureTenantManagementEndpoints(RouteGroupBuilder group) {
-        group.MapGetTenantDashboardData();
-        group.MapGetTenantPortalLinks();
+        moduleGroup.MapGetTenantDashboardData();
+        moduleGroup.MapGetTenantPortalLinks();
     }
 }

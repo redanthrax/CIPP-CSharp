@@ -1,0 +1,24 @@
+meta {
+  name: Get User
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/v1/identity/users/{{userId}}?tenantId={{exampleTenant}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  tenantId: {{exampleTenant}}
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+vars:pre-request {
+  userId: user-guid-here
+}

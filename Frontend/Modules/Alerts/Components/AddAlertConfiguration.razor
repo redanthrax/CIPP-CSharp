@@ -16,7 +16,6 @@
 
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
     <MudStack Spacing="4">
-        <!-- Header -->
         <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
             <MudButton Variant="Variant.Text"
                       StartIcon="@Icons.Material.Filled.ArrowBack"
@@ -33,7 +32,6 @@
         }
         else
         {
-            <!-- Alert Type Selection -->
             @if (_selectedAlertType == AlertType.None)
             {
                 <MudGrid>
@@ -68,7 +66,6 @@
                 </MudGrid>
             }
 
-            <!-- Alert Forms -->
             @if (_selectedAlertType == AlertType.AuditLog)
             {
                 <AuditLogAlertForm @ref="_auditForm" 
@@ -98,7 +95,6 @@
     private AlertType _selectedAlertType = AlertType.None;
     private AlertConfigurationDto? _editingAlert;
     
-    // Component references
     private AuditLogAlertForm? _auditForm;
     private ScriptedAlertForm? _scriptedForm;
 
@@ -123,11 +119,10 @@
             if (result?.Success == true && result.Data != null) {
                 _editingAlert = result.Data.FirstOrDefault(a => a.RowKey == Id);
                 if (_editingAlert != null) {
-                    // Determine alert type based on data
                     _selectedAlertType = _editingAlert.LogType == "Scripted" ? AlertType.Scripted : AlertType.AuditLog;
                     
                     if (Clone) {
-                        _editingAlert.RowKey = string.Empty; // Clear ID for cloning
+                        _editingAlert.RowKey = string.Empty;
                     }
                 } else {
                     NotificationService.ShowError("Alert not found");

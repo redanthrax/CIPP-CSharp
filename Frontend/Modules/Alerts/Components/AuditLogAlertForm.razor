@@ -13,7 +13,6 @@
     <DataAnnotationsValidator />
 
     <MudGrid>
-        <!-- Tenant Selection -->
         <MudItem xs="12">
             <MudPaper Class="pa-4" Elevation="2">
                 <MudText Typo="Typo.h6" Class="mb-4">Tenant Selection</MudText>
@@ -55,7 +54,6 @@
             </MudPaper>
         </MudItem>
 
-        <!-- Alert Criteria -->
         <MudItem xs="12">
             <MudPaper Class="pa-4" Elevation="2">
                 <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
@@ -70,7 +68,6 @@
                 </MudStack>
 
                 <MudStack Spacing="3">
-                    <!-- Logbook Selection -->
                     <MudSelect Value="_formModel.Logbook" 
                              ValueChanged="@((AlertLogbookDto? value) => { _formModel.Logbook = value; ValidateForm(); })"
                              Label="Select the log source"
@@ -82,17 +79,15 @@
                         }
                     </MudSelect>
 
-                    <!-- Add Condition Button -->
                     <MudButton Variant="Variant.Outlined" 
                              StartIcon="@Icons.Material.Filled.Add"
                              OnClick="@AddCondition">
                         Add a condition
                     </MudButton>
 
-                    <!-- Conditions -->
                     @for (int i = 0; i < _formModel.Conditions.Count; i++)
                     {
-                        var index = i; // Capture loop variable
+                        var index = i;
                         var condition = _formModel.Conditions[index];
                         
                         <MudPaper Class="pa-3" Elevation="1">
@@ -168,7 +163,6 @@
                         </MudPaper>
                     }
 
-                    <!-- Actions -->
                     <MudSelect T="AlertActionDto" SelectedValues="_selectedActions" SelectedValuesChanged="@((IEnumerable<AlertActionDto> values) => { _selectedActions = values; ValidateForm(); })" MultiSelection="true" Label="Actions to take" Required="true" ToStringFunc="@(a => a?.Label ?? "")">
                         @foreach (var action in _actionOptions)
                         {
@@ -202,13 +196,11 @@
     private CreateAuditLogAlertDto _formModel = new();
     private bool _isFormValid = false;
     
-    // Form data
     private TenantSelectorOptionDto? _selectedTenant;
     private TenantSelectorOptionDto? _excludedTenant;
     private List<TenantSelectorOptionDto> _excludedTenants = new();
     private IEnumerable<AlertActionDto> _selectedActions = new List<AlertActionDto>();
     
-    // Available options
     private List<AlertLogbookDto> _logbookOptions = new();
     private List<AlertOperatorDto> _operatorOptions = new();
     private List<AlertActionDto> _actionOptions = new();
@@ -220,7 +212,6 @@
         if (AlertData != null && IsEditMode) {
             await LoadAlertData();
         } else {
-            // Initialize with default condition
             _formModel.Conditions.Add(new AlertConditionDto {
                 Property = new AlertPropertyDto(),
                 Operator = new AlertOperatorDto(),
@@ -268,10 +259,7 @@
     }
 
     private Task LoadAlertData() {
-        // Load existing alert data when editing
         if (AlertData != null) {
-            // Map alert data to form fields
-            // This implementation can be expanded based on specific requirements
             _selectedTenant = AlertData.Tenants?.FirstOrDefault();
         }
         return Task.CompletedTask;
@@ -293,7 +281,6 @@
     }
 
     private Task<IEnumerable<string>> SearchInputOptions(AlertPropertyDto property, string value, CancellationToken token) {
-        // This would return available options based on the selected property
         var options = new List<string> { "Option 1", "Option 2", "Option 3" };
         if (string.IsNullOrWhiteSpace(value)) {
             return Task.FromResult<IEnumerable<string>>(options);
@@ -336,12 +323,10 @@
 
     private async Task HandleSubmit() {
         try {
-            // Populate form model with UI values
             _formModel.TenantFilter = _selectedTenant != null ? new List<TenantSelectorOptionDto> { _selectedTenant } : new();
             _formModel.ExcludedTenants = _excludedTenants;
             _formModel.Actions = _selectedActions.ToList();
 
-            // Filter out empty conditions
             _formModel.Conditions = _formModel.Conditions
                 .Where(c => c.Property != null && !string.IsNullOrEmpty(c.Property.Label))
                 .ToList();

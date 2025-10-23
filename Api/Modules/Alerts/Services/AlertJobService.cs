@@ -62,13 +62,8 @@ public class AlertJobService : IAlertJobService {
     public Task RemoveJobAsync(string jobId) {
         try {
             _logger.LogInformation("Removing job {JobId}", jobId);
-            
-            // Try to remove as recurring job first
             _recurringJobManager.RemoveIfExists(jobId);
-            
-            // Try to delete as background job
             _backgroundJobClient.Delete(jobId);
-            
             return Task.CompletedTask;
         } catch (Exception ex) {
             _logger.LogError(ex, "Failed to remove job {JobId}", jobId);
@@ -79,11 +74,8 @@ public class AlertJobService : IAlertJobService {
     public async Task ExecuteAlertAsync(Guid alertConfigurationId) {
         try {
             _logger.LogInformation("Executing immediate alert for configuration {ConfigurationId}", alertConfigurationId);
-            
-            // Enqueue for immediate execution
             _backgroundJobClient.Enqueue<AlertExecutionService>(
                 service => service.ExecuteAlertAsync(alertConfigurationId));
-                
             await Task.CompletedTask;
         } catch (Exception ex) {
             _logger.LogError(ex, "Failed to execute alert for configuration {ConfigurationId}", alertConfigurationId);

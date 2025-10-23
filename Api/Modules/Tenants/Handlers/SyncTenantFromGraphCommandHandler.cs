@@ -4,7 +4,7 @@ using CIPP.Api.Modules.Tenants.Models;
 using CIPP.Api.Modules.Tenants.Interfaces;
 using DispatchR.Abstractions.Send;
 using Microsoft.EntityFrameworkCore;
-using CIPP.Api.Modules.Microsoft.Interfaces;
+using CIPP.Api.Modules.MsGraph.Interfaces;
 
 namespace CIPP.Api.Modules.Tenants.Handlers;
 
@@ -60,8 +60,8 @@ public class SyncTenantFromGraphCommandHandler : IRequestHandler<SyncTenantFromG
 
             if (organization?.AssignedPlans?.Any() == true) {
                 var licenses = organization.AssignedPlans
-                    .Where(p => !string.IsNullOrEmpty(p.ServicePlanId?.ToString()))
-                    .Select(p => p.ServicePlanId!.ToString())
+                    .Where(p => p.ServicePlanId != null && !string.IsNullOrEmpty(p.ServicePlanId.ToString()))
+                    .Select(p => p.ServicePlanId!.ToString()!)
                     .Distinct()
                     .ToList();
 
@@ -70,11 +70,11 @@ public class SyncTenantFromGraphCommandHandler : IRequestHandler<SyncTenantFromG
                 }
 
                 tenant.Capabilities.Licenses = licenses;
-                tenant.Capabilities.HasExchange = licenses.Any(l => l.Contains("EXCHANGE"));
-                tenant.Capabilities.HasSharePoint = licenses.Any(l => l.Contains("SHAREPOINT"));
-                tenant.Capabilities.HasTeams = licenses.Any(l => l.Contains("TEAMS"));
-                tenant.Capabilities.HasIntune = licenses.Any(l => l.Contains("INTUNE"));
-                tenant.Capabilities.HasDefender = licenses.Any(l => l.Contains("DEFENDER") || l.Contains("ATP"));
+                tenant.Capabilities.HasExchange = licenses.Any(l => l?.Contains("EXCHANGE") == true);
+                tenant.Capabilities.HasSharePoint = licenses.Any(l => l?.Contains("SHAREPOINT") == true);
+                tenant.Capabilities.HasTeams = licenses.Any(l => l?.Contains("TEAMS") == true);
+                tenant.Capabilities.HasIntune = licenses.Any(l => l?.Contains("INTUNE") == true);
+                tenant.Capabilities.HasDefender = licenses.Any(l => l?.Contains("DEFENDER") == true || l?.Contains("ATP") == true);
             }
 
             tenant.LastSyncAt = DateTime.UtcNow;

@@ -1,10 +1,10 @@
 using CIPP.Api.Modules.Tenants.Endpoints;
 using CIPP.Api.Modules.Tenants.Interfaces;
 using CIPP.Api.Modules.Tenants.Services;
-using CIPP.Api.Modules.Microsoft.Services;
+using CIPP.Api.Modules.MsGraph.Services;
 using DispatchR.Extensions;
 using System.Reflection;
-using CIPP.Api.Modules.Microsoft.Interfaces;
+using CIPP.Api.Modules.MsGraph.Interfaces;
 
 namespace CIPP.Api.Modules.Tenants;
 

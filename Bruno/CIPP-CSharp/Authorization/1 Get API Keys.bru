@@ -1,0 +1,16 @@
+meta {
+  name: Get API Keys
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/authorization/api-keys
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

@@ -13,7 +13,6 @@
     <DataAnnotationsValidator />
 
     <MudGrid>
-        <!-- Tenant Selection -->
         <MudItem xs="12">
             <MudPaper Class="pa-4" Elevation="2">
                 <MudText Typo="Typo.h6" Class="mb-4">Tenant Selector</MudText>
@@ -55,7 +54,6 @@
             </MudPaper>
         </MudItem>
 
-        <!-- Alert Criteria -->
         <MudItem xs="12">
             <MudPaper Class="pa-4" Elevation="2">
                 <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
@@ -70,7 +68,6 @@
                 </MudStack>
 
                 <MudGrid>
-                    <!-- Command Selection -->
                     <MudItem xs="12" md="6">
                         <MudAutocomplete T="AlertCommandDto"
                                        Value="_selectedCommand"
@@ -92,7 +89,6 @@
                         </MudAutocomplete>
                     </MudItem>
 
-                    <!-- Recurrence Selection -->
                     <MudItem xs="12" md="6">
                         <MudSelect Value="_selectedRecurrence"
                                  ValueChanged="@((RecurrenceOptionDto? value) => { _selectedRecurrence = value; ValidateForm(); })"
@@ -106,7 +102,6 @@
                         </MudSelect>
                     </MudItem>
 
-                    <!-- Start Date/Time -->
                     <MudItem xs="12">
                         <MudDatePicker @bind-Date="_startDate"
                                      Label="When should the first alert run?"
@@ -116,7 +111,6 @@
                                      Placeholder="Select time" />
                     </MudItem>
 
-                    <!-- Command Parameters -->
                     @if (_selectedCommand?.RequiresInput == true)
                     {
                         <MudItem xs="12">
@@ -141,7 +135,6 @@
                         </MudItem>
                     }
 
-                    <!-- Post-Execution Options -->
                     <MudItem xs="12">
                         <MudSelect T="PostExecutionOptionDto" SelectedValues="_selectedPostExecutions" SelectedValuesChanged="@((IEnumerable<PostExecutionOptionDto> values) => { _selectedPostExecutions = values; ValidateForm(); })" MultiSelection="true" Label="Alert via" Required="true" ToStringFunc="@(p => p?.Label ?? "")">
                             @foreach (var option in _postExecutionOptions)
@@ -177,7 +170,6 @@
     private CreateScriptedTaskAlertDto _formModel = new();
     private bool _isFormValid = false;
     
-    // Form data
     private TenantSelectorOptionDto? _selectedTenant;
     private TenantSelectorOptionDto? _excludedTenant;
     private List<TenantSelectorOptionDto> _excludedTenants = new();
@@ -188,7 +180,6 @@
     private TimeSpan? _startTime;
     private string _commandInput = string.Empty;
     
-    // Available options
     private List<AlertCommandDto> _commandOptions = new();
     private List<RecurrenceOptionDto> _recurrenceOptions = new();
     private List<PostExecutionOptionDto> _postExecutionOptions = new();
@@ -248,7 +239,6 @@
             new() { Label = "PSA", Value = "PSA" }
         };
 
-        // Update recommended recurrence when command changes
         if (_selectedCommand != null) {
             UpdateRecommendedRecurrence();
         }
@@ -257,12 +247,10 @@
 
     private void UpdateRecommendedRecurrence() {
         if (_selectedCommand?.RecommendedRunInterval != null) {
-            // Reset all labels
             foreach (var option in _recurrenceOptions) {
                 option.Label = option.Label.Replace(" (Recommended)", "");
             }
             
-            // Mark recommended option
             var recommendedOption = _recurrenceOptions.FirstOrDefault(r => r.Value == _selectedCommand.RecommendedRunInterval);
             if (recommendedOption != null) {
                 recommendedOption.Label += " (Recommended)";
@@ -274,8 +262,6 @@
     }
 
     private Task LoadAlertData() {
-        // TODO: Implement loading existing alert data
-        // This would populate the form with existing alert configuration
         return Task.CompletedTask;
     }
 
@@ -295,7 +281,6 @@
     }
 
     private Task<IEnumerable<string>> SearchCommandInputOptions(string value, CancellationToken token) {
-        // This would return available options based on the selected command's input requirements
         var options = new List<string> { "Option 1", "Option 2", "Option 3" };
         if (string.IsNullOrWhiteSpace(value)) {
             return Task.FromResult<IEnumerable<string>>(options);
@@ -320,7 +305,6 @@
 
     private async Task HandleSubmit() {
         try {
-            // Create the post object similar to the React implementation
             var startDateTime = _startDate.HasValue && _startTime.HasValue 
                 ? new DateTimeOffset(_startDate.Value.Date.Add(_startTime.Value)).ToUnixTimeSeconds()
                 : (long?)null;

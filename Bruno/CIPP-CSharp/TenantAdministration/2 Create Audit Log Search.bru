@@ -1,0 +1,26 @@
+meta {
+  name: Create Audit Log Search
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/v1/tenant-administration/audit-log-searches
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "tenantId": "{{exampleTenant}}",
+    "logType": "AzureActiveDirectory",
+    "startDate": "2025-01-01T00:00:00Z",
+    "endDate": "2025-12-31T23:59:59Z",
+    "operations": ["Add user", "Delete user"]
+  }
+}

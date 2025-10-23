@@ -2,8 +2,8 @@ using CIPP.Api.Data;
 using CIPP.Api.Modules.Frontend.TenantManagement.Interfaces;
 using CIPP.Api.Modules.Frontend.TenantManagement.Models;
 using CIPP.Api.Modules.Tenants.Models;
-using CIPP.Api.Modules.Microsoft.Interfaces;
-using CIPP.Api.Modules.Microsoft.Services;
+using CIPP.Api.Modules.MsGraph.Interfaces;
+using CIPP.Api.Modules.MsGraph.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -11,14 +11,17 @@ namespace CIPP.Api.Modules.Frontend.TenantManagement.Services;
 
 public class TenantDashboardService : ITenantDashboardService {
     private readonly ApplicationDbContext _context;
+    private readonly GraphUserService _graphUserService;
     private readonly IMicrosoftGraphService _graphService;
     private readonly ILogger<TenantDashboardService> _logger;
 
     public TenantDashboardService(
         ApplicationDbContext context,
+        GraphUserService graphUserService,
         IMicrosoftGraphService graphService,
         ILogger<TenantDashboardService> logger) {
         _context = context;
+        _graphUserService = graphUserService;
         _graphService = graphService;
         _logger = logger;
     }
@@ -66,9 +69,9 @@ public class TenantDashboardService : ITenantDashboardService {
 
     public async Task<int> GetActiveUsersCountAsync(string tenantId, CancellationToken cancellationToken = default) {
         try {
-            var usersResponse = await _graphService.GetUsersAsync(tenantId, 
+            var usersResponse = await _graphUserService.ListUsersAsync(tenantId, 
                 filter: "accountEnabled eq true and userType eq 'Member'",
-                select: "id");
+                select: new[] { "id" });
             
             return usersResponse?.Value?.Count ?? 0;
         }
@@ -80,9 +83,9 @@ public class TenantDashboardService : ITenantDashboardService {
 
     public async Task<int> GetUsedLicensesCountAsync(string tenantId, CancellationToken cancellationToken = default) {
         try {
-            var usersResponse = await _graphService.GetUsersAsync(tenantId,
+            var usersResponse = await _graphUserService.ListUsersAsync(tenantId,
                 filter: "assignedLicenses/any()",
-                select: "id");
+                select: new[] { "id" });
             
             return usersResponse?.Value?.Count ?? 0;
         }

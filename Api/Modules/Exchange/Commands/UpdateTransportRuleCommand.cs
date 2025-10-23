@@ -1,0 +1,6 @@
+using CIPP.Shared.DTOs.Exchange;
+using DispatchR.Abstractions.Send;
+
+namespace CIPP.Api.Modules.Exchange.Commands;
+
+public record UpdateTransportRuleCommand(string TenantId, string RuleId, UpdateTransportRuleDto UpdateDto) : IRequest<UpdateTransportRuleCommand, Task>;

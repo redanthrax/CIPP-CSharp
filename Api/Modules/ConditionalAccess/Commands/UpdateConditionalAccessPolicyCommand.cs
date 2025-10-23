@@ -1,0 +1,10 @@
+using CIPP.Shared.DTOs.ConditionalAccess;
+using DispatchR.Abstractions.Send;
+
+namespace CIPP.Api.Modules.ConditionalAccess.Commands;
+
+public record UpdateConditionalAccessPolicyCommand(
+    string TenantId,
+    string PolicyId,
+    UpdateConditionalAccessPolicyDto Policy
+) : IRequest<UpdateConditionalAccessPolicyCommand, Task<ConditionalAccessPolicyDto>>;

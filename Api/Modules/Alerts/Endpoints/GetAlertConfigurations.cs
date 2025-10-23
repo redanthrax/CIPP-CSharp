@@ -1,3 +1,4 @@
+using CIPP.Api.Extensions;
 using CIPP.Api.Modules.Alerts.Queries;
 using CIPP.Api.Modules.Authorization.Extensions;
 using CIPP.Shared.DTOs;
@@ -11,18 +12,20 @@ public static class GetAlertConfigurations {
         group.MapGet("/", Handle)
             .WithName("GetAlertConfigurations")
             .WithSummary("Get alert configurations")
-            .WithDescription("Returns a list of configured alerts including audit log alerts and scheduled tasks")
+            .WithDescription("Returns a paginated list of configured alerts including audit log alerts and scheduled tasks")
             .RequirePermission("CIPP.Alert.Read", "View alert configurations");
     }
 
     private static async Task<IResult> Handle(
+        HttpContext context,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
-            var query = new GetAlertConfigurationsQuery();
+            var pagingParams = context.GetPagingParameters();
+            var query = new GetAlertConfigurationsQuery(pagingParams);
             var alerts = await mediator.Send(query, cancellationToken);
 
-            return Results.Ok(Response<List<AlertConfigurationDto>>.SuccessResult(alerts));
+            return Results.Ok(Response<PagedResponse<AlertConfigurationDto>>.SuccessResult(alerts, "Alert configurations retrieved successfully"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

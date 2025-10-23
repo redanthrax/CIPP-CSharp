@@ -8,10 +8,8 @@ namespace CIPP.Api.Modules.Alerts;
 
 public class AlertsModule {
     public void RegisterServices(IServiceCollection services, IConfiguration configuration) {
-        // Register DispatchR
         services.AddDispatchR(Assembly.GetExecutingAssembly(), withPipelines: true, withNotifications: true);
         
-        // Register services
         services.AddScoped<IAlertCacheService, AlertCacheService>();
         services.AddScoped<IAlertConfigurationService, AlertConfigurationService>();
         services.AddScoped<IAlertJobService, AlertJobService>();

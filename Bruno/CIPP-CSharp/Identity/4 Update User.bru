@@ -1,0 +1,31 @@
+meta {
+  name: Update User
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/v1/identity/users/{{userId}}?tenantId={{exampleTenant}}
+  body: json
+  auth: inherit
+}
+
+params:query {
+  tenantId: {{exampleTenant}}
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "displayName": "Updated User Name",
+    "jobTitle": "New Title"
+  }
+}
+
+vars:pre-request {
+  userId: user-guid-here
+}

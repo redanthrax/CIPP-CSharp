@@ -38,7 +38,6 @@
     else {
         <MudPaper Class="pa-6">
             <MudStack Spacing="4">
-                <!-- Header -->
                 <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                     <MudStack Spacing="1">
                         <MudText Typo="Typo.h4">
@@ -56,15 +55,12 @@
                     </MudButton>
                 </MudStack>
 
-                <!-- Tabs -->
                 <MudTabs @ref="_tabs" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" 
                          PanelClass="pa-6" KeepPanelsAlive="true">
                     
-                    <!-- General Tab -->
                     <MudTabPanel Text="General" Icon="@Icons.Material.Filled.Info">
                         <MudGrid>
                             <MudItem xs="12" md="4">
-                                <!-- Tenant Details Card -->
                                 <MudCard>
                                     <MudCardHeader>
                                         <CardHeaderContent>
@@ -111,7 +107,6 @@
                             </MudItem>
                             
                             <MudItem xs="12" md="8">
-                                <!-- Edit Properties Form -->
                                 <MudCard>
                                     <MudCardHeader>
                                         <CardHeaderContent>
@@ -176,7 +171,6 @@
                         </MudGrid>
                     </MudTabPanel>
 
-                    <!-- Custom Variables Tab -->
                     <MudTabPanel Text="Custom Variables" Icon="@Icons.Material.Filled.Settings">
                         <MudCard>
                             <MudCardHeader>
@@ -255,7 +249,6 @@
                         </MudCard>
                     </MudTabPanel>
 
-                    <!-- Offboarding Defaults Tab -->
                     <MudTabPanel Text="Offboarding Defaults" Icon="@Icons.Material.Filled.PersonRemove">
                         <MudCard>
                             <MudCardHeader>
@@ -345,7 +338,6 @@
             if (result.Success && result.Data != null) {
                 _tenantDetails = result.Data;
                 
-                // Initialize edit request
                 _editRequest = new EditTenantRequestDto
                 {
                     Id = _tenantDetails.Id,
@@ -355,13 +347,8 @@
                     OffboardingDefaults = _tenantDetails.Metadata
                 };
                 
-                // Initialize selected groups
                 _selectedGroups = _tenantDetails.Groups ?? new List<TenantGroupDto>();
-                
-                // Initialize custom variables (from metadata)
                 InitializeCustomVariables();
-                
-                // Initialize offboarding settings
                 InitializeOffboardingSettings();
             }
             else {
@@ -396,8 +383,6 @@
 
     private void InitializeCustomVariables() {
         _customVariables.Clear();
-        // Parse custom variables from metadata if available
-        // This would depend on how you store custom variables in the metadata
     }
 
     private void InitializeOffboardingSettings() {
@@ -419,17 +404,6 @@
             new() { Key = "Remove_Teams_Phone_DID", Value = false },
             new() { Key = "Clear_Immutable_Id", Value = false }
         };
-        
-        // Parse existing offboarding defaults if available
-        if (!string.IsNullOrEmpty(_tenantDetails?.Metadata)) {
-            try {
-                // Parse JSON and update settings
-                // This would depend on how you store offboarding defaults
-            }
-            catch {
-                // Keep defaults if parsing fails
-            }
-        }
     }
 
 
@@ -444,7 +418,7 @@
             
             if (result.Success) {
                 NotificationService.ShowSuccess("Tenant updated successfully!");
-                await LoadTenantDetails(); // Reload to get updated data
+                await LoadTenantDetails(); 
             }
             else {
                 NotificationService.ShowError($"Failed to update tenant: {result.Message}");

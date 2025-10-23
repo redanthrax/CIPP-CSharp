@@ -46,7 +46,7 @@ public static class GetApiKeys {
                 PageSize = result.PageSize
             };
 
-            return Results.Ok(Response<PagedResponse<ApiKeyDto>>.SuccessResult(response));
+            return Results.Ok(Response<PagedResponse<ApiKeyDto>>.SuccessResult(response, "API keys retrieved successfully"));
         }
         catch (Exception ex) {
             return Results.Problem(

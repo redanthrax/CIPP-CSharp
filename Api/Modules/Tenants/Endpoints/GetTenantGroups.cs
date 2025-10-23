@@ -37,7 +37,6 @@ public static class GetTenantGroups {
                 g.Memberships.Select(m => m.TenantId).ToList()
             )).ToList();
 
-            // Apply pagination
             var paginatedItems = tenantGroupDtos
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

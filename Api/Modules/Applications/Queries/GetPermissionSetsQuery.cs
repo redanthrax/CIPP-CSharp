@@ -1,0 +1,9 @@
+using CIPP.Shared.DTOs;
+using CIPP.Shared.DTOs.Applications;
+using DispatchR.Abstractions.Send;
+
+namespace CIPP.Api.Modules.Applications.Queries;
+
+public record GetPermissionSetsQuery(
+    PagingParameters? Paging = null
+) : IRequest<GetPermissionSetsQuery, Task<PagedResponse<PermissionSetDto>>>;

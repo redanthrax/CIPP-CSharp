@@ -38,7 +38,6 @@
     else {
         <MudPaper Class="pa-6">
             <MudStack Spacing="4">
-                <!-- Header -->
                 <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                     <MudStack Spacing="1">
                         <MudText Typo="Typo.h4">Edit Tenant Group - @_groupDetails.Name</MudText>
@@ -53,7 +52,6 @@
                     </MudButton>
                 </MudStack>
 
-                <!-- Form -->
                 <EditForm Model="_editRequest" OnValidSubmit="UpdateGroup">
                     <DataAnnotationsValidator />
                     <MudCard>
@@ -75,7 +73,6 @@
                                               Placeholder="Enter a description for this group (optional)"
                                               Lines="3" />
 
-                                <!-- Current Members -->
                                 <MudText Typo="Typo.subtitle1" Class="mt-4">Group Members</MudText>
                                 <MudDivider />
                                 
@@ -111,7 +108,6 @@
                                     </MudSelect>
                                 }
 
-                                <!-- Selected Members Preview -->
                                 @if (_selectedTenants?.Any() == true) {
                                     <MudText Typo="Typo.subtitle2" Class="mt-3">Selected Members (@_selectedTenants.Count())</MudText>
                                     <MudStack Row Spacing="1" Class="flex-wrap">

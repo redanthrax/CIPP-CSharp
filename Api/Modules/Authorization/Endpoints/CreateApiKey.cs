@@ -52,7 +52,7 @@ public static class CreateApiKey {
                 )).ToList()
             );
 
-            return Results.Created($"/api/authorization/apikeys/{entity.Id}", Response<CreateApiKeyResponseDto>.SuccessResult(responseDto));
+            return Results.Created($"/api/authorization/apikeys/{entity.Id}", Response<CreateApiKeyResponseDto>.SuccessResult(responseDto, "API key created successfully"));
         }
         catch (Exception ex) {
             return Results.Problem(

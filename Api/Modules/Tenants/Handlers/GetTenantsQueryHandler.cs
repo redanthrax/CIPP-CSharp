@@ -6,7 +6,7 @@ using CIPP.Api.Modules.Tenants.Queries;
 using CIPP.Shared.DTOs;
 using Microsoft.EntityFrameworkCore;
 using DispatchR.Abstractions.Send;
-using CIPP.Api.Modules.Microsoft.Interfaces;
+using CIPP.Api.Modules.MsGraph.Interfaces;
 
 namespace CIPP.Api.Modules.Tenants.Handlers;
 

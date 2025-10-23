@@ -43,7 +43,7 @@ public static class CreateTenant
                 tenant.CreatedBy,
                 tenant.Metadata
             );
-            return Results.Created($"/api/tenants/{tenant.Id}", Response<TenantDto>.SuccessResult(tenantDto));
+            return Results.Created($"/api/tenants/{tenant.Id}", Response<TenantDto>.SuccessResult(tenantDto, "Tenant created successfully"));
         }
         catch (Exception ex)
         {

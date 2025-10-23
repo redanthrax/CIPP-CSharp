@@ -1,0 +1,29 @@
+meta {
+  name: Get Audit Logs
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v1/tenant-administration/audit-logs?tenantId={{exampleTenant}}&pageNumber=1&pageSize=50
+  body: none
+  auth: inherit
+}
+
+params:query {
+  tenantId: {{exampleTenant}}
+  pageNumber: 1
+  pageSize: 50
+  ~logType: AzureActiveDirectory
+  ~startDate: 2025-01-01
+  ~endDate: 2025-12-31
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+settings {
+  encodeUrl: true
+}
