@@ -3,6 +3,7 @@ using CIPP.Api.Modules.Authorization.Extensions;
 using CIPP.Shared.DTOs;
 using CIPP.Shared.DTOs.Tenants;
 using DispatchR;
+using Microsoft.AspNetCore.Mvc;
 namespace CIPP.Api.Modules.Tenants.Endpoints;
 public static class GetTenants
 {
@@ -19,9 +20,8 @@ public static class GetTenants
     }
     private static async Task<IResult> Handle(
         IMediator mediator,
+        [AsParameters] PagingParameters pagingParams,
         string? filter = null,
-        int pageNumber = 1,
-        int pageSize = 50,
         string? sortBy = null,
         bool sortDescending = false,
         bool noCache = false,
@@ -30,9 +30,8 @@ public static class GetTenants
         try
         {
             var query = new GetTenantsQuery(
+                PagingParams: pagingParams,
                 Filter: filter,
-                PageNumber: pageNumber,
-                PageSize: pageSize,
                 SortBy: sortBy,
                 SortDescending: sortDescending,
                 NoCache: noCache

@@ -3,9 +3,8 @@ using CIPP.Shared.DTOs;
 using DispatchR.Abstractions.Send;
 namespace CIPP.Api.Modules.Tenants.Queries;
 public record GetTenantsQuery(
+    PagingParameters PagingParams,
     string? Filter = null,
-    int PageNumber = 1,
-    int PageSize = 50,
     string? SortBy = null,
     bool SortDescending = false,
     bool NoCache = false

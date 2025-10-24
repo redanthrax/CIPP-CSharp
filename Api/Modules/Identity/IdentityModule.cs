@@ -14,6 +14,7 @@ public class IdentityModule {
         services.AddScoped<IGroupService, GroupService>();
         services.AddScoped<IDeviceService, DeviceService>();
         services.AddScoped<IRoleService, RoleService>();
+        services.AddScoped<IAuthenticationMethodPolicyService, AuthenticationMethodPolicyService>();
     }
 
     public void ConfigureEndpoints(RouteGroupBuilder group) {
@@ -51,5 +52,10 @@ public class IdentityModule {
         roleGroup.MapGetRole();
         roleGroup.MapAssignRole();
         roleGroup.MapRemoveRole();
+        
+        var authMethodGroup = group.MapGroup("/policies/authentication-methods").WithTags("Authentication Methods");
+        authMethodGroup.MapGetAuthenticationMethodPolicy();
+        authMethodGroup.MapGetAuthenticationMethodConfig();
+        authMethodGroup.MapUpdateAuthenticationMethodConfig();
     }
 }

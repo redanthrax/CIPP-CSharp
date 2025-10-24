@@ -3,6 +3,7 @@ using CIPP.Api.Modules.Tenants.Queries;
 using CIPP.Shared.DTOs;
 using CIPP.Shared.DTOs.Tenants;
 using DispatchR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CIPP.Api.Modules.Tenants.Endpoints;
 
@@ -18,8 +19,7 @@ public static class GetTenantGroups {
 
     private static async Task<IResult> Handle(
         IMediator mediator,
-        int pageNumber = 1,
-        int pageSize = 50,
+        [AsParameters] PagingParameters pagingParams,
         Guid? groupId = null,
         CancellationToken cancellationToken = default) {
         try {
@@ -38,15 +38,15 @@ public static class GetTenantGroups {
             )).ToList();
 
             var paginatedItems = tenantGroupDtos
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+                .Skip(pagingParams.Skip)
+                .Take(pagingParams.Take)
                 .ToList();
 
             var pagedResponse = new PagedResponse<TenantGroupDto> {
                 Items = paginatedItems,
                 TotalCount = tenantGroupDtos.Count,
-                PageNumber = pageNumber,
-                PageSize = pageSize
+                PageNumber = pagingParams.PageNumber,
+                PageSize = pagingParams.PageSize
             };
 
             return Results.Ok(Response<PagedResponse<TenantGroupDto>>.SuccessResult(pagedResponse));

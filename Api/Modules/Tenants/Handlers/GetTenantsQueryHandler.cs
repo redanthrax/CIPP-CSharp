@@ -56,24 +56,24 @@ public class GetTenantsQueryHandler : IRequestHandler<GetTenantsQuery, Task<Page
                 await SyncPartnerTenantsAsync(cancellationToken);
             }
             
-            var skip = (request.PageNumber - 1) * request.PageSize;
+            var skip = request.PagingParams.Skip;
             
             if (!shouldSync)
             {
-                var cachedTenants = await _cacheService.GetTenantsAsync(request.Filter, skip, request.PageSize);
+                var cachedTenants = await _cacheService.GetTenantsAsync(request.Filter, skip, request.PagingParams.PageSize);
                 var cachedCount = await _cacheService.GetTenantCountAsync(request.Filter);
                 
                 if (cachedTenants.Any() && cachedCount > 0)
                 {
                     _logger.LogDebug("Retrieved {Count} tenants from cache (Page {PageNumber})", 
-                        cachedTenants.Count, request.PageNumber);
+                        cachedTenants.Count, request.PagingParams.PageNumber);
                     
                     return new PagedResponse<Tenant>
                     {
                         Items = cachedTenants,
                         TotalCount = cachedCount,
-                        PageNumber = request.PageNumber,
-                        PageSize = request.PageSize
+                        PageNumber = request.PagingParams.PageNumber,
+                        PageSize = request.PagingParams.PageSize
                     };
                 }
             }
@@ -107,22 +107,22 @@ public class GetTenantsQueryHandler : IRequestHandler<GetTenantsQuery, Task<Page
             {
                 query = query.OrderBy(t => t.DisplayName);
             }
-            query = query.Skip(skip).Take(request.PageSize);
+            query = query.Skip(skip).Take(request.PagingParams.Take);
             var tenants = await query.ToListAsync(cancellationToken);
             
-            await _cacheService.SetTenantsListAsync(tenants, request.Filter, skip, request.PageSize);
+            await _cacheService.SetTenantsListAsync(tenants, request.Filter, skip, request.PagingParams.PageSize);
             await _cacheService.SetTenantCountAsync(totalCount, request.Filter);
             
             _logger.LogInformation(
                 "Retrieved {Count} of {TotalCount} tenants from database (Page {PageNumber})", 
-                tenants.Count, totalCount, request.PageNumber);
+                tenants.Count, totalCount, request.PagingParams.PageNumber);
             
             return new PagedResponse<Tenant>
             {
                 Items = tenants,
                 TotalCount = totalCount,
-                PageNumber = request.PageNumber,
-                PageSize = request.PageSize
+                PageNumber = request.PagingParams.PageNumber,
+                PageSize = request.PagingParams.PageSize
             };
         }
         catch (Exception ex)
