@@ -15,13 +15,13 @@ public class GraphUserService {
         _exceptionHandler = exceptionHandler;
     }
 
-    public async Task<UserCollectionResponse?> ListUsersAsync(string? tenantId = null, string? filter = null, string[]? select = null, string? search = null, PagingParameters? paging = null) {
+    public async Task<UserCollectionResponse?> ListUsersAsync(Guid? tenantId = null, string? filter = null, string[]? select = null, string? search = null, PagingParameters? paging = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             paging ??= new PagingParameters();
             
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Users.GetAsync(requestConfiguration => {
                     if (!string.IsNullOrEmpty(filter))
                         requestConfiguration.QueryParameters.Filter = filter;
@@ -40,11 +40,11 @@ public class GraphUserService {
         }, tenantId, "listing users");
     }
 
-    public async Task<User?> GetUserAsync(string userId, string? tenantId = null) {
+    public async Task<User?> GetUserAsync(string userId, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Users[userId].GetAsync(),
                 $"users/{userId}",
                 "GET"
@@ -52,11 +52,11 @@ public class GraphUserService {
         }, tenantId, $"getting user {userId}");
     }
 
-    public async Task<User?> CreateUserAsync(User user, string? tenantId = null) {
+    public async Task<User?> CreateUserAsync(User user, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Users.PostAsync(user),
                 "users",
                 "POST"
@@ -64,11 +64,11 @@ public class GraphUserService {
         }, tenantId, "creating user");
     }
 
-    public async Task<User?> UpdateUserAsync(string userId, User user, string? tenantId = null) {
+    public async Task<User?> UpdateUserAsync(string userId, User user, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Users[userId].PatchAsync(user),
                 $"users/{userId}",
                 "PATCH"
@@ -76,11 +76,11 @@ public class GraphUserService {
         }, tenantId, $"updating user {userId}");
     }
 
-    public async Task DeleteUserAsync(string userId, string? tenantId = null) {
+    public async Task DeleteUserAsync(string userId, Guid? tenantId = null) {
         await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Users[userId].DeleteAsync(),
                 $"users/{userId}",
                 "DELETE"
@@ -89,11 +89,11 @@ public class GraphUserService {
         }, tenantId, $"deleting user {userId}");
     }
 
-    public async Task<AuthenticationMethodCollectionResponse?> GetUserAuthenticationMethodsAsync(string userId, string? tenantId = null) {
+    public async Task<AuthenticationMethodCollectionResponse?> GetUserAuthenticationMethodsAsync(string userId, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Users[userId].Authentication.Methods.GetAsync(),
                 $"users/{userId}/authentication/methods",
                 "GET"
@@ -101,11 +101,11 @@ public class GraphUserService {
         }, tenantId, $"getting user authentication methods for {userId}");
     }
 
-    public async Task<DirectoryObjectCollectionResponse?> GetUserMemberOfAsync(string userId, string? tenantId = null) {
+    public async Task<DirectoryObjectCollectionResponse?> GetUserMemberOfAsync(string userId, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Users[userId].MemberOf.GetAsync(),
                 $"users/{userId}/memberOf",
                 "GET"
@@ -113,11 +113,11 @@ public class GraphUserService {
         }, tenantId, $"getting user member of for {userId}");
     }
 
-    public async Task<DirectoryObjectCollectionResponse?> GetUserRegisteredDevicesAsync(string userId, string? tenantId = null) {
+    public async Task<DirectoryObjectCollectionResponse?> GetUserRegisteredDevicesAsync(string userId, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Users[userId].RegisteredDevices.GetAsync(),
                 $"users/{userId}/registeredDevices",
                 "GET"
@@ -125,11 +125,11 @@ public class GraphUserService {
         }, tenantId, $"getting user registered devices for {userId}");
     }
 
-    public async Task<DirectoryObjectCollectionResponse?> GetUserOwnedDevicesAsync(string userId, string? tenantId = null) {
+    public async Task<DirectoryObjectCollectionResponse?> GetUserOwnedDevicesAsync(string userId, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Users[userId].OwnedDevices.GetAsync(),
                 $"users/{userId}/ownedDevices",
                 "GET"
@@ -137,11 +137,11 @@ public class GraphUserService {
         }, tenantId, $"getting user owned devices for {userId}");
     }
 
-    public async Task<DirectoryObject?> GetUserManagerAsync(string userId, string? tenantId = null) {
+    public async Task<DirectoryObject?> GetUserManagerAsync(string userId, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Users[userId].Manager.GetAsync(),
                 $"users/{userId}/manager",
                 "GET"

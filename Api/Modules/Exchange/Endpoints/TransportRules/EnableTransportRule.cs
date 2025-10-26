@@ -15,7 +15,7 @@ public static class EnableTransportRule {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string ruleId,
         bool enable,
         IMediator mediator,

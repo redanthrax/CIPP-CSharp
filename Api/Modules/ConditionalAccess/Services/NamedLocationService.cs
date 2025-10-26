@@ -15,7 +15,7 @@ public class NamedLocationService : INamedLocationService {
         _logger = logger;
     }
 
-    public async Task<PagedResponse<NamedLocationDto>> GetNamedLocationsAsync(string tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<NamedLocationDto>> GetNamedLocationsAsync(Guid tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting named locations for tenant {TenantId}", tenantId);
         
         paging ??= new PagingParameters();
@@ -42,7 +42,7 @@ public class NamedLocationService : INamedLocationService {
         };
     }
 
-    public async Task<NamedLocationDto?> GetNamedLocationAsync(string tenantId, string locationId, CancellationToken cancellationToken = default) {
+    public async Task<NamedLocationDto?> GetNamedLocationAsync(Guid tenantId, string locationId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting named location {LocationId} for tenant {TenantId}", locationId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -66,14 +66,14 @@ public class NamedLocationService : INamedLocationService {
         return MapToLocationDto(createdLocation, createDto.TenantId);
     }
 
-    public async Task DeleteNamedLocationAsync(string tenantId, string locationId, CancellationToken cancellationToken = default) {
+    public async Task DeleteNamedLocationAsync(Guid tenantId, string locationId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting named location {LocationId} for tenant {TenantId}", locationId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.Identity.ConditionalAccess.NamedLocations[locationId].DeleteAsync(cancellationToken: cancellationToken);
     }
 
-    private static NamedLocationDto MapToLocationDto(NamedLocation location, string tenantId) {
+    private static NamedLocationDto MapToLocationDto(NamedLocation location, Guid tenantId) {
         var dto = new NamedLocationDto {
             Id = location.Id ?? string.Empty,
             DisplayName = location.DisplayName ?? string.Empty,

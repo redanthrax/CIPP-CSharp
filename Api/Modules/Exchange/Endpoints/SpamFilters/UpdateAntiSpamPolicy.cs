@@ -16,7 +16,7 @@ public static class UpdateAntiSpamPolicy {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string policyId,
         UpdateHostedContentFilterPolicyDto updateDto,
         IMediator mediator,

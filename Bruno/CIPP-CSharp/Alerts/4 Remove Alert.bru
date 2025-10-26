@@ -1,0 +1,20 @@
+meta {
+  name: Remove Alert
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/v1/alerts/{{alertId}}
+  body: none
+  auth: inherit
+}
+
+params:path {
+  alertId: {{alertId}}
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

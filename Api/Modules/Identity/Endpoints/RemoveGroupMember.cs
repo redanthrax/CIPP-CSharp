@@ -17,7 +17,7 @@ public static class RemoveGroupMember {
     private static async Task<IResult> Handle(
         string id,
         string userId,
-        string tenantId,
+        Guid tenantId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {

@@ -18,13 +18,13 @@ public class GraphRoleService {
         _exceptionHandler = exceptionHandler;
     }
 
-    public async Task<UnifiedRoleDefinitionCollectionResponse?> GetRoleDefinitionsAsync(string? tenantId = null) {
+    public async Task<UnifiedRoleDefinitionCollectionResponse?> GetRoleDefinitionsAsync(Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var betaClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             var stableClient = GetStableGraphClient(betaClient);
             
             var stableResult = await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => stableClient.RoleManagement.Directory.RoleDefinitions.GetAsync(requestConfiguration => { }),
                 "directoryRoleManagement/directory/roleDefinitions",
                 "GET"
@@ -34,13 +34,13 @@ public class GraphRoleService {
         }, tenantId, "getting role definitions");
     }
 
-    public async Task<UnifiedRoleDefinition?> GetRoleDefinitionAsync(string roleId, string? tenantId = null) {
+    public async Task<UnifiedRoleDefinition?> GetRoleDefinitionAsync(string roleId, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var betaClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             var stableClient = GetStableGraphClient(betaClient);
             
             var stableResult = await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => stableClient.RoleManagement.Directory.RoleDefinitions[roleId].GetAsync(requestConfiguration => { }),
                 $"directoryRoleManagement/directory/roleDefinitions/{roleId}",
                 "GET"
@@ -50,13 +50,13 @@ public class GraphRoleService {
         }, tenantId, $"getting role definition {roleId}");
     }
 
-    public async Task<UnifiedRoleAssignmentCollectionResponse?> GetRoleAssignmentsAsync(string? tenantId = null, string? filter = null, string[]? expand = null) {
+    public async Task<UnifiedRoleAssignmentCollectionResponse?> GetRoleAssignmentsAsync(Guid? tenantId = null, string? filter = null, string[]? expand = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var betaClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             var stableClient = GetStableGraphClient(betaClient);
             
             var stableResult = await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => stableClient.RoleManagement.Directory.RoleAssignments.GetAsync(requestConfiguration => {
                     if (!string.IsNullOrEmpty(filter))
                         requestConfiguration.QueryParameters.Filter = filter;
@@ -72,14 +72,14 @@ public class GraphRoleService {
         }, tenantId, "getting role assignments");
     }
 
-    public async Task<UnifiedRoleAssignment?> CreateRoleAssignmentAsync(UnifiedRoleAssignment roleAssignment, string? tenantId = null) {
+    public async Task<UnifiedRoleAssignment?> CreateRoleAssignmentAsync(UnifiedRoleAssignment roleAssignment, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var betaClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             var stableClient = GetStableGraphClient(betaClient);
             
             var stableAssignment = ConvertToStableRoleAssignment(roleAssignment);
             var stableResult = await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => stableClient.RoleManagement.Directory.RoleAssignments.PostAsync(stableAssignment, requestConfiguration => { }),
                 "directoryRoleManagement/directory/roleAssignments",
                 "POST"
@@ -89,12 +89,12 @@ public class GraphRoleService {
         }, tenantId, "creating role assignment");
     }
 
-    public async Task DeleteRoleAssignmentAsync(string assignmentId, string? tenantId = null) {
+    public async Task DeleteRoleAssignmentAsync(string assignmentId, Guid? tenantId = null) {
         await _exceptionHandler.HandleAsync(async () => {
             var betaClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             var stableClient = GetStableGraphClient(betaClient);
             await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => stableClient.RoleManagement.Directory.RoleAssignments[assignmentId].DeleteAsync(requestConfiguration => { }),
                 $"directoryRoleManagement/directory/roleAssignments/{assignmentId}",
                 "DELETE"

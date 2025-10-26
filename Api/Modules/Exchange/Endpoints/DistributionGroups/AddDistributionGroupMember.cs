@@ -15,7 +15,7 @@ public static class AddDistributionGroupMember {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string groupId,
         AddMemberRequest request,
         IMediator mediator,

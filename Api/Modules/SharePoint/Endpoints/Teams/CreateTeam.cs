@@ -16,7 +16,7 @@ public static class CreateTeam {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         CreateTeamDto request,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

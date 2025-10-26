@@ -16,7 +16,7 @@ public static class UpdateSecurityAlert {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string alertId,
         UpdateSecurityAlertDto updateDto,
         IMediator mediator,

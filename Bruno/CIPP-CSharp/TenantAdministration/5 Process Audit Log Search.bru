@@ -1,0 +1,20 @@
+meta {
+  name: Process Audit Log Search
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/v1/audit-logs/searches/{{searchId}}/process
+  body: none
+  auth: inherit
+}
+
+params:path {
+  searchId: {{searchId}}
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

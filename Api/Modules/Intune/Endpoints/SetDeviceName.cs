@@ -17,7 +17,7 @@ public static class SetDeviceName {
     public record SetDeviceNameRequest(string DeviceName);
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string deviceId,
         SetDeviceNameRequest request,
         IMediator mediator,

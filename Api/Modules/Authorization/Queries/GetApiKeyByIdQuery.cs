@@ -1,8 +1,1 @@
-using CIPP.Api.Modules.Authorization.Models;
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Authorization.Queries;
-
-public record GetApiKeyByIdQuery(
-    Guid Id
-) : IRequest<GetApiKeyByIdQuery, Task<ApiKey?>>;
+using CIPP.Api.Modules.Authorization.Models;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Authorization.Queries;public record GetApiKeyByIdQuery(Guid Id) : IRequest<GetApiKeyByIdQuery, Task<ApiKey?>>;

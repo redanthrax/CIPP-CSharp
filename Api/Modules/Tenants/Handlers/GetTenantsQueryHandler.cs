@@ -81,9 +81,10 @@ public class GetTenantsQueryHandler : IRequestHandler<GetTenantsQuery, Task<Page
             var query = _context.GetEntitySet<Tenant>().AsQueryable();
             if (!string.IsNullOrEmpty(request.Filter))
             {
+                var filterLower = request.Filter.ToLower();
                 query = query.Where(t => 
                     t.DisplayName.Contains(request.Filter) || 
-                    t.TenantId.Contains(request.Filter) ||
+                    t.TenantId.ToString().ToLower().Contains(filterLower) ||
                     t.DefaultDomainName.Contains(request.Filter));
             }
             var totalCount = await query.CountAsync(cancellationToken);
@@ -158,10 +159,10 @@ public class GetTenantsQueryHandler : IRequestHandler<GetTenantsQuery, Task<Page
                 if (contract.CustomerId == null || string.IsNullOrEmpty(contract.DisplayName))
                     continue;
                 
-                var customerIdString = contract.CustomerId.ToString();
+                var customerIdGuid = contract.CustomerId.Value;
                 
                 var existingTenant = await _context.GetEntitySet<Tenant>()
-                    .FirstOrDefaultAsync(t => t.TenantId == customerIdString, cancellationToken);
+                    .FirstOrDefaultAsync(t => t.TenantId == customerIdGuid, cancellationToken);
                 
                 if (existingTenant != null)
                 {
@@ -178,11 +179,10 @@ public class GetTenantsQueryHandler : IRequestHandler<GetTenantsQuery, Task<Page
                     var currentUserId = _currentUserService.GetCurrentUserId() ?? Guid.Empty;
                     var newTenant = new Tenant
                     {
-                        Id = Guid.NewGuid(),
-                        TenantId = customerIdString!,
+                        TenantId = customerIdGuid,
                         DisplayName = contract.DisplayName,
                         DefaultDomainName = contract.DefaultDomainName ?? 
-                            $"{customerIdString}.onmicrosoft.com",
+                            $"{customerIdGuid}.onmicrosoft.com",
                         Status = "Active",
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = currentUserId,

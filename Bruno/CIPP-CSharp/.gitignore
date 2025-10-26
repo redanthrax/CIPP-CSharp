@@ -1,0 +1,11 @@
+# Bruno Environment Files with Secrets
+environments/dev.bru
+environments/*.bru
+!environments/*.bru.example
+
+# Bruno OAuth tokens and cache
+.bruno/
+
+# Backup files
+*.bak
+*~

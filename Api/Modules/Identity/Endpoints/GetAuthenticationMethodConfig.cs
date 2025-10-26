@@ -17,7 +17,7 @@ public static class GetAuthenticationMethodConfig {
 
     private static async Task<IResult> Handle(
         string methodId,
-        string tenantId,
+        Guid tenantId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {

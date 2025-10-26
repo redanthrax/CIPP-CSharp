@@ -17,7 +17,7 @@ public static class WipeDevice {
     public record WipeDeviceRequest(bool KeepEnrollmentData, bool KeepUserData, bool UseProtectedWipe);
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string deviceId,
         WipeDeviceRequest request,
         IMediator mediator,

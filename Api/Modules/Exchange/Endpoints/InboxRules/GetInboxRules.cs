@@ -18,7 +18,7 @@ public static class GetInboxRules {
 
     private static async Task<IResult> Handle(
         HttpContext context,
-        string tenantId,
+        Guid tenantId,
         string mailboxId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

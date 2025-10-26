@@ -1,8 +1,1 @@
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Identity.Commands;
-
-public record DeleteUserCommand(
-    string TenantId,
-    string UserId
-) : IRequest<DeleteUserCommand, Task>;
+using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Identity.Commands;public record DeleteUserCommand(    Guid TenantId,    string UserId) : IRequest<DeleteUserCommand, Task>;

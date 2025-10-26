@@ -16,11 +16,13 @@ public static class CreateGroup {
     }
 
     private static async Task<IResult> Handle(
+        Guid tenantId,
         CreateGroupDto groupData,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
-            var command = new CreateGroupCommand(groupData);
+            groupData.TenantId = tenantId;
+            var command = new CreateGroupCommand(tenantId, groupData);
             var result = await mediator.Send(command, cancellationToken);
 
             return Results.Created($"/api/identity/groups/{result.Id}", 

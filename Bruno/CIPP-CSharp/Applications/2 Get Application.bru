@@ -1,0 +1,28 @@
+meta {
+  name: Get Application
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/v1/applications/applications/{{applicationId}}?tenantId={{exampleTenant}}
+  body: none
+  auth: inherit
+}
+
+params:path {
+  applicationId: {{applicationId}}
+}
+
+params:query {
+  tenantId: {{exampleTenant}}
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+settings {
+  encodeUrl: true
+}

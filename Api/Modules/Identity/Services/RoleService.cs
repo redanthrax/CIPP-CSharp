@@ -19,7 +19,7 @@ public class RoleService : IRoleService {
         _logger = logger;
     }
 
-    public async Task<PagedResponse<RoleDto>> GetRolesAsync(string tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<RoleDto>> GetRolesAsync(Guid tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting roles for tenant {TenantId}", tenantId);
         
         paging ??= new PagingParameters();
@@ -45,7 +45,7 @@ public class RoleService : IRoleService {
         };
     }
 
-    public async Task<RoleDto?> GetRoleAsync(string tenantId, string roleId, CancellationToken cancellationToken = default) {
+    public async Task<RoleDto?> GetRoleAsync(Guid tenantId, string roleId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting role {RoleId} for tenant {TenantId}", roleId, tenantId);
         
         var role = await _graphRoleService.GetRoleDefinitionAsync(roleId, tenantId);
@@ -53,7 +53,7 @@ public class RoleService : IRoleService {
         return role != null ? MapToRoleDto(role, tenantId) : null;
     }
 
-    public async Task AssignRoleAsync(string tenantId, AssignRoleDto assignRoleDto, CancellationToken cancellationToken = default) {
+    public async Task AssignRoleAsync(Guid tenantId, AssignRoleDto assignRoleDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Assigning role {RoleId} to user {UserId} for tenant {TenantId}", 
             assignRoleDto.RoleId, assignRoleDto.UserId, tenantId);
 
@@ -66,7 +66,7 @@ public class RoleService : IRoleService {
         await _graphRoleService.CreateRoleAssignmentAsync(roleAssignment, tenantId);
     }
 
-    public async Task RemoveRoleAsync(string tenantId, string userId, string roleId, CancellationToken cancellationToken = default) {
+    public async Task RemoveRoleAsync(Guid tenantId, string userId, string roleId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Removing role {RoleId} from user {UserId} for tenant {TenantId}", 
             roleId, userId, tenantId);
 
@@ -84,7 +84,7 @@ public class RoleService : IRoleService {
         }
     }
 
-    public async Task<IEnumerable<RoleDto>> GetUserRolesAsync(string tenantId, string userId, CancellationToken cancellationToken = default) {
+    public async Task<IEnumerable<RoleDto>> GetUserRolesAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting roles for user {UserId} in tenant {TenantId}", userId, tenantId);
 
         var assignments = await _graphRoleService.GetRoleAssignmentsAsync(
@@ -105,7 +105,7 @@ public class RoleService : IRoleService {
         return roles;
     }
 
-    public async Task<IEnumerable<UserDto>> GetRoleMembersAsync(string tenantId, string roleId, CancellationToken cancellationToken = default) {
+    public async Task<IEnumerable<UserDto>> GetRoleMembersAsync(Guid tenantId, string roleId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting members for role {RoleId} in tenant {TenantId}", roleId, tenantId);
 
         var assignments = await _graphRoleService.GetRoleAssignmentsAsync(
@@ -139,7 +139,7 @@ public class RoleService : IRoleService {
         return users;
     }
 
-    private static RoleDto MapToRoleDto(UnifiedRoleDefinition role, string tenantId) {
+    private static RoleDto MapToRoleDto(UnifiedRoleDefinition role, Guid tenantId) {
         return new RoleDto {
             Id = role.Id ?? "",
             DisplayName = role.DisplayName ?? "",

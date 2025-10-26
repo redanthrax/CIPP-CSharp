@@ -16,7 +16,7 @@ public static class GetMailbox {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string userId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

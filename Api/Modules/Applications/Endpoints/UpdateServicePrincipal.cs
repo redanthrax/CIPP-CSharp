@@ -16,7 +16,7 @@ public static class UpdateServicePrincipal {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string servicePrincipalId,
         UpdateServicePrincipalDto servicePrincipal,
         IMediator mediator,

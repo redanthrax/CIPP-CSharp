@@ -24,13 +24,13 @@ public class CachedGraphRequestHandler {
     }
 
     public async Task<TResult?> ExecuteAsync<TResult>(
-        string tenantId,
+        Guid? tenantId,
         Func<Task<TResult?>> graphRequest,
         string resourcePath,
         string httpMethod = "GET",
         object? requestParameters = null) where TResult : class {
         
-        var cacheKey = BuildCacheKey(tenantId, resourcePath, requestParameters);
+        var cacheKey = BuildCacheKey(tenantId ?? Guid.Empty, resourcePath, requestParameters);
 
         if (httpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase)) {
             var cached = await GetFromCacheAsync<TResult>(cacheKey);
@@ -48,7 +48,7 @@ public class CachedGraphRequestHandler {
                 await SetCacheAsync(cacheKey, result);
                 _logger.LogDebug("Cached result for {TenantId}:{ResourcePath}", tenantId, resourcePath);
             } else if (!httpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase)) {
-                await InvalidateCacheForResourceAsync(tenantId, resourcePath);
+                await InvalidateCacheForResourceAsync(tenantId ?? Guid.Empty, resourcePath);
                 _logger.LogDebug("Invalidated cache for {TenantId}:{ResourcePath} after {Method}", tenantId, resourcePath, httpMethod);
             }
 
@@ -60,7 +60,7 @@ public class CachedGraphRequestHandler {
     }
 
     public async Task ExecuteAsync(
-        string tenantId,
+        Guid? tenantId,
         Func<Task> graphRequest,
         string resourcePath,
         string httpMethod) {
@@ -69,7 +69,7 @@ public class CachedGraphRequestHandler {
             await graphRequest();
 
             if (!httpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase)) {
-                await InvalidateCacheForResourceAsync(tenantId, resourcePath);
+                await InvalidateCacheForResourceAsync(tenantId ?? Guid.Empty, resourcePath);
                 _logger.LogDebug("Invalidated cache for {TenantId}:{ResourcePath} after {Method}", tenantId, resourcePath, httpMethod);
             }
         } catch (Exception ex) {
@@ -78,7 +78,7 @@ public class CachedGraphRequestHandler {
         }
     }
 
-    private string BuildCacheKey(string tenantId, string resourcePath, object? parameters) {
+    private string BuildCacheKey(Guid tenantId, string resourcePath, object? parameters) {
         var keyBuilder = new StringBuilder();
         keyBuilder.Append(CACHE_KEY_PREFIX);
         keyBuilder.Append(tenantId);
@@ -182,7 +182,7 @@ public class CachedGraphRequestHandler {
         }
     }
 
-    private async Task InvalidateCacheForResourceAsync(string tenantId, string resourcePath) {
+    private async Task InvalidateCacheForResourceAsync(Guid tenantId, string resourcePath) {
         try {
             var normalizedPath = NormalizeResourcePath(resourcePath);
             var parts = normalizedPath.Split(':');

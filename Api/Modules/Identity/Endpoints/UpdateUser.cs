@@ -17,7 +17,7 @@ public static class UpdateUser {
 
     private static async Task<IResult> Handle(
         string id,
-        string tenantId,
+        Guid tenantId,
         UpdateUserDto userData,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

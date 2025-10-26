@@ -18,7 +18,7 @@ public static class UpdateSafeAttachmentPolicy {
 
     private static async Task<IResult> Handle(
         HttpContext context,
-        string tenantId,
+        Guid tenantId,
         string policyName,
         UpdateSafeAttachmentsPolicyDto updateDto,
         IMediator mediator,

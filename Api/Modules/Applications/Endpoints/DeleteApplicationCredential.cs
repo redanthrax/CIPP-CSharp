@@ -16,7 +16,7 @@ public static class DeleteApplicationCredential {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string applicationId,
         string keyId,
         IMediator mediator,
@@ -28,7 +28,7 @@ public static class DeleteApplicationCredential {
                 KeyId = keyId
             };
 
-            var command = new DeleteApplicationCredentialCommand(request);
+            var command = new DeleteApplicationCredentialCommand(tenantId, request);
             await mediator.Send(command, cancellationToken);
 
             return Results.Ok(Response<object?>.SuccessResult(null, "Application credential deleted successfully"));

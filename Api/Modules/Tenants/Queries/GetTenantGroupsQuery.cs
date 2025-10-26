@@ -1,8 +1,1 @@
-using CIPP.Api.Modules.Tenants.Models;
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Tenants.Queries;
-
-public record GetTenantGroupsQuery(
-    Guid? GroupId = null
-) : IRequest<GetTenantGroupsQuery, Task<List<TenantGroup>>>;
+using CIPP.Api.Modules.Tenants.Models;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Tenants.Queries;public record GetTenantGroupsQuery(Guid? GroupId = null) : IRequest<GetTenantGroupsQuery, Task<List<TenantGroup>>>;

@@ -29,7 +29,7 @@ public class UserService : IUserService {
         _logger = logger;
     }
 
-    public async Task<PagedResponse<UserDto>> GetUsersAsync(string tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<UserDto>> GetUsersAsync(Guid tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting users for tenant {TenantId}", tenantId);
         
         paging ??= new PagingParameters();
@@ -66,7 +66,7 @@ public class UserService : IUserService {
         return query.TryGetValue("$skiptoken", out var token) ? token.ToString() : null;
     }
 
-    public async Task<UserDto?> GetUserAsync(string tenantId, string userId, CancellationToken cancellationToken = default) {
+    public async Task<UserDto?> GetUserAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting user {UserId} for tenant {TenantId}", userId, tenantId);
         
         var user = await _graphUserService.GetUserAsync(userId, tenantId);
@@ -125,7 +125,7 @@ public class UserService : IUserService {
         return await MapToUserDtoAsync(createdUser, createUserDto.TenantId);
     }
 
-    public async Task<UserDto> UpdateUserAsync(string tenantId, string userId, UpdateUserDto updateUserDto, CancellationToken cancellationToken = default) {
+    public async Task<UserDto> UpdateUserAsync(Guid tenantId, string userId, UpdateUserDto updateUserDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating user {UserId} for tenant {TenantId}", userId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -165,13 +165,13 @@ public class UserService : IUserService {
         return await MapToUserDtoAsync(updatedUser, tenantId);
     }
 
-    public async Task DeleteUserAsync(string tenantId, string userId, CancellationToken cancellationToken = default) {
+    public async Task DeleteUserAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting user {UserId} for tenant {TenantId}", userId, tenantId);
 
         await _graphUserService.DeleteUserAsync(userId, tenantId);
     }
 
-    public async Task<string> ResetUserPasswordAsync(string tenantId, string userId, ResetUserPasswordDto resetPasswordDto, CancellationToken cancellationToken = default) {
+    public async Task<string> ResetUserPasswordAsync(Guid tenantId, string userId, ResetUserPasswordDto resetPasswordDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Resetting password for user {UserId} in tenant {TenantId}", userId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -192,7 +192,7 @@ public class UserService : IUserService {
         return password;
     }
 
-    public async Task EnableUserMfaAsync(string tenantId, string userId, CancellationToken cancellationToken = default) {
+    public async Task EnableUserMfaAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Enabling MFA for user {UserId} in tenant {TenantId}", userId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -210,7 +210,7 @@ public class UserService : IUserService {
         await _graphUserService.UpdateUserAsync(userId, user, tenantId);
     }
 
-    public async Task DisableUserMfaAsync(string tenantId, string userId, CancellationToken cancellationToken = default) {
+    public async Task DisableUserMfaAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Disabling MFA for user {UserId} in tenant {TenantId}", userId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -224,7 +224,7 @@ public class UserService : IUserService {
         await _graphUserService.UpdateUserAsync(userId, user, tenantId);
     }
 
-    public async Task<UserMfaStatusDto> GetUserMfaStatusAsync(string tenantId, string userId, CancellationToken cancellationToken = default) {
+    public async Task<UserMfaStatusDto> GetUserMfaStatusAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting MFA status for user {UserId} in tenant {TenantId}", userId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -280,7 +280,7 @@ public class UserService : IUserService {
         }
     }
 
-    private async Task<UserDto> MapToUserDtoAsync(User user, string tenantId) {
+    private async Task<UserDto> MapToUserDtoAsync(User user, Guid tenantId) {
         var betaGraphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         
         var assignedRoles = await GetUserRolesAsync(betaGraphClient, user.Id!);

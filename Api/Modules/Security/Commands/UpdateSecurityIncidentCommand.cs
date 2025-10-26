@@ -1,10 +1,1 @@
-using CIPP.Shared.DTOs.Security;
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Security.Commands;
-
-public record UpdateSecurityIncidentCommand(
-    string TenantId,
-    string IncidentId,
-    UpdateSecurityIncidentDto UpdateDto
-) : IRequest<UpdateSecurityIncidentCommand, Task>;
+using CIPP.Shared.DTOs.Security;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Security.Commands;public record UpdateSecurityIncidentCommand(    Guid TenantId,    string IncidentId,    UpdateSecurityIncidentDto UpdateDto) : IRequest<UpdateSecurityIncidentCommand, Task>;

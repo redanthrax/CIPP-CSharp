@@ -16,7 +16,7 @@ public static class RemoveTeamsPhoneNumber {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         RemoveTeamsPhoneNumberDto request,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

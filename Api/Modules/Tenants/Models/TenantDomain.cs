@@ -6,7 +6,7 @@ namespace CIPP.Api.Modules.Tenants.Models;
 public class TenantDomain : IEntityConfiguration<TenantDomain>
 {
     public Guid Id { get; set; }
-    public Guid TenantId { get; set; }
+    public required Guid TenantId { get; set; }
     public required string DomainName { get; set; }
     public bool IsInitial { get; set; }
     public bool IsDefault { get; set; }
@@ -25,6 +25,7 @@ public class TenantDomain : IEntityConfiguration<TenantDomain>
         modelBuilder.Entity<TenantDomain>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.TenantId).IsRequired();
             entity.Property(e => e.DomainName).IsRequired().HasMaxLength(255);
             entity.Property(e => e.AuthenticationType).HasMaxLength(50);
             entity.Property(e => e.AvailabilityStatus).HasMaxLength(50);

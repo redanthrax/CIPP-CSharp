@@ -17,7 +17,7 @@ public static class UpdateAuthenticationMethodConfig {
 
     private static async Task<IResult> Handle(
         string methodId,
-        string tenantId,
+        Guid tenantId,
         UpdateAuthenticationMethodDto updateDto,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

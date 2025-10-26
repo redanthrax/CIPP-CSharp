@@ -18,7 +18,7 @@ public static class GetSafeAttachmentPolicy {
 
     private static async Task<IResult> Handle(
         HttpContext context,
-        string tenantId,
+        Guid tenantId,
         string policyName,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

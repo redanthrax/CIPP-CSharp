@@ -19,7 +19,7 @@ public class MailboxService : IMailboxService {
         _logger = logger;
     }
 
-    public async Task<List<MailboxDto>> GetMailboxesAsync(string tenantId, string? mailboxType = null, CancellationToken cancellationToken = default) {
+    public async Task<List<MailboxDto>> GetMailboxesAsync(Guid tenantId, string? mailboxType = null, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting mailboxes for tenant {TenantId}, type {MailboxType}", tenantId, mailboxType ?? "all");
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -56,7 +56,7 @@ public class MailboxService : IMailboxService {
         }).ToList();
     }
 
-    public async Task<MailboxDetailsDto?> GetMailboxAsync(string tenantId, string userId, CancellationToken cancellationToken = default) {
+    public async Task<MailboxDetailsDto?> GetMailboxAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting mailbox details for user {UserId} in tenant {TenantId}", userId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -86,7 +86,7 @@ public class MailboxService : IMailboxService {
         };
     }
 
-    public async Task UpdateMailboxAsync(string tenantId, string userId, UpdateMailboxDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateMailboxAsync(Guid tenantId, string userId, UpdateMailboxDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating mailbox for user {UserId} in tenant {TenantId}", userId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -99,7 +99,7 @@ public class MailboxService : IMailboxService {
         _logger.LogInformation("Successfully updated mailbox for user {UserId}", userId);
     }
 
-    public async Task<MailboxForwardingDto> GetMailboxForwardingAsync(string tenantId, string userId, CancellationToken cancellationToken = default) {
+    public async Task<MailboxForwardingDto> GetMailboxForwardingAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting mailbox forwarding for user {UserId} in tenant {TenantId}", userId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -117,7 +117,7 @@ public class MailboxService : IMailboxService {
         };
     }
 
-    public async Task UpdateMailboxForwardingAsync(string tenantId, string userId, UpdateMailboxForwardingDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateMailboxForwardingAsync(Guid tenantId, string userId, UpdateMailboxForwardingDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating mailbox forwarding for user {UserId} in tenant {TenantId}", userId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -126,7 +126,7 @@ public class MailboxService : IMailboxService {
         await Task.CompletedTask;
     }
 
-    public async Task<List<MailboxPermissionDto>> GetMailboxPermissionsAsync(string tenantId, string userId, CancellationToken cancellationToken = default) {
+    public async Task<List<MailboxPermissionDto>> GetMailboxPermissionsAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting mailbox permissions for user {UserId} in tenant {TenantId}", userId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -136,7 +136,7 @@ public class MailboxService : IMailboxService {
         return permissions;
     }
 
-    public async Task UpdateMailboxPermissionsAsync(string tenantId, string userId, UpdateMailboxPermissionsDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateMailboxPermissionsAsync(Guid tenantId, string userId, UpdateMailboxPermissionsDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating mailbox permissions for user {UserId} in tenant {TenantId}", userId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -145,7 +145,7 @@ public class MailboxService : IMailboxService {
         await Task.CompletedTask;
     }
 
-    public async Task<PagedResponse<InboxRuleDto>> GetInboxRulesAsync(string tenantId, string mailboxId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<InboxRuleDto>> GetInboxRulesAsync(Guid tenantId, string mailboxId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting inbox rules for mailbox {MailboxId} in tenant {TenantId}", mailboxId, tenantId);
 
         var parameters = new Dictionary<string, object> {
@@ -162,7 +162,7 @@ public class MailboxService : IMailboxService {
         return rules.ToPagedResponse(pagingParams);
     }
 
-    public async Task<InboxRuleDto?> GetInboxRuleAsync(string tenantId, string mailboxId, string ruleId, CancellationToken cancellationToken = default) {
+    public async Task<InboxRuleDto?> GetInboxRuleAsync(Guid tenantId, string mailboxId, string ruleId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting inbox rule {RuleId} for mailbox {MailboxId} in tenant {TenantId}", ruleId, mailboxId, tenantId);
 
         var parameters = new Dictionary<string, object> {
@@ -180,7 +180,7 @@ public class MailboxService : IMailboxService {
         return rule;
     }
 
-    public async Task<string> CreateInboxRuleAsync(string tenantId, string mailboxId, CreateInboxRuleDto createDto, CancellationToken cancellationToken = default) {
+    public async Task<string> CreateInboxRuleAsync(Guid tenantId, string mailboxId, CreateInboxRuleDto createDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Creating inbox rule for mailbox {MailboxId} in tenant {TenantId}", mailboxId, tenantId);
 
         var parameters = BuildCreateInboxRuleParameters(mailboxId, createDto);
@@ -196,7 +196,7 @@ public class MailboxService : IMailboxService {
         return createDto.Name;
     }
 
-    public async Task UpdateInboxRuleAsync(string tenantId, string mailboxId, string ruleId, UpdateInboxRuleDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateInboxRuleAsync(Guid tenantId, string mailboxId, string ruleId, UpdateInboxRuleDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating inbox rule {RuleId} for mailbox {MailboxId} in tenant {TenantId}", ruleId, mailboxId, tenantId);
 
         var parameters = BuildUpdateInboxRuleParameters(mailboxId, ruleId, updateDto);
@@ -211,7 +211,7 @@ public class MailboxService : IMailboxService {
         _logger.LogInformation("Successfully updated inbox rule {RuleId}", ruleId);
     }
 
-    public async Task DeleteInboxRuleAsync(string tenantId, string mailboxId, string ruleId, CancellationToken cancellationToken = default) {
+    public async Task DeleteInboxRuleAsync(Guid tenantId, string mailboxId, string ruleId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting inbox rule {RuleId} for mailbox {MailboxId} in tenant {TenantId}", ruleId, mailboxId, tenantId);
 
         var parameters = new Dictionary<string, object> {
@@ -230,7 +230,7 @@ public class MailboxService : IMailboxService {
         _logger.LogInformation("Successfully deleted inbox rule {RuleId}", ruleId);
     }
 
-    public async Task EnableArchiveAsync(string tenantId, string mailboxId, CancellationToken cancellationToken = default) {
+    public async Task EnableArchiveAsync(Guid tenantId, string mailboxId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Enabling archive for mailbox {MailboxId} in tenant {TenantId}", mailboxId, tenantId);
 
         var parameters = new Dictionary<string, object> {
@@ -248,7 +248,7 @@ public class MailboxService : IMailboxService {
         _logger.LogInformation("Successfully enabled archive for mailbox {MailboxId}", mailboxId);
     }
 
-    public async Task<MailboxStatisticsDto?> GetMailboxStatisticsAsync(string tenantId, string mailboxId, CancellationToken cancellationToken = default) {
+    public async Task<MailboxStatisticsDto?> GetMailboxStatisticsAsync(Guid tenantId, string mailboxId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting mailbox statistics for {MailboxId} in tenant {TenantId}", mailboxId, tenantId);
 
         var parameters = new Dictionary<string, object> {
@@ -265,7 +265,7 @@ public class MailboxService : IMailboxService {
         return statistics;
     }
 
-    public async Task<MailboxQuotaDto?> GetMailboxQuotaAsync(string tenantId, string mailboxId, CancellationToken cancellationToken = default) {
+    public async Task<MailboxQuotaDto?> GetMailboxQuotaAsync(Guid tenantId, string mailboxId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting mailbox quota for {MailboxId} in tenant {TenantId}", mailboxId, tenantId);
 
         var parameters = new Dictionary<string, object> {
@@ -282,7 +282,7 @@ public class MailboxService : IMailboxService {
         return quota;
     }
 
-    public async Task UpdateMailboxQuotaAsync(string tenantId, string mailboxId, UpdateMailboxQuotaDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateMailboxQuotaAsync(Guid tenantId, string mailboxId, UpdateMailboxQuotaDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating mailbox quota for {MailboxId} in tenant {TenantId}", mailboxId, tenantId);
 
         var parameters = new Dictionary<string, object> {
@@ -311,7 +311,7 @@ public class MailboxService : IMailboxService {
         _logger.LogInformation("Successfully updated mailbox quota for {MailboxId}", mailboxId);
     }
 
-    public async Task UpdateLitigationHoldAsync(string tenantId, string mailboxId, LitigationHoldDto holdDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateLitigationHoldAsync(Guid tenantId, string mailboxId, LitigationHoldDto holdDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating litigation hold for mailbox {MailboxId} in tenant {TenantId}", mailboxId, tenantId);
 
         var parameters = new Dictionary<string, object> {

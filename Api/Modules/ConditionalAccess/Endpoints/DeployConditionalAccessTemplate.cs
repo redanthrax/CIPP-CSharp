@@ -17,12 +17,14 @@ public static class DeployConditionalAccessTemplate {
 
     private static async Task<IResult> Handle(
         Guid id,
+        Guid tenantId,
         DeployConditionalAccessTemplateDto deployDto,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
             deployDto.TemplateId = id;
-            var command = new DeployConditionalAccessTemplateCommand(deployDto);
+            deployDto.TenantId = tenantId;
+            var command = new DeployConditionalAccessTemplateCommand(tenantId, deployDto);
             var result = await mediator.Send(command, cancellationToken);
 
             return Results.Ok(Response<ConditionalAccessPolicyDto>.SuccessResult(result, "Template deployed successfully"));

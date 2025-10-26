@@ -16,7 +16,7 @@ public static class CreateOutboundConnector {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         CreateOutboundConnectorDto dto,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

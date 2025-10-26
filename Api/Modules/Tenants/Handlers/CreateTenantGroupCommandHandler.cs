@@ -36,8 +36,8 @@ public class CreateTenantGroupCommandHandler : IRequestHandler<CreateTenantGroup
         _context.Set<TenantGroup>().Add(tenantGroup);
         if (request.MemberTenantIds?.Any() == true) {
             var existingTenantIds = await _context.GetEntitySet<Tenant>()
-                .Where(t => request.MemberTenantIds.Contains(t.Id))
-                .Select(t => t.Id)
+                .Where(t => request.MemberTenantIds.Contains(t.TenantId))
+                .Select(t => t.TenantId)
                 .ToListAsync(cancellationToken);
 
             var invalidTenantIds = request.MemberTenantIds.Except(existingTenantIds).ToList();

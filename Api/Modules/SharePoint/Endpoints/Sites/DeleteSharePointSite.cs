@@ -15,7 +15,7 @@ public static class DeleteSharePointSite {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string siteId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

@@ -16,7 +16,7 @@ public static class UpdateIntunePolicy {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string policyId,
         UpdateIntunePolicyDto request,
         IMediator mediator,

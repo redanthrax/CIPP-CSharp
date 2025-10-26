@@ -16,7 +16,7 @@ public static class GetSharePointSite {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string siteId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

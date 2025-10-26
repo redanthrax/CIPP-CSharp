@@ -3,6 +3,5 @@ using DispatchR.Abstractions.Send;
 
 namespace CIPP.Api.Modules.Tenants.Queries;
 
-public record ValidateDomainQuery(
-    string TenantName
-) : IRequest<ValidateDomainQuery, Task<ValidateDomainResponseDto>>;
+public record ValidateDomainQuery(string TenantName)
+    : IRequest<ValidateDomainQuery, Task<ValidateDomainResponseDto>>;

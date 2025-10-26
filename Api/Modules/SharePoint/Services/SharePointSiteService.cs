@@ -14,7 +14,7 @@ public class SharePointSiteService : ISharePointSiteService {
         _logger = logger;
     }
 
-    public async Task<List<SharePointSiteDto>> GetSitesAsync(string tenantId, string type, CancellationToken cancellationToken = default) {
+    public async Task<List<SharePointSiteDto>> GetSitesAsync(Guid tenantId, string type, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting SharePoint sites for tenant {TenantId}, type {Type}", tenantId, type);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -40,7 +40,7 @@ public class SharePointSiteService : ISharePointSiteService {
         }).ToList();
     }
 
-    public async Task<SharePointSiteDto?> GetSiteAsync(string tenantId, string siteId, CancellationToken cancellationToken = default) {
+    public async Task<SharePointSiteDto?> GetSiteAsync(Guid tenantId, string siteId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting SharePoint site {SiteId} for tenant {TenantId}", siteId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -60,7 +60,7 @@ public class SharePointSiteService : ISharePointSiteService {
         };
     }
 
-    public async Task<string> CreateSiteAsync(string tenantId, CreateSharePointSiteDto createDto, CancellationToken cancellationToken = default) {
+    public async Task<string> CreateSiteAsync(Guid tenantId, CreateSharePointSiteDto createDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Creating SharePoint site {SiteName} for tenant {TenantId}", createDto.SiteName, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -78,7 +78,7 @@ public class SharePointSiteService : ISharePointSiteService {
         return $"Successfully initiated creation of SharePoint site: '{createDto.SiteName}'";
     }
 
-    public async Task DeleteSiteAsync(string tenantId, string siteId, CancellationToken cancellationToken = default) {
+    public async Task DeleteSiteAsync(Guid tenantId, string siteId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting SharePoint site {SiteId} for tenant {TenantId}", siteId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -91,7 +91,7 @@ public class SharePointSiteService : ISharePointSiteService {
         await Task.CompletedTask;
     }
 
-    public async Task<SharePointSettingsDto> GetSettingsAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<SharePointSettingsDto> GetSettingsAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting SharePoint settings for tenant {TenantId}", tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -99,7 +99,7 @@ public class SharePointSiteService : ISharePointSiteService {
         try {
             var organization = await graphClient.Organization.GetAsync(cancellationToken: cancellationToken);
             var verifiedDomain = organization?.Value?.FirstOrDefault()?.VerifiedDomains?.FirstOrDefault(d => d.IsInitial == true);
-            var domainPrefix = verifiedDomain?.Name?.Split('.').FirstOrDefault() ?? tenantId;
+            var domainPrefix = verifiedDomain?.Name?.Split('.').FirstOrDefault() ?? tenantId.ToString();
             
             return new SharePointSettingsDto {
                 AdminUrl = $"https://{domainPrefix}-admin.sharepoint.com",
@@ -116,7 +116,7 @@ public class SharePointSiteService : ISharePointSiteService {
         }
     }
 
-    public async Task<SharePointQuotaDto> GetQuotaAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<SharePointQuotaDto> GetQuotaAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting SharePoint quota for tenant {TenantId}", tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -162,7 +162,7 @@ public class SharePointSiteService : ISharePointSiteService {
         }
     }
 
-    public async Task<string> SetPermissionsAsync(string tenantId, string userId, string accessUser, string? url, bool removePermission, CancellationToken cancellationToken = default) {
+    public async Task<string> SetPermissionsAsync(Guid tenantId, string userId, string accessUser, string? url, bool removePermission, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Setting SharePoint permissions for user {UserId} in tenant {TenantId}", userId, tenantId);
         var action = removePermission ? "removed from" : "added to";
         return $"Successfully {action} SharePoint permissions for {accessUser}";

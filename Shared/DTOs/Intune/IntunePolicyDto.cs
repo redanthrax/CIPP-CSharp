@@ -10,5 +10,5 @@ public class IntunePolicyDto {
     public string? PolicyAssignment { get; set; }
     public string? PolicyExclude { get; set; }
     public List<string>? RoleScopeTagIds { get; set; }
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
 }

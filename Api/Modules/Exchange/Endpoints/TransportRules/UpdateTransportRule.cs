@@ -16,7 +16,7 @@ public static class UpdateTransportRule {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string ruleId,
         UpdateTransportRuleDto updateDto,
         IMediator mediator,

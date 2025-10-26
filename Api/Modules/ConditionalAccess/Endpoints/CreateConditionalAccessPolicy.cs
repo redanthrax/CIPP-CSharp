@@ -16,13 +16,13 @@ public static class CreateConditionalAccessPolicy {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         CreateConditionalAccessPolicyDto policy,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
             policy.TenantId = tenantId;
-            var command = new CreateConditionalAccessPolicyCommand(policy);
+            var command = new CreateConditionalAccessPolicyCommand(tenantId, policy);
             var result = await mediator.Send(command, cancellationToken);
 
             return Results.Ok(Response<ConditionalAccessPolicyDto>.SuccessResult(result, "Policy created successfully"));

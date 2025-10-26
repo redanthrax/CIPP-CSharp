@@ -12,7 +12,7 @@ public class TransportRuleService : ITransportRuleService {
         _logger = logger;
     }
 
-    public async Task<List<TransportRuleDto>> GetTransportRulesAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<List<TransportRuleDto>> GetTransportRulesAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting transport rules for tenant {TenantId}", tenantId);
         
         var rules = await _exoService.ExecuteCmdletListAsync<TransportRuleDto>(
@@ -25,7 +25,7 @@ public class TransportRuleService : ITransportRuleService {
         return rules;
     }
 
-    public async Task<TransportRuleDetailsDto?> GetTransportRuleAsync(string tenantId, string ruleId, CancellationToken cancellationToken = default) {
+    public async Task<TransportRuleDetailsDto?> GetTransportRuleAsync(Guid tenantId, string ruleId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting transport rule {RuleId} for tenant {TenantId}", ruleId, tenantId);
         
         var parameters = new Dictionary<string, object> {
@@ -42,7 +42,7 @@ public class TransportRuleService : ITransportRuleService {
         return rule;
     }
 
-    public async Task<string> CreateTransportRuleAsync(string tenantId, CreateTransportRuleDto createDto, CancellationToken cancellationToken = default) {
+    public async Task<string> CreateTransportRuleAsync(Guid tenantId, CreateTransportRuleDto createDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Creating transport rule {RuleName} for tenant {TenantId}", createDto.Name, tenantId);
         
         var parameters = BuildCreateParameters(createDto);
@@ -58,7 +58,7 @@ public class TransportRuleService : ITransportRuleService {
         return createDto.Name;
     }
 
-    public async Task UpdateTransportRuleAsync(string tenantId, string ruleId, UpdateTransportRuleDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateTransportRuleAsync(Guid tenantId, string ruleId, UpdateTransportRuleDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating transport rule {RuleId} for tenant {TenantId}", ruleId, tenantId);
         
         var parameters = BuildUpdateParameters(ruleId, updateDto);
@@ -73,7 +73,7 @@ public class TransportRuleService : ITransportRuleService {
         _logger.LogInformation("Successfully updated transport rule {RuleId}", ruleId);
     }
 
-    public async Task DeleteTransportRuleAsync(string tenantId, string ruleId, CancellationToken cancellationToken = default) {
+    public async Task DeleteTransportRuleAsync(Guid tenantId, string ruleId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting transport rule {RuleId} for tenant {TenantId}", ruleId, tenantId);
         
         var parameters = new Dictionary<string, object> {
@@ -91,7 +91,7 @@ public class TransportRuleService : ITransportRuleService {
         _logger.LogInformation("Successfully deleted transport rule {RuleId}", ruleId);
     }
 
-    public async Task EnableTransportRuleAsync(string tenantId, string ruleId, bool enable, CancellationToken cancellationToken = default) {
+    public async Task EnableTransportRuleAsync(Guid tenantId, string ruleId, bool enable, CancellationToken cancellationToken = default) {
         _logger.LogInformation("{Action} transport rule {RuleId} for tenant {TenantId}", 
             enable ? "Enabling" : "Disabling", ruleId, tenantId);
         

@@ -6,7 +6,7 @@ namespace CIPP.Api.Modules.Tenants.Models;
 public class TenantProperty : IEntityConfiguration<TenantProperty>
 {
     public Guid Id { get; set; }
-    public Guid TenantId { get; set; }
+    public required Guid TenantId { get; set; }
     public required string Key { get; set; }
     public string? Value { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -21,6 +21,7 @@ public class TenantProperty : IEntityConfiguration<TenantProperty>
         modelBuilder.Entity<TenantProperty>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.TenantId).IsRequired();
             entity.Property(e => e.Key).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Value).HasMaxLength(4000);
             

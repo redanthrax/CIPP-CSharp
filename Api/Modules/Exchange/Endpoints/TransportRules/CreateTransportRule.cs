@@ -16,7 +16,7 @@ public static class CreateTransportRule {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         CreateTransportRuleDto createDto,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

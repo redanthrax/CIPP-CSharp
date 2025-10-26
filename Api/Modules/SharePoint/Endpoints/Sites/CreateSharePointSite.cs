@@ -16,7 +16,7 @@ public static class CreateSharePointSite {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         CreateSharePointSiteDto request,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

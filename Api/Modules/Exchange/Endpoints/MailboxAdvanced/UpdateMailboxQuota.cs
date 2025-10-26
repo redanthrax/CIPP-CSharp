@@ -16,7 +16,7 @@ public static class UpdateMailboxQuota {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string mailboxId,
         UpdateMailboxQuotaDto updateDto,
         IMediator mediator,

@@ -6,7 +6,7 @@ public class NamedLocationDto {
     public DateTime? CreatedDateTime { get; set; }
     public DateTime? ModifiedDateTime { get; set; }
     public bool IsTrusted { get; set; }
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
     public string OdataType { get; set; } = string.Empty;
     
     public List<string>? IpRanges { get; set; }

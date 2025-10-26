@@ -18,7 +18,7 @@ public static class GetServicePrincipals {
 
     private static async Task<IResult> Handle(
         HttpContext context,
-        string tenantId,
+        Guid tenantId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {

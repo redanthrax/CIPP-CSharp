@@ -13,5 +13,5 @@ public class SecurityIncidentDto {
     public DateTime? CreatedDateTime { get; set; }
     public DateTime? LastUpdateDateTime { get; set; }
     public List<string> Tags { get; set; } = new();
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
 }

@@ -17,7 +17,7 @@ public static class AddGroupMember {
 
     private static async Task<IResult> Handle(
         string id,
-        string tenantId,
+        Guid tenantId,
         AddGroupMemberDto memberData,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

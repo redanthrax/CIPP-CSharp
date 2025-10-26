@@ -3,4 +3,5 @@ using DispatchR.Abstractions.Send;
 
 namespace CIPP.Api.Modules.Frontend.TenantManagement.Queries;
 
-public record GetTenantDashboardDataQuery(Guid TenantId) : IRequest<GetTenantDashboardDataQuery, Task<TenantDashboardData>>;
+public record GetTenantDashboardDataQuery(Guid TenantId)
+    : IRequest<GetTenantDashboardDataQuery, Task<TenantDashboardData>>;

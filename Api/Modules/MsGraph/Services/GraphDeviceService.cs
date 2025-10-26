@@ -15,13 +15,13 @@ public class GraphDeviceService {
         _exceptionHandler = exceptionHandler;
     }
 
-    public async Task<DeviceCollectionResponse?> ListDevicesAsync(string? tenantId = null, string? filter = null, string[]? select = null, PagingParameters? paging = null) {
+    public async Task<DeviceCollectionResponse?> ListDevicesAsync(Guid? tenantId = null, string? filter = null, string[]? select = null, PagingParameters? paging = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             paging ??= new PagingParameters();
             
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Devices.GetAsync(requestConfiguration => {
                     if (!string.IsNullOrEmpty(filter))
                         requestConfiguration.QueryParameters.Filter = filter;
@@ -36,11 +36,11 @@ public class GraphDeviceService {
         }, tenantId, "listing devices");
     }
 
-    public async Task<Device?> GetDeviceAsync(string deviceId, string? tenantId = null) {
+    public async Task<Device?> GetDeviceAsync(string deviceId, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Devices[deviceId].GetAsync(),
                 $"devices/{deviceId}",
                 "GET"
@@ -48,11 +48,11 @@ public class GraphDeviceService {
         }, tenantId, $"getting device {deviceId}");
     }
 
-    public async Task<Device?> UpdateDeviceAsync(string deviceId, Device device, string? tenantId = null) {
+    public async Task<Device?> UpdateDeviceAsync(string deviceId, Device device, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Devices[deviceId].PatchAsync(device),
                 $"devices/{deviceId}",
                 "PATCH"
@@ -60,11 +60,11 @@ public class GraphDeviceService {
         }, tenantId, $"updating device {deviceId}");
     }
 
-    public async Task DeleteDeviceAsync(string deviceId, string? tenantId = null) {
+    public async Task DeleteDeviceAsync(string deviceId, Guid? tenantId = null) {
         await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Devices[deviceId].DeleteAsync(),
                 $"devices/{deviceId}",
                 "DELETE"

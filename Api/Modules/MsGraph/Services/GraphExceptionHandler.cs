@@ -6,7 +6,7 @@ namespace CIPP.Api.Modules.MsGraph.Services;
 
 public interface IGraphExceptionHandler
 {
-    Task<T?> HandleAsync<T>(Func<Task<T?>> operation, string? tenantId = null, string? operationDescription = null);
+    Task<T?> HandleAsync<T>(Func<Task<T?>> operation, Guid? tenantId = null, string? operationDescription = null);
 }
 
 public class GraphExceptionHandler : IGraphExceptionHandler
@@ -18,7 +18,7 @@ public class GraphExceptionHandler : IGraphExceptionHandler
         _logger = logger;
     }
 
-    public async Task<T?> HandleAsync<T>(Func<Task<T?>> operation, string? tenantId = null, string? operationDescription = null)
+    public async Task<T?> HandleAsync<T>(Func<Task<T?>> operation, Guid? tenantId = null, string? operationDescription = null)
     {
         try
         {
@@ -49,7 +49,7 @@ public class GraphExceptionHandler : IGraphExceptionHandler
                 }
             }
 
-            if (!string.IsNullOrEmpty(tenantId))
+            if (tenantId.HasValue)
             {
                 errorDetails.Add($"Target Tenant: {tenantId}");
             }
@@ -72,7 +72,7 @@ public class GraphExceptionHandler : IGraphExceptionHandler
             var errorDetails = new List<string>
             {
                 $"Authentication Exception: {ex.GetType().Name}",
-                $"Target Tenant: {tenantId ?? "default"}"
+                $"Target Tenant: {tenantId?.ToString() ?? "default"}"
             };
 
             var msalException = FindMsalServiceException(ex);

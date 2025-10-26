@@ -1,6 +1,1 @@
-using CIPP.Shared.DTOs.SharePoint;
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.SharePoint.Queries;
-
-public record GetSharePointSitesQuery(string TenantId, string Type) : IRequest<GetSharePointSitesQuery, Task<List<SharePointSiteDto>>>;
+using CIPP.Shared.DTOs.SharePoint;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.SharePoint.Queries;public record GetSharePointSitesQuery(Guid TenantId, string Type) : IRequest<GetSharePointSitesQuery, Task<List<SharePointSiteDto>>>;

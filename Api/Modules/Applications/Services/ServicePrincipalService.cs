@@ -18,7 +18,7 @@ public class ServicePrincipalService : IServicePrincipalService {
         _logger = logger;
     }
 
-    public async Task<PagedResponse<ServicePrincipalDto>> GetServicePrincipalsAsync(string tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<ServicePrincipalDto>> GetServicePrincipalsAsync(Guid tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting service principals for tenant {TenantId}", tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -51,7 +51,7 @@ public class ServicePrincipalService : IServicePrincipalService {
         };
     }
 
-    public async Task<ServicePrincipalDto?> GetServicePrincipalAsync(string tenantId, string servicePrincipalId, CancellationToken cancellationToken = default) {
+    public async Task<ServicePrincipalDto?> GetServicePrincipalAsync(Guid tenantId, string servicePrincipalId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting service principal {ServicePrincipalId} for tenant {TenantId}", servicePrincipalId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -69,7 +69,7 @@ public class ServicePrincipalService : IServicePrincipalService {
         }
     }
 
-    public async Task<ServicePrincipalDto> UpdateServicePrincipalAsync(string tenantId, string servicePrincipalId, UpdateServicePrincipalDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task<ServicePrincipalDto> UpdateServicePrincipalAsync(Guid tenantId, string servicePrincipalId, UpdateServicePrincipalDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating service principal {ServicePrincipalId} for tenant {TenantId}", servicePrincipalId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -117,7 +117,7 @@ public class ServicePrincipalService : IServicePrincipalService {
         return MapToServicePrincipalDto(updatedSp, tenantId);
     }
 
-    public async Task DeleteServicePrincipalAsync(string tenantId, string servicePrincipalId, CancellationToken cancellationToken = default) {
+    public async Task DeleteServicePrincipalAsync(Guid tenantId, string servicePrincipalId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting service principal {ServicePrincipalId} for tenant {TenantId}", servicePrincipalId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -125,7 +125,7 @@ public class ServicePrincipalService : IServicePrincipalService {
         await graphClient.ServicePrincipals[servicePrincipalId].DeleteAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task EnableServicePrincipalAsync(string tenantId, string servicePrincipalId, CancellationToken cancellationToken = default) {
+    public async Task EnableServicePrincipalAsync(Guid tenantId, string servicePrincipalId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Enabling service principal {ServicePrincipalId} for tenant {TenantId}", servicePrincipalId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -137,7 +137,7 @@ public class ServicePrincipalService : IServicePrincipalService {
         await graphClient.ServicePrincipals[servicePrincipalId].PatchAsync(servicePrincipal, cancellationToken: cancellationToken);
     }
 
-    public async Task DisableServicePrincipalAsync(string tenantId, string servicePrincipalId, CancellationToken cancellationToken = default) {
+    public async Task DisableServicePrincipalAsync(Guid tenantId, string servicePrincipalId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Disabling service principal {ServicePrincipalId} for tenant {TenantId}", servicePrincipalId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -149,7 +149,7 @@ public class ServicePrincipalService : IServicePrincipalService {
         await graphClient.ServicePrincipals[servicePrincipalId].PatchAsync(servicePrincipal, cancellationToken: cancellationToken);
     }
 
-    private static ServicePrincipalDto MapToServicePrincipalDto(ServicePrincipal servicePrincipal, string tenantId) {
+    private static ServicePrincipalDto MapToServicePrincipalDto(ServicePrincipal servicePrincipal, Guid tenantId) {
         return new ServicePrincipalDto {
             Id = servicePrincipal.Id ?? string.Empty,
             AppId = servicePrincipal.AppId ?? string.Empty,

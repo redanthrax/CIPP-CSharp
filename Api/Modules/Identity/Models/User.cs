@@ -24,5 +24,5 @@ public class User {
     public List<string> AssignedLicenses { get; set; } = new();
     public List<string> AssignedRoles { get; set; } = new();
     public UserMfaStatus? MfaStatus { get; set; }
-    public string? TenantId { get; set; }
+    public Guid? tenantId { get; set; }
 }

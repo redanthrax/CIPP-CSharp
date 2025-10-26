@@ -16,7 +16,7 @@ public static class AssignIntuneApp {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string appId,
         AssignIntuneAppDto request,
         IMediator mediator,

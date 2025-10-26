@@ -27,10 +27,10 @@ public class SyncTenantFromGraphCommandHandler : IRequestHandler<SyncTenantFromG
 
     public async Task<string> Handle(SyncTenantFromGraphCommand request, CancellationToken cancellationToken) {
         var tenant = await _context.GetEntitySet<Tenant>()
-            .FirstOrDefaultAsync(t => t.Id == request.TenantId, cancellationToken);
+            .FirstOrDefaultAsync(t => t.TenantId == request.TenantId, cancellationToken);
 
         if (tenant == null) {
-            throw new InvalidOperationException($"Tenant with ID {request.TenantId} not found");
+            throw new InvalidOperationException($"Tenant with TenantId {request.TenantId} not found");
         }
 
         try {

@@ -1,10 +1,1 @@
-using CIPP.Shared.DTOs.Identity;
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Identity.Commands;
-
-public record UpdateUserCommand(
-    string TenantId,
-    string UserId,
-    UpdateUserDto UserData
-) : IRequest<UpdateUserCommand, Task<UserDto>>;
+using CIPP.Shared.DTOs.Identity;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Identity.Commands;public record UpdateUserCommand(    Guid TenantId,    string UserId,    UpdateUserDto UserData) : IRequest<UpdateUserCommand, Task<UserDto>>;

@@ -14,5 +14,5 @@ public class AutopilotDeviceDto {
     public string? DisplayName { get; set; }
     public DateTime? EnrollmentState { get; set; }
     public DateTime? LastContactedDateTime { get; set; }
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
 }

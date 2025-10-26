@@ -15,7 +15,7 @@ public static class RemoveDistributionGroupMember {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string groupId,
         string memberEmail,
         IMediator mediator,

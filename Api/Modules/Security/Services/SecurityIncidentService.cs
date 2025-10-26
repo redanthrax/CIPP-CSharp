@@ -14,7 +14,7 @@ public class SecurityIncidentService : ISecurityIncidentService {
         _logger = logger;
     }
 
-    public async Task<SecurityIncidentsResponseDto> GetIncidentsAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<SecurityIncidentsResponseDto> GetIncidentsAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting security incidents for tenant {TenantId}", tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -38,7 +38,7 @@ public class SecurityIncidentService : ISecurityIncidentService {
         };
     }
 
-    public async Task<SecurityIncidentDto?> GetIncidentAsync(string tenantId, string incidentId, CancellationToken cancellationToken = default) {
+    public async Task<SecurityIncidentDto?> GetIncidentAsync(Guid tenantId, string incidentId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting security incident {IncidentId} for tenant {TenantId}", incidentId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -47,7 +47,7 @@ public class SecurityIncidentService : ISecurityIncidentService {
         return incident != null ? MapToIncidentDto(incident, tenantId) : null;
     }
 
-    public async Task UpdateIncidentAsync(string tenantId, string incidentId, UpdateSecurityIncidentDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateIncidentAsync(Guid tenantId, string incidentId, UpdateSecurityIncidentDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating security incident {IncidentId} for tenant {TenantId}", incidentId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -73,7 +73,7 @@ public class SecurityIncidentService : ISecurityIncidentService {
         await graphClient.Security.Incidents[incidentId].PatchAsync(incident, cancellationToken: cancellationToken);
     }
 
-    private static SecurityIncidentDto MapToIncidentDto(Incident incident, string tenantId) {
+    private static SecurityIncidentDto MapToIncidentDto(Incident incident, Guid tenantId) {
         return new SecurityIncidentDto {
             Id = incident.Id ?? string.Empty,
             DisplayName = incident.DisplayName ?? string.Empty,

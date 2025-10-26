@@ -18,8 +18,8 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, T
 
     public async Task<Tenant> Handle(UpdateTenantCommand request, CancellationToken cancellationToken) {
         var tenant = await _context.GetEntitySet<Tenant>()
-            .FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken)
-            ?? throw new InvalidOperationException($"Tenant with ID {request.Id} not found");
+            .FirstOrDefaultAsync(t => t.TenantId == request.TenantId, cancellationToken)
+            ?? throw new InvalidOperationException($"Tenant with TenantId {request.TenantId} not found");
 
         if (!string.IsNullOrEmpty(request.TenantAlias)) {
             if (string.IsNullOrEmpty(tenant.OriginalDisplayName)) {
@@ -37,7 +37,7 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, T
 
         if (request.TenantGroups != null) {
             var existingMemberships = await _context.Set<TenantGroupMembership>()
-                .Where(m => m.TenantId == tenant.Id)
+                .Where(m => m.TenantId == tenant.TenantId)
                 .ToListAsync(cancellationToken);
 
             _context.Set<TenantGroupMembership>().RemoveRange(existingMemberships);
@@ -45,7 +45,7 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, T
             var newMemberships = request.TenantGroups.Select(group => new TenantGroupMembership {
                 Id = Guid.NewGuid(),
                 TenantGroupId = group.GroupId,
-                TenantId = tenant.Id,
+                TenantId = tenant.TenantId,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = currentUserId
             }).ToList();

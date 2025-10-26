@@ -1,11 +1,1 @@
-using CIPP.Api.Modules.Tenants.Models;
-using CIPP.Shared.DTOs;
-using DispatchR.Abstractions.Send;
-namespace CIPP.Api.Modules.Tenants.Queries;
-public record GetTenantsQuery(
-    PagingParameters PagingParams,
-    string? Filter = null,
-    string? SortBy = null,
-    bool SortDescending = false,
-    bool NoCache = false
-) : IRequest<GetTenantsQuery, Task<PagedResponse<Tenant>>>;
+using CIPP.Api.Modules.Tenants.Models;using CIPP.Shared.DTOs;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Tenants.Queries;public record GetTenantsQuery(PagingParameters PagingParams,    string? Filter = null,    string? SortBy = null,    bool SortDescending = false,    bool NoCache = false) : IRequest<GetTenantsQuery, Task<PagedResponse<Tenant>>>;

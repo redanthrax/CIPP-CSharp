@@ -17,7 +17,7 @@ public static class CleanWindowsDevice {
     public record CleanWindowsDeviceRequest(bool KeepUserData);
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string deviceId,
         CleanWindowsDeviceRequest request,
         IMediator mediator,

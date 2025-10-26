@@ -3,5 +3,5 @@ using DispatchR.Abstractions.Send;
 
 namespace CIPP.Api.Modules.ConditionalAccess.Queries;
 
-public record GetConditionalAccessTemplatesQuery() 
+public record GetConditionalAccessTemplatesQuery()
     : IRequest<GetConditionalAccessTemplatesQuery, Task<List<ConditionalAccessTemplateDto>>>;

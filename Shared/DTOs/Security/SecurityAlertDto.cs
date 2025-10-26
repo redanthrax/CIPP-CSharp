@@ -8,5 +8,5 @@ public class SecurityAlertDto {
     public string Status { get; set; } = string.Empty;
     public DateTime? EventDateTime { get; set; }
     public List<string> InvolvedUsers { get; set; } = new();
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
 }

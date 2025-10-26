@@ -8,7 +8,7 @@ namespace CIPP.Api.Modules.Tenants.Endpoints;
 
 public static class UpdateTenant {
     public static void MapUpdateTenant(this RouteGroupBuilder group) {
-        group.MapPut("/{id:guid}", Handle)
+        group.MapPut("/{tenantId:guid}", Handle)
             .WithName("UpdateTenant")
             .WithSummary("Update tenant")
             .WithDescription("Updates tenant properties like alias and group memberships")
@@ -16,13 +16,13 @@ public static class UpdateTenant {
     }
 
     private static async Task<IResult> Handle(
-        Guid id,
+        Guid tenantId,
         UpdateTenantDto request,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
             var command = new UpdateTenantCommand(
-                id,
+                tenantId,
                 request.TenantAlias,
                 request.TenantGroups
             );
@@ -30,7 +30,6 @@ public static class UpdateTenant {
             var tenant = await mediator.Send(command, cancellationToken);
 
             var tenantDto = new TenantDto(
-                tenant.Id,
                 tenant.TenantId,
                 tenant.DisplayName,
                 tenant.DefaultDomainName,
@@ -42,7 +41,7 @@ public static class UpdateTenant {
 
             return Results.Ok(Response<TenantDto>.SuccessResult(tenantDto, "Tenant updated successfully"));
         } catch (InvalidOperationException) {
-            return Results.NotFound(Response<TenantDto>.ErrorResult($"Tenant with ID {id} not found"));
+            return Results.NotFound(Response<TenantDto>.ErrorResult($"Tenant with TenantId {tenantId} not found"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

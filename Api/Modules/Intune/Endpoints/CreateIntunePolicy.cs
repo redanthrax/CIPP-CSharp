@@ -16,7 +16,7 @@ public static class CreateIntunePolicy {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         CreateIntunePolicyDto request,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

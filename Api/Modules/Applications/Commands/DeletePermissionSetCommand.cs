@@ -1,7 +1,1 @@
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Applications.Commands;
-
-public record DeletePermissionSetCommand(
-    Guid Id
-) : IRequest<DeletePermissionSetCommand, Task>;
+using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Applications.Commands;public record DeletePermissionSetCommand(Guid Id) : IRequest<DeletePermissionSetCommand, Task>;

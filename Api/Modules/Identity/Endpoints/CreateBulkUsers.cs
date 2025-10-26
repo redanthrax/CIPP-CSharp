@@ -16,11 +16,12 @@ public static class CreateBulkUsers {
     }
 
     private static async Task<IResult> Handle(
+        Guid tenantId,
         BulkCreateUserDto bulkUserData,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
-            var command = new CreateBulkUsersCommand(bulkUserData);
+            var command = new CreateBulkUsersCommand(tenantId, bulkUserData);
             var results = await mediator.Send(command, cancellationToken);
 
             return Results.Ok(Response<List<BulkUserResultDto>>.SuccessResult(

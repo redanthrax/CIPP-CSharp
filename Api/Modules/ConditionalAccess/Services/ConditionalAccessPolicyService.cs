@@ -15,7 +15,7 @@ public class ConditionalAccessPolicyService : IConditionalAccessPolicyService {
         _logger = logger;
     }
 
-    public async Task<PagedResponse<ConditionalAccessPolicyDto>> GetPoliciesAsync(string tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<ConditionalAccessPolicyDto>> GetPoliciesAsync(Guid tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting conditional access policies for tenant {TenantId}", tenantId);
         
         paging ??= new PagingParameters();
@@ -42,7 +42,7 @@ public class ConditionalAccessPolicyService : IConditionalAccessPolicyService {
         };
     }
 
-    public async Task<ConditionalAccessPolicyDto?> GetPolicyAsync(string tenantId, string policyId, CancellationToken cancellationToken = default) {
+    public async Task<ConditionalAccessPolicyDto?> GetPolicyAsync(Guid tenantId, string policyId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting conditional access policy {PolicyId} for tenant {TenantId}", policyId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -66,7 +66,7 @@ public class ConditionalAccessPolicyService : IConditionalAccessPolicyService {
         return MapToPolicyDto(createdPolicy, createDto.TenantId);
     }
 
-    public async Task<ConditionalAccessPolicyDto> UpdatePolicyAsync(string tenantId, string policyId, UpdateConditionalAccessPolicyDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task<ConditionalAccessPolicyDto> UpdatePolicyAsync(Guid tenantId, string policyId, UpdateConditionalAccessPolicyDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating conditional access policy {PolicyId} for tenant {TenantId}", policyId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -81,14 +81,14 @@ public class ConditionalAccessPolicyService : IConditionalAccessPolicyService {
         return MapToPolicyDto(updatedPolicy, tenantId);
     }
 
-    public async Task DeletePolicyAsync(string tenantId, string policyId, CancellationToken cancellationToken = default) {
+    public async Task DeletePolicyAsync(Guid tenantId, string policyId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting conditional access policy {PolicyId} for tenant {TenantId}", policyId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.Identity.ConditionalAccess.Policies[policyId].DeleteAsync(cancellationToken: cancellationToken);
     }
 
-    private static ConditionalAccessPolicyDto MapToPolicyDto(ConditionalAccessPolicy policy, string tenantId) {
+    private static ConditionalAccessPolicyDto MapToPolicyDto(ConditionalAccessPolicy policy, Guid tenantId) {
         return new ConditionalAccessPolicyDto {
             Id = policy.Id ?? string.Empty,
             DisplayName = policy.DisplayName ?? string.Empty,

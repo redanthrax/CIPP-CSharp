@@ -1,5 +1,1 @@
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Exchange.Commands;
-
-public record DeleteQuarantineMessageCommand(string TenantId, string MessageId) : IRequest<DeleteQuarantineMessageCommand, Task>;
+using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Exchange.Commands;public record DeleteQuarantineMessageCommand(Guid TenantId, string MessageId) : IRequest<DeleteQuarantineMessageCommand, Task>;

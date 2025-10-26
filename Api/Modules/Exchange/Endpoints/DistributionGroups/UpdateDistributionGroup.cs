@@ -16,7 +16,7 @@ public static class UpdateDistributionGroup {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string groupId,
         UpdateDistributionGroupDto dto,
         IMediator mediator,

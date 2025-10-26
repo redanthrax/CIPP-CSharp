@@ -30,5 +30,5 @@ public class CreateUserDto {
     public string? Manager { get; set; }
     
     [Required]
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
 }

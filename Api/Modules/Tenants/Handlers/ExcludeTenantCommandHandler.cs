@@ -18,7 +18,7 @@ public class ExcludeTenantCommandHandler : IRequestHandler<ExcludeTenantCommand,
 
     public async Task<string> Handle(ExcludeTenantCommand request, CancellationToken cancellationToken) {
         var tenants = await _context.GetEntitySet<Tenant>()
-            .Where(t => request.TenantIds.Contains(t.Id))
+            .Where(t => request.TenantIds.Contains(t.TenantId))
             .ToListAsync(cancellationToken);
 
         if (!tenants.Any()) {

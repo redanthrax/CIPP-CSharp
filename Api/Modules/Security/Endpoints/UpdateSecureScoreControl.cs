@@ -16,7 +16,7 @@ public static class UpdateSecureScoreControl {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string controlName,
         UpdateSecureScoreControlDto updateDto,
         IMediator mediator,

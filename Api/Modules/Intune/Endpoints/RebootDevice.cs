@@ -15,7 +15,7 @@ public static class RebootDevice {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string deviceId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

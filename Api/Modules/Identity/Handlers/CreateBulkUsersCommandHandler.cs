@@ -24,8 +24,8 @@ public class CreateBulkUsersCommandHandler : IRequestHandler<CreateBulkUsersComm
 
         foreach (var user in request.BulkUserData.BulkUser) {
             try {
-                if (string.IsNullOrEmpty(user.TenantId)) {
-                    user.TenantId = request.BulkUserData.TenantFilter;
+                if (user.TenantId == Guid.Empty) {
+                    user.TenantId = request.TenantId;
                 }
 
                 if (string.IsNullOrEmpty(user.Country) && !string.IsNullOrEmpty(request.BulkUserData.UsageLocation)) {

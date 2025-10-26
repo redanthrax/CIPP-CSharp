@@ -16,7 +16,7 @@ public static class GetInboxRule {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string mailboxId,
         string ruleId,
         IMediator mediator,

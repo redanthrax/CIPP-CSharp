@@ -15,5 +15,5 @@ public class DeviceDto {
     public string? Manufacturer { get; set; }
     public string? Model { get; set; }
     public List<string> PhysicalIds { get; set; } = new();
-    public string? TenantId { get; set; }
+    public Guid? TenantId { get; set; }
 }

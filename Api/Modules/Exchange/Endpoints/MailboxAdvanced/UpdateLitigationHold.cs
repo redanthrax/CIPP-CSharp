@@ -16,7 +16,7 @@ public static class UpdateLitigationHold {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string mailboxId,
         LitigationHoldDto holdDto,
         IMediator mediator,

@@ -1,8 +1,1 @@
-using CIPP.Shared.DTOs.Applications;
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Applications.Queries;
-
-public record GetAppTemplateQuery(
-    Guid Id
-) : IRequest<GetAppTemplateQuery, Task<AppTemplateDto?>>;
+using CIPP.Shared.DTOs.Applications;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Applications.Queries;public record GetAppTemplateQuery(Guid Id) : IRequest<GetAppTemplateQuery, Task<AppTemplateDto?>>;

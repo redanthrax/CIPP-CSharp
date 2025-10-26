@@ -1,6 +1,1 @@
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Intune.Commands;
-
-public record RemoteLockCommand(string TenantId, string DeviceId) 
-    : IRequest<RemoteLockCommand, Task>;
+using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Intune.Commands;public record RemoteLockCommand(Guid TenantId, string DeviceId)     : IRequest<RemoteLockCommand, Task>;

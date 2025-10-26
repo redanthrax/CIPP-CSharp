@@ -14,7 +14,7 @@ public class TeamsService : ITeamsService {
         _logger = logger;
     }
 
-    public async Task<List<TeamDto>> GetTeamsAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<List<TeamDto>> GetTeamsAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Teams for tenant {TenantId}", tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -36,7 +36,7 @@ public class TeamsService : ITeamsService {
         }).OrderBy(t => t.DisplayName).ToList();
     }
 
-    public async Task<TeamDetailsDto?> GetTeamDetailsAsync(string tenantId, string teamId, CancellationToken cancellationToken = default) {
+    public async Task<TeamDetailsDto?> GetTeamDetailsAsync(Guid tenantId, string teamId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Team details {TeamId} for tenant {TenantId}", teamId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -81,7 +81,7 @@ public class TeamsService : ITeamsService {
         };
     }
 
-    public async Task<string> CreateTeamAsync(string tenantId, CreateTeamDto createDto, CancellationToken cancellationToken = default) {
+    public async Task<string> CreateTeamAsync(Guid tenantId, CreateTeamDto createDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Creating Team {DisplayName} for tenant {TenantId}", createDto.DisplayName, tenantId);
 
         if (createDto.Owners == null || createDto.Owners.Count == 0) {
@@ -108,17 +108,17 @@ public class TeamsService : ITeamsService {
         return $"Successfully created Team: '{createDto.DisplayName}'";
     }
 
-    public async Task<List<TeamsActivityDto>> GetTeamsActivityAsync(string tenantId, string type, CancellationToken cancellationToken = default) {
+    public async Task<List<TeamsActivityDto>> GetTeamsActivityAsync(Guid tenantId, string type, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Teams activity for tenant {TenantId}, type {Type}", tenantId, type);
         return new List<TeamsActivityDto>();
     }
 
-    public async Task<List<TeamsVoiceDto>> GetTeamsVoiceAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<List<TeamsVoiceDto>> GetTeamsVoiceAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Teams voice for tenant {TenantId}", tenantId);
         return new List<TeamsVoiceDto>();
     }
 
-    public async Task<string> AssignPhoneNumberAsync(string tenantId, AssignTeamsPhoneNumberDto assignDto, CancellationToken cancellationToken = default) {
+    public async Task<string> AssignPhoneNumberAsync(Guid tenantId, AssignTeamsPhoneNumberDto assignDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Assigning phone number {PhoneNumber} in tenant {TenantId}", assignDto.PhoneNumber, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -150,7 +150,7 @@ public class TeamsService : ITeamsService {
         }
     }
 
-    public async Task<string> RemovePhoneNumberAsync(string tenantId, RemoveTeamsPhoneNumberDto removeDto, CancellationToken cancellationToken = default) {
+    public async Task<string> RemovePhoneNumberAsync(Guid tenantId, RemoveTeamsPhoneNumberDto removeDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Removing phone number {PhoneNumber} from {AssignedTo} in tenant {TenantId}", 
             removeDto.PhoneNumber, removeDto.AssignedTo, tenantId);
         

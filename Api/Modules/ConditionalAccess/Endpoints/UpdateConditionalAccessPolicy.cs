@@ -16,7 +16,7 @@ public static class UpdateConditionalAccessPolicy {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string policyId,
         UpdateConditionalAccessPolicyDto policy,
         IMediator mediator,

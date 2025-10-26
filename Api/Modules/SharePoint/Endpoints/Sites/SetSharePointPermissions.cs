@@ -16,7 +16,7 @@ public static class SetSharePointPermissions {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         SetSharePointPermissionsDto request,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

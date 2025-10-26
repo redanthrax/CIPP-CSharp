@@ -15,7 +15,7 @@ public static class DeleteContact {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string contactId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

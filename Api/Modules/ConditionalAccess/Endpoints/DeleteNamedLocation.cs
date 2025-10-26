@@ -15,7 +15,7 @@ public static class DeleteNamedLocation {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string locationId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

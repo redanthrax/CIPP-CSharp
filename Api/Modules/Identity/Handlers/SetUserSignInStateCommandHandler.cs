@@ -21,7 +21,7 @@ public class SetUserSignInStateCommandHandler : IRequestHandler<SetUserSignInSta
             request.UserSignInStateData.ID, request.UserSignInStateData.Enable, request.UserSignInStateData.TenantFilter);
 
         try {
-            var graphClient = await _graphService.GetGraphServiceClientAsync(request.UserSignInStateData.TenantFilter);
+            var graphClient = await _graphService.GetGraphServiceClientAsync(request.TenantId);
             
             var user = new User {
                 AccountEnabled = request.UserSignInStateData.Enable

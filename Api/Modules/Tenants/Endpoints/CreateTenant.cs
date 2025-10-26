@@ -34,7 +34,6 @@ public static class CreateTenant
             );
             var tenant = await mediator.Send(command, cancellationToken);
             var tenantDto = new TenantDto(
-                tenant.Id,
                 tenant.TenantId,
                 tenant.DisplayName,
                 tenant.DefaultDomainName,
@@ -43,7 +42,7 @@ public static class CreateTenant
                 tenant.CreatedBy,
                 tenant.Metadata
             );
-            return Results.Created($"/api/tenants/{tenant.Id}", Response<TenantDto>.SuccessResult(tenantDto, "Tenant created successfully"));
+            return Results.Created($"/api/tenants/{tenant.TenantId}", Response<TenantDto>.SuccessResult(tenantDto, "Tenant created successfully"));
         }
         catch (Exception ex)
         {

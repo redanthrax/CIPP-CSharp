@@ -22,9 +22,9 @@ public class MicrosoftGraphService : IMicrosoftGraphService
         _exceptionHandler = exceptionHandler;
         _cacheHandler = cacheHandler;
     }
-    public Task<GraphServiceClient> GetGraphServiceClientAsync(string? tenantId = null)
+    public Task<GraphServiceClient> GetGraphServiceClientAsync(Guid? tenantId = null)
     {
-        var targetTenantId = tenantId ?? _configuration["Authentication:AzureAd:TenantId"];
+        var targetTenantId = tenantId?.ToString() ?? _configuration["Authentication:AzureAd:TenantId"];
         if (string.IsNullOrEmpty(targetTenantId))
         {
             throw new InvalidOperationException("Tenant ID is required");
@@ -46,7 +46,7 @@ public class MicrosoftGraphService : IMicrosoftGraphService
         return Task.FromResult(graphClient);
     }
 
-    public async Task<string> GetAccessTokenAsync(string tenantId, string scope)
+    public async Task<string> GetAccessTokenAsync(Guid tenantId, string scope)
     {
         var clientId = _configuration["Authentication:AzureAd:ClientId"];
         var clientSecret = _configuration["Authentication:AzureAd:ClientSecret"];
@@ -56,7 +56,7 @@ public class MicrosoftGraphService : IMicrosoftGraphService
             throw new InvalidOperationException("Azure AD configuration is missing");
         }
 
-        var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
+        var credential = new ClientSecretCredential(tenantId.ToString(), clientId, clientSecret);
         var tokenResult = await credential.GetTokenAsync(
             new Azure.Core.TokenRequestContext(new[] { scope }),
             CancellationToken.None
@@ -64,7 +64,7 @@ public class MicrosoftGraphService : IMicrosoftGraphService
 
         return tokenResult.Token;
     }
-    public async Task<Application?> GetApplicationAsync(string applicationId, string? tenantId = null)
+    public async Task<Application?> GetApplicationAsync(string applicationId, Guid? tenantId = null)
     {
         return await _exceptionHandler.HandleAsync(async () =>
         {
@@ -80,7 +80,7 @@ public class MicrosoftGraphService : IMicrosoftGraphService
             }
         }, tenantId, $"getting application {applicationId}");
     }
-    public async Task<DirectoryObject?> GetDirectoryObjectAsync(string objectId, string? tenantId = null)
+    public async Task<DirectoryObject?> GetDirectoryObjectAsync(string objectId, Guid? tenantId = null)
     {
         return await _exceptionHandler.HandleAsync(async () =>
         {
@@ -97,7 +97,7 @@ public class MicrosoftGraphService : IMicrosoftGraphService
             }
         }, tenantId, $"getting directory object {objectId}");
     }
-    public async Task<Organization?> GetOrganizationAsync(string? tenantId = null)
+    public async Task<Organization?> GetOrganizationAsync(Guid? tenantId = null)
     {
         return await _exceptionHandler.HandleAsync(async () =>
         {
@@ -107,7 +107,7 @@ public class MicrosoftGraphService : IMicrosoftGraphService
         }, tenantId, "getting organization");
     }
     public async Task<ServicePrincipalCollectionResponse?> GetServicePrincipalsAsync(
-        string? tenantId = null, string? filter = null, int? top = null)
+        Guid? tenantId = null, string? filter = null, int? top = null)
     {
         return await _exceptionHandler.HandleAsync(async () =>
         {
@@ -194,7 +194,7 @@ public class MicrosoftGraphService : IMicrosoftGraphService
         }, null, $"getting partner tenant {contractId}");
     }
 
-    public async Task<DomainCollectionResponse?> GetTenantDomainsAsync(string tenantId, string? filter = null)
+    public async Task<DomainCollectionResponse?> GetTenantDomainsAsync(Guid tenantId, string? filter = null)
     {
         return await _exceptionHandler.HandleAsync(async () =>
         {

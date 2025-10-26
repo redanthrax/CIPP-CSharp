@@ -1,7 +1,7 @@
 namespace CIPP.Shared.DTOs.Applications;
 
 public class UpdateApplicationDto {
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
     public string? DisplayName { get; set; }
     public string? Description { get; set; }
     public string? SignInAudience { get; set; }

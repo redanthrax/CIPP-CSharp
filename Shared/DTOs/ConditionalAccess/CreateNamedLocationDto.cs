@@ -1,7 +1,7 @@
 namespace CIPP.Shared.DTOs.ConditionalAccess;
 
 public class CreateNamedLocationDto {
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
     public string DisplayName { get; set; } = string.Empty;
     public bool IsTrusted { get; set; }
     public string LocationType { get; set; } = "ipRange";

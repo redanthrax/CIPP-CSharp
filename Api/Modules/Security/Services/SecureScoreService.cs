@@ -14,7 +14,7 @@ public class SecureScoreService : ISecureScoreService {
         _logger = logger;
     }
 
-    public async Task<List<SecureScoreControlProfileDto>> GetControlProfilesAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<List<SecureScoreControlProfileDto>> GetControlProfilesAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting secure score control profiles for tenant {TenantId}", tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -27,7 +27,7 @@ public class SecureScoreService : ISecureScoreService {
         return controlProfiles.Value.Select(MapToControlProfileDto).ToList();
     }
 
-    public async Task<SecureScoreControlProfileDto?> GetControlProfileAsync(string tenantId, string controlName, CancellationToken cancellationToken = default) {
+    public async Task<SecureScoreControlProfileDto?> GetControlProfileAsync(Guid tenantId, string controlName, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting secure score control profile {ControlName} for tenant {TenantId}", controlName, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -36,7 +36,7 @@ public class SecureScoreService : ISecureScoreService {
         return controlProfile != null ? MapToControlProfileDto(controlProfile) : null;
     }
 
-    public async Task UpdateControlProfileAsync(string tenantId, string controlName, UpdateSecureScoreControlDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateControlProfileAsync(Guid tenantId, string controlName, UpdateSecureScoreControlDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating secure score control profile {ControlName} for tenant {TenantId}", controlName, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);

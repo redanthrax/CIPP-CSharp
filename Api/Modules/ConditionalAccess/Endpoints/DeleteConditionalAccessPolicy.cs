@@ -15,7 +15,7 @@ public static class DeleteConditionalAccessPolicy {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string policyId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

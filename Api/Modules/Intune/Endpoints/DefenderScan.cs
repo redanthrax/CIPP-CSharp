@@ -17,7 +17,7 @@ public static class DefenderScan {
     public record DefenderScanRequest(bool QuickScan);
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string deviceId,
         DefenderScanRequest request,
         IMediator mediator,

@@ -13,7 +13,7 @@ public class LicenseService : ILicenseService {
         _logger = logger;
     }
 
-    public async Task AssignLicensesAsync(string tenantId, string userId, List<string> licenseSkuIds, CancellationToken cancellationToken = default) {
+    public async Task AssignLicensesAsync(Guid tenantId, string userId, List<string> licenseSkuIds, CancellationToken cancellationToken = default) {
         if (!licenseSkuIds.Any()) return;
 
         _logger.LogInformation("Assigning {LicenseCount} licenses to user {UserId} in tenant {TenantId}",
@@ -36,7 +36,7 @@ public class LicenseService : ILicenseService {
         }
     }
 
-    public async Task RemoveLicensesAsync(string tenantId, string userId, List<string> licenseSkuIds, CancellationToken cancellationToken = default) {
+    public async Task RemoveLicensesAsync(Guid tenantId, string userId, List<string> licenseSkuIds, CancellationToken cancellationToken = default) {
         if (!licenseSkuIds.Any()) return;
 
         _logger.LogInformation("Removing {LicenseCount} licenses from user {UserId} in tenant {TenantId}",
@@ -57,7 +57,7 @@ public class LicenseService : ILicenseService {
         }
     }
 
-    public async Task ReplaceLicensesAsync(string tenantId, string userId, List<string> addLicenseSkuIds, List<string> removeLicenseSkuIds, CancellationToken cancellationToken = default) {
+    public async Task ReplaceLicensesAsync(Guid tenantId, string userId, List<string> addLicenseSkuIds, List<string> removeLicenseSkuIds, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Replacing licenses for user {UserId} in tenant {TenantId}. Adding {AddCount}, removing {RemoveCount}",
             userId, tenantId, addLicenseSkuIds.Count, removeLicenseSkuIds.Count);
 
@@ -78,7 +78,7 @@ public class LicenseService : ILicenseService {
         }
     }
 
-    public async Task<List<string>> GetUserLicensesAsync(string tenantId, string userId, CancellationToken cancellationToken = default) {
+    public async Task<List<string>> GetUserLicensesAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting licenses for user {UserId} in tenant {TenantId}", userId, tenantId);
 
         try {

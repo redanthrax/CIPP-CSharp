@@ -9,5 +9,5 @@ public class RoleDto {
     public bool IsEnabled { get; set; }
     public List<string> ResourceScopes { get; set; } = new();
     public List<RolePermissionDto> RolePermissions { get; set; } = new();
-    public string? TenantId { get; set; }
+    public Guid? TenantId { get; set; }
 }

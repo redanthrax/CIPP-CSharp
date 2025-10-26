@@ -24,5 +24,5 @@ public class UserDto {
     public List<string> AssignedLicenses { get; set; } = new();
     public List<string> AssignedRoles { get; set; } = new();
     public UserMfaStatusDto? MfaStatus { get; set; }
-    public string? TenantId { get; set; }
+    public Guid? TenantId { get; set; }
 }

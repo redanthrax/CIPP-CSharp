@@ -16,7 +16,7 @@ public static class CreateApplicationCredential {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string applicationId,
         CreateApplicationCredentialDto request,
         IMediator mediator,
@@ -25,7 +25,7 @@ public static class CreateApplicationCredential {
             request.TenantId = tenantId;
             request.ApplicationId = applicationId;
 
-            var command = new CreateApplicationCredentialCommand(request);
+            var command = new CreateApplicationCredentialCommand(tenantId, request);
             var result = await mediator.Send(command, cancellationToken);
 
             return Results.Ok(Response<ApplicationCredentialDto>.SuccessResult(result, "Application credential created successfully"));

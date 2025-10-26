@@ -16,7 +16,7 @@ public class IntuneAppService : IIntuneAppService {
         _logger = logger;
     }
 
-    public async Task<List<IntuneAppDto>> GetAppsAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<List<IntuneAppDto>> GetAppsAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Intune apps for tenant {TenantId}", tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -33,7 +33,7 @@ public class IntuneAppService : IIntuneAppService {
         return apps.Value.Select(app => MapToAppDto(app, tenantId)).ToList();
     }
 
-    public async Task<IntuneAppDto?> GetAppAsync(string tenantId, string appId, CancellationToken cancellationToken = default) {
+    public async Task<IntuneAppDto?> GetAppAsync(Guid tenantId, string appId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Intune app {AppId} for tenant {TenantId}", appId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -42,7 +42,7 @@ public class IntuneAppService : IIntuneAppService {
         return app != null ? MapToAppDto(app, tenantId) : null;
     }
 
-    public async Task AssignAppAsync(string tenantId, string appId, string assignTo, CancellationToken cancellationToken = default) {
+    public async Task AssignAppAsync(Guid tenantId, string appId, string assignTo, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Assigning Intune app {AppId} to {AssignTo} for tenant {TenantId}", appId, assignTo, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -54,14 +54,14 @@ public class IntuneAppService : IIntuneAppService {
         await graphClient.DeviceAppManagement.MobileApps[appId].Assign.PostAsync(assignBody, cancellationToken: cancellationToken);
     }
 
-    public async Task DeleteAppAsync(string tenantId, string appId, CancellationToken cancellationToken = default) {
+    public async Task DeleteAppAsync(Guid tenantId, string appId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting Intune app {AppId} for tenant {TenantId}", appId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.DeviceAppManagement.MobileApps[appId].DeleteAsync(cancellationToken: cancellationToken);
     }
 
-    private static IntuneAppDto MapToAppDto(MobileApp app, string tenantId) {
+    private static IntuneAppDto MapToAppDto(MobileApp app, Guid tenantId) {
         return new IntuneAppDto {
             Id = app.Id ?? string.Empty,
             DisplayName = app.DisplayName ?? string.Empty,

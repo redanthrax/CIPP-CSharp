@@ -16,11 +16,13 @@ public static class CreateUser {
     }
 
     private static async Task<IResult> Handle(
+        Guid tenantId,
         CreateUserDto userData,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
-            var command = new CreateUserCommand(userData);
+            userData.TenantId = tenantId;
+            var command = new CreateUserCommand(tenantId, userData);
             var result = await mediator.Send(command, cancellationToken);
 
             return Results.Created($"/api/identity/users/{result.Id}", 

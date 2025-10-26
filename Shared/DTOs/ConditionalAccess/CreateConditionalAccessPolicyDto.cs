@@ -1,7 +1,7 @@
 namespace CIPP.Shared.DTOs.ConditionalAccess;
 
 public class CreateConditionalAccessPolicyDto {
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
     public string DisplayName { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string State { get; set; } = "disabled";

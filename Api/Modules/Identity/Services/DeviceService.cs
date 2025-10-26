@@ -25,7 +25,7 @@ public class DeviceService : IDeviceService {
         _logger = logger;
     }
 
-    public async Task<PagedResponse<DeviceDto>> GetDevicesAsync(string tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<DeviceDto>> GetDevicesAsync(Guid tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting devices for tenant {TenantId}", tenantId);
         
         paging ??= new PagingParameters();
@@ -58,7 +58,7 @@ public class DeviceService : IDeviceService {
         return query.TryGetValue("$skiptoken", out var token) ? token.ToString() : null;
     }
 
-    public async Task<DeviceDto?> GetDeviceAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task<DeviceDto?> GetDeviceAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
         
         var device = await _graphDeviceService.GetDeviceAsync(deviceId, tenantId);
@@ -66,13 +66,13 @@ public class DeviceService : IDeviceService {
         return device != null ? MapToDeviceDto(device, tenantId) : null;
     }
 
-    public async Task DeleteDeviceAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task DeleteDeviceAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         await _graphDeviceService.DeleteDeviceAsync(deviceId, tenantId);
     }
 
-    public async Task DisableDeviceAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task DisableDeviceAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Disabling device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var device = new Device {
@@ -82,7 +82,7 @@ public class DeviceService : IDeviceService {
         await _graphDeviceService.UpdateDeviceAsync(deviceId, device, tenantId);
     }
 
-    public async Task EnableDeviceAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task EnableDeviceAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Enabling device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var device = new Device {
@@ -92,7 +92,7 @@ public class DeviceService : IDeviceService {
         await _graphDeviceService.UpdateDeviceAsync(deviceId, device, tenantId);
     }
 
-    public async Task<IEnumerable<DeviceDto>> GetUserDevicesAsync(string tenantId, string userId, CancellationToken cancellationToken = default) {
+    public async Task<IEnumerable<DeviceDto>> GetUserDevicesAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting devices for user {UserId} in tenant {TenantId}", userId, tenantId);
 
         try {
@@ -124,7 +124,7 @@ public class DeviceService : IDeviceService {
         }
     }
 
-    private static DeviceDto MapToDeviceDto(Device device, string tenantId) {
+    private static DeviceDto MapToDeviceDto(Device device, Guid tenantId) {
         return new DeviceDto {
             Id = device.Id ?? "",
             DisplayName = device.DisplayName ?? "",

@@ -16,13 +16,13 @@ public static class CreateNamedLocation {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         CreateNamedLocationDto location,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
             location.TenantId = tenantId;
-            var command = new CreateNamedLocationCommand(location);
+            var command = new CreateNamedLocationCommand(tenantId, location);
             var result = await mediator.Send(command, cancellationToken);
 
             return Results.Ok(Response<NamedLocationDto>.SuccessResult(result, "Named location created successfully"));

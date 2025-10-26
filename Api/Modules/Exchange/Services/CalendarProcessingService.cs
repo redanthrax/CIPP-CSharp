@@ -13,13 +13,13 @@ public class CalendarProcessingService : ICalendarProcessingService {
         _logger = logger;
     }
 
-    public async Task<CalendarProcessingDto?> GetCalendarProcessingAsync(string tenantId, string mailboxIdentity, CancellationToken cancellationToken = default) {
+    public async Task<CalendarProcessingDto?> GetCalendarProcessingAsync(Guid tenantId, string mailboxIdentity, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting calendar processing settings for mailbox {MailboxIdentity} in tenant {TenantId}", mailboxIdentity, tenantId);
         var parameters = new Dictionary<string, object> { { "Identity", mailboxIdentity } };
         return await _exoService.ExecuteCmdletAsync<CalendarProcessingDto>(tenantId, "Get-CalendarProcessing", parameters, cancellationToken);
     }
 
-    public async Task UpdateCalendarProcessingAsync(string tenantId, string mailboxIdentity, UpdateCalendarProcessingDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateCalendarProcessingAsync(Guid tenantId, string mailboxIdentity, UpdateCalendarProcessingDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating calendar processing settings for mailbox {MailboxIdentity} in tenant {TenantId}", mailboxIdentity, tenantId);
         
         var parameters = new Dictionary<string, object> { { "Identity", mailboxIdentity } };

@@ -1,7 +1,6 @@
 namespace CIPP.Shared.DTOs.Tenants;
 public record TenantDto(
-    Guid Id,
-    string TenantId,
+    Guid TenantId,
     string DisplayName,
     string DefaultDomainName,
     string Status,

@@ -19,5 +19,5 @@ public class CreateGroupDto {
     public List<string> Members { get; set; } = new();
     
     [Required]
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
 }

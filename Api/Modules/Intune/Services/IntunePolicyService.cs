@@ -17,7 +17,7 @@ public class IntunePolicyService : IIntunePolicyService {
         _logger = logger;
     }
 
-    public async Task<List<IntunePolicyDto>> GetPoliciesAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<List<IntunePolicyDto>> GetPoliciesAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Intune policies for tenant {TenantId}", tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -76,7 +76,7 @@ public class IntunePolicyService : IIntunePolicyService {
         return policies;
     }
 
-    public async Task<IntunePolicyDto?> GetPolicyAsync(string tenantId, string policyId, string urlName, CancellationToken cancellationToken = default) {
+    public async Task<IntunePolicyDto?> GetPolicyAsync(Guid tenantId, string policyId, string urlName, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Intune policy {PolicyId} for tenant {TenantId}", policyId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -89,7 +89,7 @@ public class IntunePolicyService : IIntunePolicyService {
         return null;
     }
 
-    public async Task<IntunePolicyDto> CreatePolicyAsync(string tenantId, CreateIntunePolicyDto policyDto, CancellationToken cancellationToken = default) {
+    public async Task<IntunePolicyDto> CreatePolicyAsync(Guid tenantId, CreateIntunePolicyDto policyDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Creating Intune policy {DisplayName} for tenant {TenantId}", policyDto.DisplayName, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -97,31 +97,31 @@ public class IntunePolicyService : IIntunePolicyService {
         var root = policyJson.RootElement;
 
         var policy = policyDto.TemplateType switch {
-            "Device" => await CreateDeviceConfiguration(graphClient, policyDto, cancellationToken),
-            "Catalog" => await CreateConfigurationPolicy(graphClient, policyDto, cancellationToken),
-            "deviceCompliancePolicies" => await CreateCompliancePolicy(graphClient, policyDto, cancellationToken),
+            "Device" => await CreateDeviceConfiguration(graphClient, tenantId, policyDto, cancellationToken),
+            "Catalog" => await CreateConfigurationPolicy(graphClient, tenantId, policyDto, cancellationToken),
+            "deviceCompliancePolicies" => await CreateCompliancePolicy(graphClient, tenantId, policyDto, cancellationToken),
             _ => throw new NotSupportedException($"Policy template type {policyDto.TemplateType} is not yet supported")
         };
 
         return policy;
     }
 
-    public async Task<IntunePolicyDto> UpdatePolicyAsync(string tenantId, string policyId, UpdateIntunePolicyDto policyDto, CancellationToken cancellationToken = default) {
+    public async Task<IntunePolicyDto> UpdatePolicyAsync(Guid tenantId, string policyId, UpdateIntunePolicyDto policyDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating Intune policy {PolicyId} for tenant {TenantId}", policyId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
 
         var policy = policyDto.TemplateType switch {
-            "Device" => await UpdateDeviceConfiguration(graphClient, policyId, policyDto, cancellationToken),
-            "Catalog" => await UpdateConfigurationPolicy(graphClient, policyId, policyDto, cancellationToken),
-            "deviceCompliancePolicies" => await UpdateCompliancePolicy(graphClient, policyId, policyDto, cancellationToken),
+            "Device" => await UpdateDeviceConfiguration(graphClient, tenantId, policyId, policyDto, cancellationToken),
+            "Catalog" => await UpdateConfigurationPolicy(graphClient, tenantId, policyId, policyDto, cancellationToken),
+            "deviceCompliancePolicies" => await UpdateCompliancePolicy(graphClient, tenantId, policyId, policyDto, cancellationToken),
             _ => throw new NotSupportedException($"Policy template type {policyDto.TemplateType} is not yet supported")
         };
 
         return policy;
     }
 
-    public async Task DeletePolicyAsync(string tenantId, string policyId, string urlName, CancellationToken cancellationToken = default) {
+    public async Task DeletePolicyAsync(Guid tenantId, string policyId, string urlName, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting Intune policy {PolicyId} for tenant {TenantId}", policyId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -135,7 +135,7 @@ public class IntunePolicyService : IIntunePolicyService {
         }
     }
 
-    private static IntunePolicyDto MapToPolicyDto(DeviceConfiguration config, string tenantId, string urlName, string policyType) {
+    private static IntunePolicyDto MapToPolicyDto(DeviceConfiguration config, Guid tenantId, string urlName, string policyType) {
         return new IntunePolicyDto {
             Id = config.Id ?? string.Empty,
             DisplayName = config.DisplayName ?? string.Empty,
@@ -148,7 +148,7 @@ public class IntunePolicyService : IIntunePolicyService {
         };
     }
 
-    private async Task<IntunePolicyDto> CreateDeviceConfiguration(GraphServiceClient graphClient, CreateIntunePolicyDto policyDto, CancellationToken cancellationToken) {
+    private async Task<IntunePolicyDto> CreateDeviceConfiguration(GraphServiceClient graphClient, Guid tenantId, CreateIntunePolicyDto policyDto, CancellationToken cancellationToken) {
         var config = JsonSerializer.Deserialize<DeviceConfiguration>(policyDto.RawJson) 
             ?? throw new InvalidOperationException("Failed to deserialize policy JSON");
         
@@ -164,11 +164,11 @@ public class IntunePolicyService : IIntunePolicyService {
             LastModifiedDateTime = created?.LastModifiedDateTime?.DateTime,
             PolicyTypeName = "Device Configuration",
             URLName = "DeviceConfigurations",
-            TenantId = string.Empty
+            TenantId = tenantId
         };
     }
 
-    private async Task<IntunePolicyDto> CreateConfigurationPolicy(GraphServiceClient graphClient, CreateIntunePolicyDto policyDto, CancellationToken cancellationToken) {
+    private async Task<IntunePolicyDto> CreateConfigurationPolicy(GraphServiceClient graphClient, Guid tenantId, CreateIntunePolicyDto policyDto, CancellationToken cancellationToken) {
         var config = JsonSerializer.Deserialize<DeviceManagementConfigurationPolicy>(policyDto.RawJson) 
             ?? throw new InvalidOperationException("Failed to deserialize policy JSON");
         
@@ -184,11 +184,11 @@ public class IntunePolicyService : IIntunePolicyService {
             LastModifiedDateTime = created?.LastModifiedDateTime?.DateTime,
             PolicyTypeName = "Settings Catalog",
             URLName = "ConfigurationPolicies",
-            TenantId = string.Empty
+            TenantId = tenantId
         };
     }
 
-    private async Task<IntunePolicyDto> CreateCompliancePolicy(GraphServiceClient graphClient, CreateIntunePolicyDto policyDto, CancellationToken cancellationToken) {
+    private async Task<IntunePolicyDto> CreateCompliancePolicy(GraphServiceClient graphClient, Guid tenantId, CreateIntunePolicyDto policyDto, CancellationToken cancellationToken) {
         var config = JsonSerializer.Deserialize<DeviceCompliancePolicy>(policyDto.RawJson) 
             ?? throw new InvalidOperationException("Failed to deserialize policy JSON");
         
@@ -204,11 +204,11 @@ public class IntunePolicyService : IIntunePolicyService {
             LastModifiedDateTime = created?.LastModifiedDateTime?.DateTime,
             PolicyTypeName = "Compliance Policy",
             URLName = "DeviceCompliancePolicies",
-            TenantId = string.Empty
+            TenantId = tenantId
         };
     }
 
-    private async Task<IntunePolicyDto> UpdateDeviceConfiguration(GraphServiceClient graphClient, string policyId, UpdateIntunePolicyDto policyDto, CancellationToken cancellationToken) {
+    private async Task<IntunePolicyDto> UpdateDeviceConfiguration(GraphServiceClient graphClient, Guid tenantId, string policyId, UpdateIntunePolicyDto policyDto, CancellationToken cancellationToken) {
         var config = JsonSerializer.Deserialize<DeviceConfiguration>(policyDto.RawJson) 
             ?? throw new InvalidOperationException("Failed to deserialize policy JSON");
         
@@ -224,11 +224,11 @@ public class IntunePolicyService : IIntunePolicyService {
             LastModifiedDateTime = updated?.LastModifiedDateTime?.DateTime,
             PolicyTypeName = "Device Configuration",
             URLName = "DeviceConfigurations",
-            TenantId = string.Empty
+            TenantId = tenantId
         };
     }
 
-    private async Task<IntunePolicyDto> UpdateConfigurationPolicy(GraphServiceClient graphClient, string policyId, UpdateIntunePolicyDto policyDto, CancellationToken cancellationToken) {
+    private async Task<IntunePolicyDto> UpdateConfigurationPolicy(GraphServiceClient graphClient, Guid tenantId, string policyId, UpdateIntunePolicyDto policyDto, CancellationToken cancellationToken) {
         var config = JsonSerializer.Deserialize<DeviceManagementConfigurationPolicy>(policyDto.RawJson) 
             ?? throw new InvalidOperationException("Failed to deserialize policy JSON");
         
@@ -244,11 +244,11 @@ public class IntunePolicyService : IIntunePolicyService {
             LastModifiedDateTime = updated?.LastModifiedDateTime?.DateTime,
             PolicyTypeName = "Settings Catalog",
             URLName = "ConfigurationPolicies",
-            TenantId = string.Empty
+            TenantId = tenantId
         };
     }
 
-    private async Task<IntunePolicyDto> UpdateCompliancePolicy(GraphServiceClient graphClient, string policyId, UpdateIntunePolicyDto policyDto, CancellationToken cancellationToken) {
+    private async Task<IntunePolicyDto> UpdateCompliancePolicy(GraphServiceClient graphClient, Guid tenantId, string policyId, UpdateIntunePolicyDto policyDto, CancellationToken cancellationToken) {
         var config = JsonSerializer.Deserialize<DeviceCompliancePolicy>(policyDto.RawJson) 
             ?? throw new InvalidOperationException("Failed to deserialize policy JSON");
         
@@ -264,7 +264,7 @@ public class IntunePolicyService : IIntunePolicyService {
             LastModifiedDateTime = updated?.LastModifiedDateTime?.DateTime,
             PolicyTypeName = "Compliance Policy",
             URLName = "DeviceCompliancePolicies",
-            TenantId = string.Empty
+            TenantId = tenantId
         };
     }
 

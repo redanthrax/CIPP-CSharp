@@ -15,7 +15,7 @@ public static class ReleaseQuarantineMessage {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string messageId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

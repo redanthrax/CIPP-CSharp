@@ -16,7 +16,7 @@ public static class GetDistributionGroupMembers {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string groupId,
         [AsParameters] PagingParameters pagingParams,
         IMediator mediator,

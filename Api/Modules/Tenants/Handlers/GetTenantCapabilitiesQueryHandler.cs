@@ -19,7 +19,7 @@ public class GetTenantCapabilitiesQueryHandler : IRequestHandler<GetTenantCapabi
     public async Task<TenantCapabilities?> Handle(GetTenantCapabilitiesQuery request, CancellationToken cancellationToken) {
         try {
             var tenant = await _context.GetEntitySet<Tenant>()
-                .FirstOrDefaultAsync(t => t.Id == request.TenantId, cancellationToken);
+                .FirstOrDefaultAsync(t => t.TenantId == request.TenantId, cancellationToken);
 
             if (tenant?.Capabilities == null) {
                 _logger.LogWarning("Tenant {TenantId} not found or has no capabilities", request.TenantId);

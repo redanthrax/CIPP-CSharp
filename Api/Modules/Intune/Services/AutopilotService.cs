@@ -14,7 +14,7 @@ public class AutopilotService : IAutopilotService {
         _logger = logger;
     }
 
-    public async Task<List<AutopilotDeviceDto>> GetDevicesAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<List<AutopilotDeviceDto>> GetDevicesAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Autopilot devices for tenant {TenantId}", tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -29,7 +29,7 @@ public class AutopilotService : IAutopilotService {
         return devices.Value.Select(d => MapToDeviceDto(d, tenantId)).ToList();
     }
 
-    public async Task<AutopilotDeviceDto?> GetDeviceAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task<AutopilotDeviceDto?> GetDeviceAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Autopilot device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -38,21 +38,21 @@ public class AutopilotService : IAutopilotService {
         return device != null ? MapToDeviceDto(device, tenantId) : null;
     }
 
-    public async Task DeleteDeviceAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task DeleteDeviceAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting Autopilot device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.DeviceManagement.WindowsAutopilotDeviceIdentities[deviceId].DeleteAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task SyncDevicesAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task SyncDevicesAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Syncing Autopilot devices for tenant {TenantId}", tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.DeviceManagement.WindowsAutopilotSettings.Sync.PostAsync(cancellationToken: cancellationToken);
     }
 
-    private static AutopilotDeviceDto MapToDeviceDto(WindowsAutopilotDeviceIdentity device, string tenantId) {
+    private static AutopilotDeviceDto MapToDeviceDto(WindowsAutopilotDeviceIdentity device, Guid tenantId) {
         return new AutopilotDeviceDto {
             Id = device.Id ?? string.Empty,
             SerialNumber = device.SerialNumber,

@@ -16,11 +16,13 @@ public static class AssignRole {
     }
 
     private static async Task<IResult> Handle(
+        Guid tenantId,
         AssignRoleDto dto,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
-            var command = new AssignRoleCommand(dto);
+            dto.TenantId = tenantId;
+            var command = new AssignRoleCommand(tenantId, dto);
             await mediator.Send(command, cancellationToken);
 
             return Results.Ok(Response<string>.SuccessResult("Role assigned successfully"));

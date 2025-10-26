@@ -38,7 +38,6 @@ public static class GetTenants
             );
             var pagedTenants = await mediator.Send(query, cancellationToken);
             var tenantDtos = pagedTenants.Items.Select(t => new TenantDto(
-                t.Id,
                 t.TenantId,
                 t.DisplayName,
                 t.DefaultDomainName,

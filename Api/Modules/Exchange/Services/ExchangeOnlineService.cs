@@ -22,7 +22,7 @@ public class ExchangeOnlineService : IExchangeOnlineService {
     }
 
     public async Task<T?> ExecuteCmdletAsync<T>(
-        string tenantId,
+        Guid tenantId,
         string cmdlet,
         Dictionary<string, object>? parameters = null,
         CancellationToken cancellationToken = default) where T : class {
@@ -32,7 +32,7 @@ public class ExchangeOnlineService : IExchangeOnlineService {
     }
 
     public async Task<List<T>> ExecuteCmdletListAsync<T>(
-        string tenantId,
+        Guid tenantId,
         string cmdlet,
         Dictionary<string, object>? parameters = null,
         CancellationToken cancellationToken = default) where T : class {
@@ -69,7 +69,7 @@ public class ExchangeOnlineService : IExchangeOnlineService {
     }
 
     public async Task ExecuteCmdletNoResultAsync(
-        string tenantId,
+        Guid tenantId,
         string cmdlet,
         Dictionary<string, object>? parameters = null,
         CancellationToken cancellationToken = default) {
@@ -87,7 +87,7 @@ public class ExchangeOnlineService : IExchangeOnlineService {
     }
 
     private async Task<ExchangeCommandResponse> InvokeExchangeCmdletAsync(
-        string tenantId,
+        Guid tenantId,
         string cmdlet,
         Dictionary<string, object>? parameters,
         CancellationToken cancellationToken) {

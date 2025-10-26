@@ -15,7 +15,7 @@ public static class DeleteServicePrincipal {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string servicePrincipalId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

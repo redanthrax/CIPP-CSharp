@@ -1,0 +1,25 @@
+meta {
+  name: Get Permission Sets
+  type: http
+  seq: 30
+}
+
+get {
+  url: {{baseUrl}}/v1/applications/applications/permission-sets?pageNumber=1&pageSize=50
+  body: none
+  auth: inherit
+}
+
+params:query {
+  pageNumber: 1
+  pageSize: 50
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+settings {
+  encodeUrl: true
+}

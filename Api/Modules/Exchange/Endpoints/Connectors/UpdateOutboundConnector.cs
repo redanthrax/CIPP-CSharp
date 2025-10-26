@@ -16,7 +16,7 @@ public static class UpdateOutboundConnector {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string connectorName,
         UpdateOutboundConnectorDto dto,
         IMediator mediator,

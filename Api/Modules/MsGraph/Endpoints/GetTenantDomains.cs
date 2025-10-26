@@ -14,7 +14,7 @@ public static class GetTenantDomains {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         IMicrosoftGraphService graphService,
         string? filter = null,
         CancellationToken cancellationToken = default) {

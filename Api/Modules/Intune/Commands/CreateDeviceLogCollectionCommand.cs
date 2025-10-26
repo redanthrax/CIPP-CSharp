@@ -1,6 +1,1 @@
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Intune.Commands;
-
-public record CreateDeviceLogCollectionCommand(string TenantId, string DeviceId) 
-    : IRequest<CreateDeviceLogCollectionCommand, Task>;
+using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Intune.Commands;public record CreateDeviceLogCollectionCommand(Guid TenantId, string DeviceId)     : IRequest<CreateDeviceLogCollectionCommand, Task>;

@@ -27,21 +27,21 @@ public class GetTenantDashboardDataQueryHandler : IRequestHandler<GetTenantDashb
     public async Task<TenantDashboardData> Handle(GetTenantDashboardDataQuery request, CancellationToken cancellationToken) {
         try {
             var tenant = await _context.GetEntitySet<Tenant>()
-                .FirstOrDefaultAsync(t => t.Id == request.TenantId, cancellationToken);
+                .FirstOrDefaultAsync(t => t.TenantId == request.TenantId, cancellationToken);
 
             if (tenant == null) {
                 throw new InvalidOperationException($"Tenant with ID {request.TenantId} not found");
             }
 
             var dashboardData = new TenantDashboardData {
-                TenantId = tenant.Id,
+                TenantId = tenant.TenantId,
                 DisplayName = tenant.DisplayName,
                 HealthStatus = DetermineHealthStatus(tenant),
                 ActiveUsers = await GetActiveUsersCount(tenant.TenantId, cancellationToken),
                 TotalLicenses = GetTotalLicensesFromCapabilities(tenant.Capabilities),
                 UsedLicenses = await GetUsedLicensesCount(tenant.TenantId, cancellationToken),
-                ActiveAlerts = await GetActiveAlertsCount(tenant.Id, cancellationToken),
-                StandardsCompliance = await GetStandardsComplianceScore(tenant.Id, cancellationToken),
+                ActiveAlerts = await GetActiveAlertsCount(tenant.TenantId, cancellationToken),
+                StandardsCompliance = await GetStandardsComplianceScore(tenant.TenantId, cancellationToken),
                 LastHealthCheck = tenant.LastSyncAt ?? DateTime.UtcNow.AddDays(-1),
                 Portals = GeneratePortalLinks(tenant)
             };
@@ -67,7 +67,7 @@ public class GetTenantDashboardDataQueryHandler : IRequestHandler<GetTenantDashb
         return TenantHealthStatus.Healthy;
     }
 
-    private async Task<int> GetActiveUsersCount(string tenantId, CancellationToken cancellationToken) {
+    private async Task<int> GetActiveUsersCount(Guid tenantId, CancellationToken cancellationToken) {
         try {
             var usersResponse = await _graphUserService.ListUsersAsync(tenantId, 
                 filter: "accountEnabled eq true and userType eq 'Member'",
@@ -85,7 +85,7 @@ public class GetTenantDashboardDataQueryHandler : IRequestHandler<GetTenantDashb
         return capabilities?.Licenses.Count ?? 0;
     }
 
-    private async Task<int> GetUsedLicensesCount(string tenantId, CancellationToken cancellationToken) {
+    private async Task<int> GetUsedLicensesCount(Guid tenantId, CancellationToken cancellationToken) {
         try {
             var usersResponse = await _graphUserService.ListUsersAsync(tenantId,
                 filter: "assignedLicenses/any()",

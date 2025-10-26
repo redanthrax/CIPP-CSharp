@@ -22,7 +22,6 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, T
         {
             var tenant = new Tenant
             {
-                Id = Guid.NewGuid(),
                 TenantId = request.TenantId,
                 DisplayName = request.DisplayName,
                 DefaultDomainName = request.DefaultDomainName,
@@ -35,7 +34,7 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, T
             await _context.SaveChangesAsync(cancellationToken);
             await _cacheService.SetTenantAsync(tenant);
             await _cacheService.InvalidateTenantsListCache();
-            _logger.LogInformation("Created tenant {TenantId} with ID {Id} and updated cache", tenant.TenantId, tenant.Id);
+            _logger.LogInformation("Created tenant {TenantId} and updated cache", tenant.TenantId);
             return tenant;
         }
         catch (Exception ex)

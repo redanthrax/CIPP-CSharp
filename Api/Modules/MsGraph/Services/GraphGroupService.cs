@@ -15,13 +15,13 @@ public class GraphGroupService {
         _exceptionHandler = exceptionHandler;
     }
 
-    public async Task<GroupCollectionResponse?> ListGroupsAsync(string? tenantId = null, string? filter = null, string[]? select = null, PagingParameters? paging = null) {
+    public async Task<GroupCollectionResponse?> ListGroupsAsync(Guid? tenantId = null, string? filter = null, string[]? select = null, PagingParameters? paging = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             paging ??= new PagingParameters();
             
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Groups.GetAsync(requestConfiguration => {
                     if (!string.IsNullOrEmpty(filter))
                         requestConfiguration.QueryParameters.Filter = filter;
@@ -36,11 +36,11 @@ public class GraphGroupService {
         }, tenantId, "listing groups");
     }
 
-    public async Task<Group?> GetGroupAsync(string groupId, string? tenantId = null) {
+    public async Task<Group?> GetGroupAsync(string groupId, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Groups[groupId].GetAsync(),
                 $"groups/{groupId}",
                 "GET"
@@ -48,11 +48,11 @@ public class GraphGroupService {
         }, tenantId, $"getting group {groupId}");
     }
 
-    public async Task<Group?> CreateGroupAsync(Group group, string? tenantId = null) {
+    public async Task<Group?> CreateGroupAsync(Group group, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Groups.PostAsync(group),
                 "groups",
                 "POST"
@@ -60,11 +60,11 @@ public class GraphGroupService {
         }, tenantId, "creating group");
     }
 
-    public async Task<Group?> UpdateGroupAsync(string groupId, Group group, string? tenantId = null) {
+    public async Task<Group?> UpdateGroupAsync(string groupId, Group group, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Groups[groupId].PatchAsync(group),
                 $"groups/{groupId}",
                 "PATCH"
@@ -72,11 +72,11 @@ public class GraphGroupService {
         }, tenantId, $"updating group {groupId}");
     }
 
-    public async Task DeleteGroupAsync(string groupId, string? tenantId = null) {
+    public async Task DeleteGroupAsync(string groupId, Guid? tenantId = null) {
         await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Groups[groupId].DeleteAsync(),
                 $"groups/{groupId}",
                 "DELETE"
@@ -85,11 +85,11 @@ public class GraphGroupService {
         }, tenantId, $"deleting group {groupId}");
     }
 
-    public async Task<DirectoryObjectCollectionResponse?> GetGroupMembersAsync(string groupId, string? tenantId = null) {
+    public async Task<DirectoryObjectCollectionResponse?> GetGroupMembersAsync(string groupId, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Groups[groupId].Members.GetAsync(),
                 $"groups/{groupId}/members",
                 "GET"
@@ -97,11 +97,11 @@ public class GraphGroupService {
         }, tenantId, $"getting group members for {groupId}");
     }
 
-    public async Task<DirectoryObjectCollectionResponse?> GetGroupOwnersAsync(string groupId, string? tenantId = null) {
+    public async Task<DirectoryObjectCollectionResponse?> GetGroupOwnersAsync(string groupId, Guid? tenantId = null) {
         return await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             return await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Groups[groupId].Owners.GetAsync(),
                 $"groups/{groupId}/owners",
                 "GET"
@@ -109,12 +109,12 @@ public class GraphGroupService {
         }, tenantId, $"getting group owners for {groupId}");
     }
 
-    public async Task AddGroupMemberAsync(string groupId, string userId, string? tenantId = null) {
+    public async Task AddGroupMemberAsync(string groupId, string userId, Guid? tenantId = null) {
         await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             var requestBody = new ReferenceCreate { OdataId = $"https://graph.microsoft.com/beta/users/{userId}" };
             await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Groups[groupId].Members.Ref.PostAsync(requestBody),
                 $"groups/{groupId}/members",
                 "POST"
@@ -123,12 +123,12 @@ public class GraphGroupService {
         }, tenantId, $"adding member {userId} to group {groupId}");
     }
 
-    public async Task AddGroupOwnerAsync(string groupId, string userId, string? tenantId = null) {
+    public async Task AddGroupOwnerAsync(string groupId, string userId, Guid? tenantId = null) {
         await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             var requestBody = new ReferenceCreate { OdataId = $"https://graph.microsoft.com/beta/users/{userId}" };
             await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Groups[groupId].Owners.Ref.PostAsync(requestBody),
                 $"groups/{groupId}/owners",
                 "POST"
@@ -137,11 +137,11 @@ public class GraphGroupService {
         }, tenantId, $"adding owner {userId} to group {groupId}");
     }
 
-    public async Task RemoveGroupMemberAsync(string groupId, string userId, string? tenantId = null) {
+    public async Task RemoveGroupMemberAsync(string groupId, string userId, Guid? tenantId = null) {
         await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Groups[groupId].Members[userId].Ref.DeleteAsync(),
                 $"groups/{groupId}/members/{userId}",
                 "DELETE"
@@ -150,11 +150,11 @@ public class GraphGroupService {
         }, tenantId, $"removing member {userId} from group {groupId}");
     }
 
-    public async Task RemoveGroupOwnerAsync(string groupId, string userId, string? tenantId = null) {
+    public async Task RemoveGroupOwnerAsync(string groupId, string userId, Guid? tenantId = null) {
         await _exceptionHandler.HandleAsync(async () => {
             var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
             await _cacheHandler.ExecuteAsync(
-                tenantId ?? "default",
+                tenantId,
                 () => graphClient.Groups[groupId].Owners[userId].Ref.DeleteAsync(),
                 $"groups/{groupId}/owners/{userId}",
                 "DELETE"

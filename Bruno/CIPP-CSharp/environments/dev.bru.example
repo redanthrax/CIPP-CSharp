@@ -5,4 +5,16 @@ vars {
   clientSecret: YOUR_CLIENT_SECRET_HERE
   scope: api://YOUR_CLIENT_ID_HERE/access_as_user
   audience: api://YOUR_CLIENT_ID_HERE
+
+  exampleTenant: YOUR_EXAMPLE_TENANT_ID
+  exampleSearch: YOUR_SEARCH_TERM
+  alertId: YOUR_ALERT_ID
+  searchId: YOUR_SEARCH_ID
+  applicationId: YOUR_APPLICATION_ID
+  groupId: YOUR_GROUP_ID
+  deviceId: YOUR_DEVICE_ID
+  roleId: YOUR_ROLE_ID
+  policyId: YOUR_POLICY_ID
+  mailboxId: YOUR_MAILBOX_ID
+  teamId: YOUR_TEAM_ID
 }

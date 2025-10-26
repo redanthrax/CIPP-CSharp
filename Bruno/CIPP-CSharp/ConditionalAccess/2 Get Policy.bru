@@ -1,0 +1,28 @@
+meta {
+  name: Get Policy
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/v1/conditional-access/{{policyId}}?tenantId={{exampleTenant}}
+  body: none
+  auth: inherit
+}
+
+params:path {
+  policyId: {{policyId}}
+}
+
+params:query {
+  tenantId: {{exampleTenant}}
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+settings {
+  encodeUrl: true
+}

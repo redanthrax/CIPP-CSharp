@@ -15,7 +15,7 @@ public static class EnableArchive {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string mailboxId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

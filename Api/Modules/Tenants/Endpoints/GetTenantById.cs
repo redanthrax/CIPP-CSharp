@@ -7,24 +7,23 @@ public static class GetTenantById
 {
     public static void MapGetTenantById(this RouteGroupBuilder group)
     {
-        group.MapGet("/{id:guid}", Handle)
+        group.MapGet("/{tenantId:guid}", Handle)
             .WithName("GetTenantById")
-            .WithSummary("Get tenant by ID")
-            .WithDescription("Returns a specific tenant by its ID")
+            .WithSummary("Get tenant by TenantId")
+            .WithDescription("Returns a specific tenant by its TenantId")
             .RequireAuthorization("CombinedAuth");
     }
-    private static async Task<IResult> Handle(Guid id, IMediator mediator)
+    private static async Task<IResult> Handle(Guid tenantId, IMediator mediator)
     {
         try
         {
-            var query = new GetTenantByIdQuery(id);
+            var query = new GetTenantByIdQuery(tenantId);
             var tenant = await mediator.Send(query, CancellationToken.None);
             if (tenant == null)
             {
-                return Results.NotFound(Response<TenantDto>.ErrorResult($"Tenant with ID {id} not found"));
+                return Results.NotFound(Response<TenantDto>.ErrorResult($"Tenant with TenantId {tenantId} not found"));
             }
             var tenantDto = new TenantDto(
-                tenant.Id,
                 tenant.TenantId,
                 tenant.DisplayName,
                 tenant.DefaultDomainName,

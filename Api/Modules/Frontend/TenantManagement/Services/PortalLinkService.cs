@@ -24,7 +24,7 @@ public class PortalLinkService : IPortalLinkService {
 
     public async Task<PortalLinks> GeneratePortalLinksAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         var tenant = await _context.GetEntitySet<Tenant>()
-            .FirstOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
+            .FirstOrDefaultAsync(t => t.TenantId == tenantId, cancellationToken);
 
         if (tenant == null) {
             throw new InvalidOperationException($"Tenant with ID {tenantId} not found");

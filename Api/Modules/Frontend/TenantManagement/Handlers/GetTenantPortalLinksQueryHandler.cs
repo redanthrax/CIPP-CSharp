@@ -19,7 +19,7 @@ public class GetTenantPortalLinksQueryHandler : IRequestHandler<GetTenantPortalL
     public async Task<PortalLinks> Handle(GetTenantPortalLinksQuery request, CancellationToken cancellationToken) {
         try {
             var tenant = await _context.GetEntitySet<Tenant>()
-                .FirstOrDefaultAsync(t => t.Id == request.TenantId, cancellationToken);
+                .FirstOrDefaultAsync(t => t.TenantId == request.TenantId, cancellationToken);
 
             if (tenant == null) {
                 throw new InvalidOperationException($"Tenant with ID {request.TenantId} not found");

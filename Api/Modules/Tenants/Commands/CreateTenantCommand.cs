@@ -1,11 +1,1 @@
-using CIPP.Api.Modules.Tenants.Models;
-using DispatchR.Abstractions.Send;
-namespace CIPP.Api.Modules.Tenants.Commands;
-public record CreateTenantCommand(
-    string TenantId,
-    string DisplayName,
-    string DefaultDomainName,
-    string Status,
-    Guid CreatedBy,
-    string? Metadata = null
-) : IRequest<CreateTenantCommand, Task<Tenant>>;
+using CIPP.Api.Modules.Tenants.Models;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Tenants.Commands;public record CreateTenantCommand(    Guid TenantId,    string DisplayName,    string DefaultDomainName,    string Status,    Guid CreatedBy,    string? Metadata = null) : IRequest<CreateTenantCommand, Task<Tenant>>;

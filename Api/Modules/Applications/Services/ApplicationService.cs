@@ -18,7 +18,7 @@ public class ApplicationService : IApplicationService {
         _logger = logger;
     }
 
-    public async Task<PagedResponse<ApplicationDto>> GetApplicationsAsync(string tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<ApplicationDto>> GetApplicationsAsync(Guid tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting applications for tenant {TenantId}", tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -53,7 +53,7 @@ public class ApplicationService : IApplicationService {
         };
     }
 
-    public async Task<ApplicationDto?> GetApplicationAsync(string tenantId, string applicationId, CancellationToken cancellationToken = default) {
+    public async Task<ApplicationDto?> GetApplicationAsync(Guid tenantId, string applicationId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting application {ApplicationId} for tenant {TenantId}", applicationId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -71,7 +71,7 @@ public class ApplicationService : IApplicationService {
         }
     }
 
-    public async Task<ApplicationDto> UpdateApplicationAsync(string tenantId, string applicationId, UpdateApplicationDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task<ApplicationDto> UpdateApplicationAsync(Guid tenantId, string applicationId, UpdateApplicationDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating application {ApplicationId} for tenant {TenantId}", applicationId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -123,7 +123,7 @@ public class ApplicationService : IApplicationService {
         return MapToApplicationDto(updatedApp, tenantId);
     }
 
-    public async Task DeleteApplicationAsync(string tenantId, string applicationId, CancellationToken cancellationToken = default) {
+    public async Task DeleteApplicationAsync(Guid tenantId, string applicationId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting application {ApplicationId} for tenant {TenantId}", applicationId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -177,7 +177,7 @@ public class ApplicationService : IApplicationService {
             }, cancellationToken: cancellationToken);
     }
 
-    private static ApplicationDto MapToApplicationDto(Application application, string tenantId) {
+    private static ApplicationDto MapToApplicationDto(Application application, Guid tenantId) {
         return new ApplicationDto {
             Id = application.Id ?? string.Empty,
             AppId = application.AppId ?? string.Empty,

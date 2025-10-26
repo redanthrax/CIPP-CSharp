@@ -16,11 +16,12 @@ public static class SetUserSignInState {
     }
 
     private static async Task<IResult> Handle(
+        Guid tenantId,
         SetUserSignInStateDto signInStateData,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
-            var command = new SetUserSignInStateCommand(signInStateData);
+            var command = new SetUserSignInStateCommand(tenantId, signInStateData);
             var result = await mediator.Send(command, cancellationToken);
 
             return Results.Ok(Response<string>.SuccessResult(result, "User sign-in state updated"));

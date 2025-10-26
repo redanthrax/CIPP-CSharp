@@ -1,7 +1,1 @@
-using CIPP.Shared.DTOs;
-using CIPP.Shared.DTOs.Exchange;
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Exchange.Queries;
-
-public record GetQuarantineMessagesQuery(string TenantId, PagingParameters PagingParams) : IRequest<GetQuarantineMessagesQuery, Task<PagedResponse<QuarantineMessageDto>>>;
+using CIPP.Shared.DTOs;using CIPP.Shared.DTOs.Exchange;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Exchange.Queries;public record GetQuarantineMessagesQuery(Guid TenantId, PagingParameters PagingParams) : IRequest<GetQuarantineMessagesQuery, Task<PagedResponse<QuarantineMessageDto>>>;

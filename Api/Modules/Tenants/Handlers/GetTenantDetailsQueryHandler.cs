@@ -21,15 +21,15 @@ public class GetTenantDetailsQueryHandler : IRequestHandler<GetTenantDetailsQuer
         var tenant = await _context.GetEntitySet<Tenant>()
             .Include(t => t.Properties)
             .Include(t => t.Domains)
-            .FirstOrDefaultAsync(t => t.Id == request.TenantId, cancellationToken);
+            .FirstOrDefaultAsync(t => t.TenantId == request.TenantId, cancellationToken);
 
         if (tenant == null) {
-            throw new InvalidOperationException($"Tenant with ID {request.TenantId} not found");
+            throw new InvalidOperationException($"Tenant with TenantId {request.TenantId} not found");
         }
 
         var groupMemberships = await _context.Set<TenantGroupMembership>()
             .Include(m => m.TenantGroup)
-            .Where(m => m.TenantId == tenant.Id)
+            .Where(m => m.TenantId == tenant.TenantId)
             .ToListAsync(cancellationToken);
 
         var groups = groupMemberships.Select(m => new TenantGroupDto(
@@ -76,7 +76,6 @@ public class GetTenantDetailsQueryHandler : IRequestHandler<GetTenantDetailsQuer
         }
 
         return new TenantDetailsDto(
-            tenant.Id,
             tenant.TenantId,
             tenant.DisplayName,
             tenant.TenantAlias,

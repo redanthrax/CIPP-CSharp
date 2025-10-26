@@ -16,7 +16,7 @@ public static class CreateContact {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         CreateContactDto createDto,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

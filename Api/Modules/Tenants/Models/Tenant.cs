@@ -6,8 +6,7 @@ using System.Text.Json;
 namespace CIPP.Api.Modules.Tenants.Models;
 public class Tenant : IEntityConfiguration<Tenant>
 {
-    public required Guid Id { get; set; }
-    public required string TenantId { get; set; }
+    public required Guid TenantId { get; set; }
     public required string DisplayName { get; set; }
     public required string DefaultDomainName { get; set; }
     public required string Status { get; set; }
@@ -41,8 +40,8 @@ public class Tenant : IEntityConfiguration<Tenant>
     {
         modelBuilder.Entity<Tenant>(entity =>
         {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.TenantId).IsRequired().HasMaxLength(100);
+            entity.HasKey(e => e.TenantId);
+            entity.Property(e => e.TenantId).IsRequired();
             entity.Property(e => e.DisplayName).IsRequired().HasMaxLength(200);
             entity.Property(e => e.DefaultDomainName).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
@@ -76,7 +75,6 @@ public class Tenant : IEntityConfiguration<Tenant>
                        v => JsonSerializer.Deserialize<List<string>>(v, JsonSerializerOptions.Default) ?? new List<string>());
             });
             
-            entity.HasIndex(e => e.TenantId).IsUnique();
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.LastSyncAt);
             entity.HasIndex(e => e.Excluded);

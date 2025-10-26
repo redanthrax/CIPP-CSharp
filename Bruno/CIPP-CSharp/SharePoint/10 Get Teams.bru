@@ -1,0 +1,26 @@
+meta {
+  name: Get Teams
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/v1/sharepoint/teams?tenantId={{exampleTenant}}&pageNumber=1&pageSize=50
+  body: none
+  auth: inherit
+}
+
+params:query {
+  tenantId: {{exampleTenant}}
+  pageNumber: 1
+  pageSize: 50
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+settings {
+  encodeUrl: true
+}

@@ -4,12 +4,12 @@ using CIPP.Shared.DTOs.Exchange;
 namespace CIPP.Api.Modules.Exchange.Interfaces;
 
 public interface IDistributionGroupService {
-    Task<PagedResponse<DistributionGroupDto>> GetDistributionGroupsAsync(string tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default);
-    Task<DistributionGroupDto?> GetDistributionGroupAsync(string tenantId, string groupId, CancellationToken cancellationToken = default);
-    Task CreateDistributionGroupAsync(string tenantId, CreateDistributionGroupDto createDto, CancellationToken cancellationToken = default);
-    Task UpdateDistributionGroupAsync(string tenantId, string groupId, UpdateDistributionGroupDto updateDto, CancellationToken cancellationToken = default);
-    Task DeleteDistributionGroupAsync(string tenantId, string groupId, CancellationToken cancellationToken = default);
-    Task<PagedResponse<DistributionGroupMemberDto>> GetDistributionGroupMembersAsync(string tenantId, string groupId, PagingParameters pagingParams, CancellationToken cancellationToken = default);
-    Task AddDistributionGroupMemberAsync(string tenantId, string groupId, string memberEmail, CancellationToken cancellationToken = default);
-    Task RemoveDistributionGroupMemberAsync(string tenantId, string groupId, string memberEmail, CancellationToken cancellationToken = default);
+    Task<PagedResponse<DistributionGroupDto>> GetDistributionGroupsAsync(Guid tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default);
+    Task<DistributionGroupDto?> GetDistributionGroupAsync(Guid tenantId, string groupId, CancellationToken cancellationToken = default);
+    Task CreateDistributionGroupAsync(Guid tenantId, CreateDistributionGroupDto createDto, CancellationToken cancellationToken = default);
+    Task UpdateDistributionGroupAsync(Guid tenantId, string groupId, UpdateDistributionGroupDto updateDto, CancellationToken cancellationToken = default);
+    Task DeleteDistributionGroupAsync(Guid tenantId, string groupId, CancellationToken cancellationToken = default);
+    Task<PagedResponse<DistributionGroupMemberDto>> GetDistributionGroupMembersAsync(Guid tenantId, string groupId, PagingParameters pagingParams, CancellationToken cancellationToken = default);
+    Task AddDistributionGroupMemberAsync(Guid tenantId, string groupId, string memberEmail, CancellationToken cancellationToken = default);
+    Task RemoveDistributionGroupMemberAsync(Guid tenantId, string groupId, string memberEmail, CancellationToken cancellationToken = default);
 }

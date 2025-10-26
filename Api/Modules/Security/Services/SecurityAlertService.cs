@@ -14,7 +14,7 @@ public class SecurityAlertService : ISecurityAlertService {
         _logger = logger;
     }
 
-    public async Task<SecurityAlertsResponseDto> GetAlertsAsync(string tenantId, string? serviceSource = null, CancellationToken cancellationToken = default) {
+    public async Task<SecurityAlertsResponseDto> GetAlertsAsync(Guid tenantId, string? serviceSource = null, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting security alerts for tenant {TenantId} with service source filter: {ServiceSource}", tenantId, serviceSource ?? "none");
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -47,7 +47,7 @@ public class SecurityAlertService : ISecurityAlertService {
         };
     }
 
-    public async Task<SecurityAlertDto?> GetAlertAsync(string tenantId, string alertId, CancellationToken cancellationToken = default) {
+    public async Task<SecurityAlertDto?> GetAlertAsync(Guid tenantId, string alertId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting security alert {AlertId} for tenant {TenantId}", alertId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -56,7 +56,7 @@ public class SecurityAlertService : ISecurityAlertService {
         return alert != null ? MapToAlertDto(alert, tenantId) : null;
     }
 
-    public async Task UpdateAlertAsync(string tenantId, string alertId, UpdateSecurityAlertDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateAlertAsync(Guid tenantId, string alertId, UpdateSecurityAlertDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating security alert {AlertId} for tenant {TenantId}", alertId, tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -74,7 +74,7 @@ public class SecurityAlertService : ISecurityAlertService {
         await graphClient.Security.Alerts_v2[alertId].PatchAsync(alert, cancellationToken: cancellationToken);
     }
 
-    private static SecurityAlertDto MapToAlertDto(Alert alert, string tenantId) {
+    private static SecurityAlertDto MapToAlertDto(Alert alert, Guid tenantId) {
         return new SecurityAlertDto {
             Id = alert.Id ?? string.Empty,
             Title = alert.Title ?? string.Empty,

@@ -1,6 +1,1 @@
-using CIPP.Shared.DTOs.Exchange;
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Exchange.Queries.Connectors;
-
-public record GetAllConnectorsQuery(string TenantId) : IRequest<GetAllConnectorsQuery, Task<(List<InboundConnectorDto> Inbound, List<OutboundConnectorDto> Outbound)>>;
+using CIPP.Shared.DTOs.Exchange;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Exchange.Queries.Connectors;public record GetAllConnectorsQuery(Guid TenantId) : IRequest<GetAllConnectorsQuery, Task<(List<InboundConnectorDto> Inbound, List<OutboundConnectorDto> Outbound)>>;

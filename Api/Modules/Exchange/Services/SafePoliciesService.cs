@@ -14,7 +14,7 @@ public class SafePoliciesService : ISafePoliciesService {
         _logger = logger;
     }
 
-    public async Task<PagedResponse<SafeLinksPolicyDto>> GetSafeLinksPoliciesAsync(string tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<SafeLinksPolicyDto>> GetSafeLinksPoliciesAsync(Guid tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Safe Links policies for tenant {TenantId}", tenantId);
         
         var policies = await _exoService.ExecuteCmdletListAsync<SafeLinksPolicyDto>(
@@ -27,7 +27,7 @@ public class SafePoliciesService : ISafePoliciesService {
         return policies.ToPagedResponse(pagingParams);
     }
 
-    public async Task<SafeLinksPolicyDto?> GetSafeLinksPolicyAsync(string tenantId, string policyName, CancellationToken cancellationToken = default) {
+    public async Task<SafeLinksPolicyDto?> GetSafeLinksPolicyAsync(Guid tenantId, string policyName, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Safe Links policy {PolicyName} for tenant {TenantId}", policyName, tenantId);
         
         var parameters = new Dictionary<string, object> {
@@ -44,7 +44,7 @@ public class SafePoliciesService : ISafePoliciesService {
         return policy;
     }
 
-    public async Task UpdateSafeLinksPolicyAsync(string tenantId, string policyName, UpdateSafeLinksPolicyDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateSafeLinksPolicyAsync(Guid tenantId, string policyName, UpdateSafeLinksPolicyDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating Safe Links policy {PolicyName} for tenant {TenantId}", policyName, tenantId);
         
         var parameters = BuildSafeLinksUpdateParameters(policyName, updateDto);
@@ -59,7 +59,7 @@ public class SafePoliciesService : ISafePoliciesService {
         _logger.LogInformation("Successfully updated Safe Links policy {PolicyName}", policyName);
     }
 
-    public async Task<PagedResponse<SafeAttachmentsPolicyDto>> GetSafeAttachmentPoliciesAsync(string tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<SafeAttachmentsPolicyDto>> GetSafeAttachmentPoliciesAsync(Guid tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Safe Attachments policies for tenant {TenantId}", tenantId);
         
         var policies = await _exoService.ExecuteCmdletListAsync<SafeAttachmentsPolicyDto>(
@@ -72,7 +72,7 @@ public class SafePoliciesService : ISafePoliciesService {
         return policies.ToPagedResponse(pagingParams);
     }
 
-    public async Task<SafeAttachmentsPolicyDto?> GetSafeAttachmentPolicyAsync(string tenantId, string policyName, CancellationToken cancellationToken = default) {
+    public async Task<SafeAttachmentsPolicyDto?> GetSafeAttachmentPolicyAsync(Guid tenantId, string policyName, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Safe Attachments policy {PolicyName} for tenant {TenantId}", policyName, tenantId);
         
         var parameters = new Dictionary<string, object> {
@@ -89,7 +89,7 @@ public class SafePoliciesService : ISafePoliciesService {
         return policy;
     }
 
-    public async Task UpdateSafeAttachmentPolicyAsync(string tenantId, string policyName, UpdateSafeAttachmentsPolicyDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateSafeAttachmentPolicyAsync(Guid tenantId, string policyName, UpdateSafeAttachmentsPolicyDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating Safe Attachments policy {PolicyName} for tenant {TenantId}", policyName, tenantId);
         
         var parameters = BuildSafeAttachmentsUpdateParameters(policyName, updateDto);
@@ -104,7 +104,7 @@ public class SafePoliciesService : ISafePoliciesService {
         _logger.LogInformation("Successfully updated Safe Attachments policy {PolicyName}", policyName);
     }
 
-    public async Task<AtpPolicyDto?> GetAtpPolicyAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<AtpPolicyDto?> GetAtpPolicyAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting ATP policy for tenant {TenantId}", tenantId);
         
         var policy = await _exoService.ExecuteCmdletAsync<AtpPolicyDto>(
@@ -117,7 +117,7 @@ public class SafePoliciesService : ISafePoliciesService {
         return policy;
     }
 
-    public async Task UpdateAtpPolicyAsync(string tenantId, UpdateAtpPolicyDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateAtpPolicyAsync(Guid tenantId, UpdateAtpPolicyDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating ATP policy for tenant {TenantId}", tenantId);
         
         var parameters = BuildAtpUpdateParameters(updateDto);

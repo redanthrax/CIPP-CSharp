@@ -17,7 +17,7 @@ public static class GetDevice {
 
     private static async Task<IResult> Handle(
         string id,
-        string tenantId,
+        Guid tenantId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {

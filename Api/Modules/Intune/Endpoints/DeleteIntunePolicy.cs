@@ -15,7 +15,7 @@ public static class DeleteIntunePolicy {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string policyId,
         string urlName,
         IMediator mediator,

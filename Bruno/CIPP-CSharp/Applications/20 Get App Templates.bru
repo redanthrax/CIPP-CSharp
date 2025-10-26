@@ -1,0 +1,25 @@
+meta {
+  name: Get App Templates
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseUrl}}/v1/applications/applications/templates?pageNumber=1&pageSize=50
+  body: none
+  auth: inherit
+}
+
+params:query {
+  pageNumber: 1
+  pageSize: 50
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+settings {
+  encodeUrl: true
+}

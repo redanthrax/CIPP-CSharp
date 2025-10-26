@@ -20,28 +20,28 @@ public class GetTenantByIdQueryHandler : IRequestHandler<GetTenantByIdQuery, Tas
     {
         try
         {
-            var cachedTenant = await _cacheService.GetTenantAsync(request.Id);
+            var cachedTenant = await _cacheService.GetTenantAsync(request.TenantId);
             if (cachedTenant != null)
             {
-                _logger.LogInformation("Retrieved tenant {TenantId} with ID {Id} from cache", cachedTenant.TenantId, cachedTenant.Id);
+                _logger.LogInformation("Retrieved tenant {TenantId} from cache", cachedTenant.TenantId);
                 return cachedTenant;
             }
             var tenant = await _context.GetEntitySet<Tenant>()
-                .FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken);
+                .FirstOrDefaultAsync(t => t.TenantId == request.TenantId, cancellationToken);
             if (tenant != null)
             {
                 await _cacheService.SetTenantAsync(tenant);
-                _logger.LogInformation("Retrieved tenant {TenantId} with ID {Id} from database and cached it", tenant.TenantId, tenant.Id);
+                _logger.LogInformation("Retrieved tenant {TenantId} from database and cached it", tenant.TenantId);
             }
             else
             {
-                _logger.LogWarning("Tenant with ID {Id} not found", request.Id);
+                _logger.LogWarning("Tenant with TenantId {TenantId} not found", request.TenantId);
             }
             return tenant;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving tenant with ID {Id}", request.Id);
+            _logger.LogError(ex, "Error retrieving tenant with TenantId {TenantId}", request.TenantId);
             throw;
         }
     }

@@ -12,7 +12,6 @@ public class TenantCacheService : ITenantCacheService
     private readonly JsonSerializerOptions _jsonOptions;
     
     private const string TENANT_KEY_PREFIX = "tenant:";
-    private const string TENANT_BY_TENANT_ID_PREFIX = "tenant_by_id:";
     private const string TENANTS_LIST_KEY = "tenants:list";
     private const string TENANTS_COUNT_KEY = "tenants:count";
     
@@ -27,11 +26,11 @@ public class TenantCacheService : ITenantCacheService
         };
     }
 
-    public async Task<Tenant?> GetTenantAsync(Guid id)
+    public async Task<Tenant?> GetTenantAsync(Guid tenantId)
     {
         try
         {
-            var key = $"{TENANT_KEY_PREFIX}{id}";
+            var key = $"{TENANT_KEY_PREFIX}{tenantId}";
             var json = await _cache.GetStringAsync(key);
             
             if (string.IsNullOrEmpty(json))
@@ -41,28 +40,14 @@ public class TenantCacheService : ITenantCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to get tenant {Id} from cache", id);
+            _logger.LogError(ex, "Failed to get tenant {TenantId} from cache", tenantId);
             return null;
         }
     }
 
-    public async Task<Tenant?> GetTenantByTenantIdAsync(string tenantId)
+    public async Task<Tenant?> GetTenantByTenantIdAsync(Guid tenantId)
     {
-        try
-        {
-            var key = $"{TENANT_BY_TENANT_ID_PREFIX}{tenantId}";
-            var json = await _cache.GetStringAsync(key);
-            
-            if (string.IsNullOrEmpty(json))
-                return null;
-                
-            return JsonSerializer.Deserialize<Tenant>(json, _jsonOptions);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to get tenant by tenantId {TenantId} from cache", tenantId);
-            return null;
-        }
+        return await GetTenantAsync(tenantId);
     }
 
     public async Task<List<Tenant>> GetTenantsAsync(string? filter = null, int skip = 0, int take = 50)
@@ -96,54 +81,40 @@ public class TenantCacheService : ITenantCacheService
             else
                 options.SetSlidingExpiration(TimeSpan.FromMinutes(30));
             
-            var idKey = $"{TENANT_KEY_PREFIX}{tenant.Id}";
-            var tenantIdKey = $"{TENANT_BY_TENANT_ID_PREFIX}{tenant.TenantId}";
+            var key = $"{TENANT_KEY_PREFIX}{tenant.TenantId}";
             
-            await _cache.SetStringAsync(idKey, json, options);
-            await _cache.SetStringAsync(tenantIdKey, json, options);
+            await _cache.SetStringAsync(key, json, options);
             
             await InvalidateTenantsListCache();
             
-            _logger.LogDebug("Cached tenant {Id} with tenantId {TenantId}", tenant.Id, tenant.TenantId);
+            _logger.LogDebug("Cached tenant {TenantId}", tenant.TenantId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to cache tenant {Id}", tenant.Id);
+            _logger.LogError(ex, "Failed to cache tenant {TenantId}", tenant.TenantId);
         }
     }
 
-    public async Task RemoveTenantAsync(Guid id)
+    public async Task RemoveTenantAsync(Guid tenantId)
     {
         try
         {
-            var key = $"{TENANT_KEY_PREFIX}{id}";
+            var key = $"{TENANT_KEY_PREFIX}{tenantId}";
             await _cache.RemoveAsync(key);
             
             await InvalidateTenantsListCache();
             
-            _logger.LogDebug("Removed tenant {Id} from cache", id);
+            _logger.LogDebug("Removed tenant {TenantId} from cache", tenantId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to remove tenant {Id} from cache", id);
+            _logger.LogError(ex, "Failed to remove tenant {TenantId} from cache", tenantId);
         }
     }
 
-    public async Task RemoveTenantByTenantIdAsync(string tenantId)
+    public async Task RemoveTenantByTenantIdAsync(Guid tenantId)
     {
-        try
-        {
-            var key = $"{TENANT_BY_TENANT_ID_PREFIX}{tenantId}";
-            await _cache.RemoveAsync(key);
-            
-            await InvalidateTenantsListCache();
-            
-            _logger.LogDebug("Removed tenant by tenantId {TenantId} from cache", tenantId);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to remove tenant by tenantId {TenantId} from cache", tenantId);
-        }
+        await RemoveTenantAsync(tenantId);
     }
 
     public async Task InvalidateTenantsListCache()

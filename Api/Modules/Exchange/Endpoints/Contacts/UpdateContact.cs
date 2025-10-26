@@ -16,7 +16,7 @@ public static class UpdateContact {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string contactId,
         UpdateContactDto updateDto,
         IMediator mediator,

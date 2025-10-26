@@ -15,7 +15,7 @@ public static class DeleteInboxRule {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string mailboxId,
         string ruleId,
         IMediator mediator,

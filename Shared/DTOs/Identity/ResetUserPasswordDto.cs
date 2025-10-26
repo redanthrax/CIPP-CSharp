@@ -8,5 +8,5 @@ public class ResetUserPasswordDto {
     public bool AutoGeneratePassword { get; set; } = true;
     
     [Required]
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
 }

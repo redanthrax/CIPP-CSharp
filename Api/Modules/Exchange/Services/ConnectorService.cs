@@ -13,24 +13,24 @@ public class ConnectorService : IConnectorService {
         _logger = logger;
     }
 
-    public async Task<(List<InboundConnectorDto>, List<OutboundConnectorDto>)> GetConnectorsAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<(List<InboundConnectorDto>, List<OutboundConnectorDto>)> GetConnectorsAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting connectors for tenant {TenantId}", tenantId);
         var inbound = await _exoService.ExecuteCmdletListAsync<InboundConnectorDto>(tenantId, "Get-InboundConnector", null, cancellationToken);
         var outbound = await _exoService.ExecuteCmdletListAsync<OutboundConnectorDto>(tenantId, "Get-OutboundConnector", null, cancellationToken);
         return (inbound, outbound);
     }
 
-    public async Task<InboundConnectorDto?> GetInboundConnectorAsync(string tenantId, string connectorName, CancellationToken cancellationToken = default) {
+    public async Task<InboundConnectorDto?> GetInboundConnectorAsync(Guid tenantId, string connectorName, CancellationToken cancellationToken = default) {
         var parameters = new Dictionary<string, object> { { "Identity", connectorName } };
         return await _exoService.ExecuteCmdletAsync<InboundConnectorDto>(tenantId, "Get-InboundConnector", parameters, cancellationToken);
     }
 
-    public async Task<OutboundConnectorDto?> GetOutboundConnectorAsync(string tenantId, string connectorName, CancellationToken cancellationToken = default) {
+    public async Task<OutboundConnectorDto?> GetOutboundConnectorAsync(Guid tenantId, string connectorName, CancellationToken cancellationToken = default) {
         var parameters = new Dictionary<string, object> { { "Identity", connectorName } };
         return await _exoService.ExecuteCmdletAsync<OutboundConnectorDto>(tenantId, "Get-OutboundConnector", parameters, cancellationToken);
     }
 
-    public async Task CreateInboundConnectorAsync(string tenantId, CreateInboundConnectorDto createDto, CancellationToken cancellationToken = default) {
+    public async Task CreateInboundConnectorAsync(Guid tenantId, CreateInboundConnectorDto createDto, CancellationToken cancellationToken = default) {
         var parameters = new Dictionary<string, object> {
             { "Name", createDto.Name },
             { "Enabled", createDto.Enabled },
@@ -42,7 +42,7 @@ public class ConnectorService : IConnectorService {
         await _exoService.ExecuteCmdletNoResultAsync(tenantId, "New-InboundConnector", parameters, cancellationToken);
     }
 
-    public async Task CreateOutboundConnectorAsync(string tenantId, CreateOutboundConnectorDto createDto, CancellationToken cancellationToken = default) {
+    public async Task CreateOutboundConnectorAsync(Guid tenantId, CreateOutboundConnectorDto createDto, CancellationToken cancellationToken = default) {
         var parameters = new Dictionary<string, object> {
             { "Name", createDto.Name },
             { "Enabled", createDto.Enabled },
@@ -55,7 +55,7 @@ public class ConnectorService : IConnectorService {
         await _exoService.ExecuteCmdletNoResultAsync(tenantId, "New-OutboundConnector", parameters, cancellationToken);
     }
 
-    public async Task UpdateInboundConnectorAsync(string tenantId, string connectorName, UpdateInboundConnectorDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateInboundConnectorAsync(Guid tenantId, string connectorName, UpdateInboundConnectorDto updateDto, CancellationToken cancellationToken = default) {
         var parameters = new Dictionary<string, object> { { "Identity", connectorName } };
         if (updateDto.Enabled.HasValue) parameters.Add("Enabled", updateDto.Enabled.Value);
         if (updateDto.SenderDomains?.Any() == true) parameters.Add("SenderDomains", updateDto.SenderDomains.ToArray());
@@ -64,7 +64,7 @@ public class ConnectorService : IConnectorService {
         await _exoService.ExecuteCmdletNoResultAsync(tenantId, "Set-InboundConnector", parameters, cancellationToken);
     }
 
-    public async Task UpdateOutboundConnectorAsync(string tenantId, string connectorName, UpdateOutboundConnectorDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateOutboundConnectorAsync(Guid tenantId, string connectorName, UpdateOutboundConnectorDto updateDto, CancellationToken cancellationToken = default) {
         var parameters = new Dictionary<string, object> { { "Identity", connectorName } };
         if (updateDto.Enabled.HasValue) parameters.Add("Enabled", updateDto.Enabled.Value);
         if (updateDto.RecipientDomains?.Any() == true) parameters.Add("RecipientDomains", updateDto.RecipientDomains.ToArray());

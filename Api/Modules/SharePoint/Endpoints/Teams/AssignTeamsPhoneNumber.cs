@@ -16,7 +16,7 @@ public static class AssignTeamsPhoneNumber {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         AssignTeamsPhoneNumberDto request,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

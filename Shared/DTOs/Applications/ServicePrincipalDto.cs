@@ -11,7 +11,7 @@ public class ServicePrincipalDto {
     public List<string> ServicePrincipalNames { get; set; } = new();
     public string? PublisherName { get; set; }
     public string? HomePage { get; set; }
-    public string? TenantId { get; set; }
+    public Guid? TenantId { get; set; }
     public List<string> ReplyUrls { get; set; } = new();
     public List<ApplicationCredentialDto> PasswordCredentials { get; set; } = new();
     public List<ApplicationCredentialDto> KeyCredentials { get; set; } = new();

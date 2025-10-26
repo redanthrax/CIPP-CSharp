@@ -19,7 +19,7 @@ public class GraphBulkRequestService {
     }
 
     public async Task<List<GraphBulkResponse>> ExecuteBulkRequestAsync(
-        string tenantId, 
+        Guid tenantId, 
         List<GraphBulkRequestItem> requests,
         CancellationToken cancellationToken = default) {
         

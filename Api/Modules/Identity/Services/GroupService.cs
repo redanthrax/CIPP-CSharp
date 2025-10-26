@@ -23,7 +23,7 @@ public class GroupService : IGroupService {
         _logger = logger;
     }
 
-    public async Task<PagedResponse<GroupDto>> GetGroupsAsync(string tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<GroupDto>> GetGroupsAsync(Guid tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting groups for tenant {TenantId}", tenantId);
         
         paging ??= new PagingParameters();
@@ -60,7 +60,7 @@ public class GroupService : IGroupService {
         return query.TryGetValue("$skiptoken", out var token) ? token.ToString() : null;
     }
 
-    public async Task<GroupDto?> GetGroupAsync(string tenantId, string groupId, CancellationToken cancellationToken = default) {
+    public async Task<GroupDto?> GetGroupAsync(Guid tenantId, string groupId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting group {GroupId} for tenant {TenantId}", groupId, tenantId);
         
         var group = await _graphGroupService.GetGroupAsync(groupId, tenantId);
@@ -109,7 +109,7 @@ public class GroupService : IGroupService {
         return await MapToGroupDtoAsync(createdGroup, createGroupDto.TenantId);
     }
 
-    public async Task<GroupDto> UpdateGroupAsync(string tenantId, string groupId, UpdateGroupDto updateGroupDto, CancellationToken cancellationToken = default) {
+    public async Task<GroupDto> UpdateGroupAsync(Guid tenantId, string groupId, UpdateGroupDto updateGroupDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating group {GroupId} for tenant {TenantId}", groupId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -129,13 +129,13 @@ public class GroupService : IGroupService {
         return await MapToGroupDtoAsync(updatedGroup, tenantId);
     }
 
-    public async Task DeleteGroupAsync(string tenantId, string groupId, CancellationToken cancellationToken = default) {
+    public async Task DeleteGroupAsync(Guid tenantId, string groupId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting group {GroupId} for tenant {TenantId}", groupId, tenantId);
 
         await _graphGroupService.DeleteGroupAsync(groupId, tenantId);
     }
 
-    public async Task AddGroupMemberAsync(string tenantId, string groupId, AddGroupMemberDto addMemberDto, CancellationToken cancellationToken = default) {
+    public async Task AddGroupMemberAsync(Guid tenantId, string groupId, AddGroupMemberDto addMemberDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Adding member {UserId} to group {GroupId} for tenant {TenantId}", 
             addMemberDto.UserId, groupId, tenantId);
 
@@ -146,7 +146,7 @@ public class GroupService : IGroupService {
         }
     }
 
-    public async Task RemoveGroupMemberAsync(string tenantId, string groupId, string userId, CancellationToken cancellationToken = default) {
+    public async Task RemoveGroupMemberAsync(Guid tenantId, string groupId, string userId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Removing member {UserId} from group {GroupId} for tenant {TenantId}", 
             userId, groupId, tenantId);
 
@@ -158,7 +158,7 @@ public class GroupService : IGroupService {
         }
     }
 
-    public async Task<IEnumerable<UserDto>> GetGroupMembersAsync(string tenantId, string groupId, CancellationToken cancellationToken = default) {
+    public async Task<IEnumerable<UserDto>> GetGroupMembersAsync(Guid tenantId, string groupId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting members for group {GroupId} in tenant {TenantId}", groupId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -182,7 +182,7 @@ public class GroupService : IGroupService {
         return users;
     }
 
-    public async Task<IEnumerable<UserDto>> GetGroupOwnersAsync(string tenantId, string groupId, CancellationToken cancellationToken = default) {
+    public async Task<IEnumerable<UserDto>> GetGroupOwnersAsync(Guid tenantId, string groupId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting owners for group {GroupId} in tenant {TenantId}", groupId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -206,7 +206,7 @@ public class GroupService : IGroupService {
         return users;
     }
 
-    private async Task<GroupDto> MapToGroupDtoAsync(Group group, string tenantId) {
+    private async Task<GroupDto> MapToGroupDtoAsync(Group group, Guid tenantId) {
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         
         var memberCount = await GetGroupMemberCountAsync(graphClient, group.Id!);

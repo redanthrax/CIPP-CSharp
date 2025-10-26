@@ -16,7 +16,7 @@ public class ManagedDeviceService : IManagedDeviceService {
         _logger = logger;
     }
 
-    public async Task WipeDeviceAsync(string tenantId, string deviceId, bool keepEnrollmentData, bool keepUserData, bool useProtectedWipe, CancellationToken cancellationToken = default) {
+    public async Task WipeDeviceAsync(Guid tenantId, string deviceId, bool keepEnrollmentData, bool keepUserData, bool useProtectedWipe, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Wiping device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -29,56 +29,56 @@ public class ManagedDeviceService : IManagedDeviceService {
         await graphClient.DeviceManagement.ManagedDevices[deviceId].Wipe.PostAsync(wipeBody, cancellationToken: cancellationToken);
     }
 
-    public async Task RetireDeviceAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task RetireDeviceAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Retiring device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.DeviceManagement.ManagedDevices[deviceId].Retire.PostAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task DeleteDeviceAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task DeleteDeviceAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.DeviceManagement.ManagedDevices[deviceId].DeleteAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task SyncDeviceAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task SyncDeviceAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Syncing device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.DeviceManagement.ManagedDevices[deviceId].SyncDevice.PostAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task RebootDeviceAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task RebootDeviceAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Rebooting device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.DeviceManagement.ManagedDevices[deviceId].RebootNow.PostAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task LocateDeviceAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task LocateDeviceAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Locating device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.DeviceManagement.ManagedDevices[deviceId].LocateDevice.PostAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task ResetPasscodeAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task ResetPasscodeAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Resetting passcode for device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.DeviceManagement.ManagedDevices[deviceId].ResetPasscode.PostAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task RemoteLockDeviceAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task RemoteLockDeviceAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Remote locking device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.DeviceManagement.ManagedDevices[deviceId].RemoteLock.PostAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task SetDeviceNameAsync(string tenantId, string deviceId, string deviceName, CancellationToken cancellationToken = default) {
+    public async Task SetDeviceNameAsync(Guid tenantId, string deviceId, string deviceName, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Setting device name for {DeviceId} to {DeviceName} for tenant {TenantId}", deviceId, deviceName, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -89,14 +89,14 @@ public class ManagedDeviceService : IManagedDeviceService {
         await graphClient.DeviceManagement.ManagedDevices[deviceId].SetDeviceName.PostAsync(setDeviceNameBody, cancellationToken: cancellationToken);
     }
 
-    public async Task RotateLocalAdminPasswordAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task RotateLocalAdminPasswordAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Rotating local admin password for device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.DeviceManagement.ManagedDevices[deviceId].RotateLocalAdminPassword.PostAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task DefenderScanAsync(string tenantId, string deviceId, bool quickScan, CancellationToken cancellationToken = default) {
+    public async Task DefenderScanAsync(Guid tenantId, string deviceId, bool quickScan, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Running {ScanType} Defender scan on device {DeviceId} for tenant {TenantId}", quickScan ? "quick" : "full", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -107,14 +107,14 @@ public class ManagedDeviceService : IManagedDeviceService {
         await graphClient.DeviceManagement.ManagedDevices[deviceId].WindowsDefenderScan.PostAsync(scanBody, cancellationToken: cancellationToken);
     }
 
-    public async Task DefenderUpdateSignaturesAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task DefenderUpdateSignaturesAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating Defender signatures for device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
         await graphClient.DeviceManagement.ManagedDevices[deviceId].WindowsDefenderUpdateSignatures.PostAsync(cancellationToken: cancellationToken);
     }
 
-    public async Task CreateDeviceLogCollectionAsync(string tenantId, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task CreateDeviceLogCollectionAsync(Guid tenantId, string deviceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Creating log collection request for device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -122,7 +122,7 @@ public class ManagedDeviceService : IManagedDeviceService {
         await graphClient.DeviceManagement.ManagedDevices[deviceId].CreateDeviceLogCollectionRequest.PostAsync(logCollectionBody, cancellationToken: cancellationToken);
     }
 
-    public async Task CleanWindowsDeviceAsync(string tenantId, string deviceId, bool keepUserData, CancellationToken cancellationToken = default) {
+    public async Task CleanWindowsDeviceAsync(Guid tenantId, string deviceId, bool keepUserData, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Cleaning Windows device {DeviceId} for tenant {TenantId}", deviceId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);

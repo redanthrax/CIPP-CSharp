@@ -14,7 +14,7 @@ public class SpamFilterService : ISpamFilterService {
         _logger = logger;
     }
 
-    public async Task<PagedResponse<HostedContentFilterPolicyDto>> GetAntiSpamPoliciesAsync(string tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<HostedContentFilterPolicyDto>> GetAntiSpamPoliciesAsync(Guid tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting anti-spam policies for tenant {TenantId}", tenantId);
         
         var policies = await _exoService.ExecuteCmdletListAsync<HostedContentFilterPolicyDto>(
@@ -27,7 +27,7 @@ public class SpamFilterService : ISpamFilterService {
         return policies.ToPagedResponse(pagingParams);
     }
 
-    public async Task<HostedContentFilterPolicyDto?> GetAntiSpamPolicyAsync(string tenantId, string policyId, CancellationToken cancellationToken = default) {
+    public async Task<HostedContentFilterPolicyDto?> GetAntiSpamPolicyAsync(Guid tenantId, string policyId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting anti-spam policy {PolicyId} for tenant {TenantId}", policyId, tenantId);
         
         var parameters = new Dictionary<string, object> {
@@ -44,7 +44,7 @@ public class SpamFilterService : ISpamFilterService {
         return policy;
     }
 
-    public async Task UpdateAntiSpamPolicyAsync(string tenantId, string policyId, UpdateHostedContentFilterPolicyDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateAntiSpamPolicyAsync(Guid tenantId, string policyId, UpdateHostedContentFilterPolicyDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating anti-spam policy {PolicyId} for tenant {TenantId}", policyId, tenantId);
         
         var parameters = BuildAntiSpamUpdateParameters(policyId, updateDto);
@@ -59,7 +59,7 @@ public class SpamFilterService : ISpamFilterService {
         _logger.LogInformation("Successfully updated anti-spam policy {PolicyId}", policyId);
     }
 
-    public async Task<PagedResponse<MalwareFilterPolicyDto>> GetAntiMalwarePoliciesAsync(string tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<MalwareFilterPolicyDto>> GetAntiMalwarePoliciesAsync(Guid tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting anti-malware policies for tenant {TenantId}", tenantId);
         
         var policies = await _exoService.ExecuteCmdletListAsync<MalwareFilterPolicyDto>(
@@ -72,7 +72,7 @@ public class SpamFilterService : ISpamFilterService {
         return policies.ToPagedResponse(pagingParams);
     }
 
-    public async Task<MalwareFilterPolicyDto?> GetAntiMalwarePolicyAsync(string tenantId, string policyId, CancellationToken cancellationToken = default) {
+    public async Task<MalwareFilterPolicyDto?> GetAntiMalwarePolicyAsync(Guid tenantId, string policyId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting anti-malware policy {PolicyId} for tenant {TenantId}", policyId, tenantId);
         
         var parameters = new Dictionary<string, object> {
@@ -89,7 +89,7 @@ public class SpamFilterService : ISpamFilterService {
         return policy;
     }
 
-    public async Task UpdateAntiMalwarePolicyAsync(string tenantId, string policyId, UpdateMalwareFilterPolicyDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateAntiMalwarePolicyAsync(Guid tenantId, string policyId, UpdateMalwareFilterPolicyDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating anti-malware policy {PolicyId} for tenant {TenantId}", policyId, tenantId);
         
         var parameters = BuildAntiMalwareUpdateParameters(policyId, updateDto);
@@ -104,7 +104,7 @@ public class SpamFilterService : ISpamFilterService {
         _logger.LogInformation("Successfully updated anti-malware policy {PolicyId}", policyId);
     }
 
-    public async Task<PagedResponse<QuarantineMessageDto>> GetQuarantineMessagesAsync(string tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<QuarantineMessageDto>> GetQuarantineMessagesAsync(Guid tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting quarantine messages for tenant {TenantId}", tenantId);
         
         var parameters = new Dictionary<string, object> {
@@ -121,7 +121,7 @@ public class SpamFilterService : ISpamFilterService {
         return messages.ToPagedResponse(pagingParams);
     }
 
-    public async Task ReleaseQuarantineMessageAsync(string tenantId, string messageId, CancellationToken cancellationToken = default) {
+    public async Task ReleaseQuarantineMessageAsync(Guid tenantId, string messageId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Releasing quarantine message {MessageId} for tenant {TenantId}", messageId, tenantId);
         
         var parameters = new Dictionary<string, object> {
@@ -139,7 +139,7 @@ public class SpamFilterService : ISpamFilterService {
         _logger.LogInformation("Successfully released quarantine message {MessageId}", messageId);
     }
 
-    public async Task DeleteQuarantineMessageAsync(string tenantId, string messageId, CancellationToken cancellationToken = default) {
+    public async Task DeleteQuarantineMessageAsync(Guid tenantId, string messageId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting quarantine message {MessageId} for tenant {TenantId}", messageId, tenantId);
         
         var parameters = new Dictionary<string, object> {

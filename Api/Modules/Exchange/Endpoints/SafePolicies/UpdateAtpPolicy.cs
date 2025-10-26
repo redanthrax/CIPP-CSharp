@@ -18,7 +18,7 @@ public static class UpdateAtpPolicy {
 
     private static async Task<IResult> Handle(
         HttpContext context,
-        string tenantId,
+        Guid tenantId,
         UpdateAtpPolicyDto updateDto,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

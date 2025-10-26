@@ -16,7 +16,7 @@ public static class ListSharePointSites {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string type,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

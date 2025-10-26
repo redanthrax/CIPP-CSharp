@@ -16,7 +16,7 @@ public class AuthenticationMethodPolicyService : IAuthenticationMethodPolicyServ
         _logger = logger;
     }
 
-    public async Task<AuthenticationMethodPolicyDto?> GetPolicyAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<AuthenticationMethodPolicyDto?> GetPolicyAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting authentication method policy for tenant {TenantId}", tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -38,7 +38,7 @@ public class AuthenticationMethodPolicyService : IAuthenticationMethodPolicyServ
         };
     }
 
-    public async Task<AuthenticationMethodDto?> GetMethodConfigAsync(string tenantId, string methodId, CancellationToken cancellationToken = default) {
+    public async Task<AuthenticationMethodDto?> GetMethodConfigAsync(Guid tenantId, string methodId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting authentication method config {MethodId} for tenant {TenantId}", methodId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -52,7 +52,7 @@ public class AuthenticationMethodPolicyService : IAuthenticationMethodPolicyServ
         return MapToAuthenticationMethodDto(config);
     }
 
-    public async Task<AuthenticationMethodDto> UpdateMethodConfigAsync(string tenantId, string methodId, UpdateAuthenticationMethodDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task<AuthenticationMethodDto> UpdateMethodConfigAsync(Guid tenantId, string methodId, UpdateAuthenticationMethodDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating authentication method config {MethodId} for tenant {TenantId}", methodId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);

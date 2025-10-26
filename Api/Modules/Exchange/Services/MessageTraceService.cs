@@ -14,7 +14,7 @@ public class MessageTraceService : IMessageTraceService {
         _logger = logger;
     }
 
-    public async Task<PagedResponse<MessageTraceDto>> GetMessageTraceAsync(string tenantId, MessageTraceSearchDto searchDto, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<MessageTraceDto>> GetMessageTraceAsync(Guid tenantId, MessageTraceSearchDto searchDto, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting message trace for tenant {TenantId}", tenantId);
         
         var parameters = new Dictionary<string, object>();
@@ -50,7 +50,7 @@ public class MessageTraceService : IMessageTraceService {
         };
     }
 
-    public async Task<List<MessageTraceDetailDto>> GetMessageTraceDetailAsync(string tenantId, string messageTraceId, CancellationToken cancellationToken = default) {
+    public async Task<List<MessageTraceDetailDto>> GetMessageTraceDetailAsync(Guid tenantId, string messageTraceId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting message trace detail for message {MessageTraceId} in tenant {TenantId}", messageTraceId, tenantId);
         var parameters = new Dictionary<string, object> { { "MessageTraceId", messageTraceId } };
         return await _exoService.ExecuteCmdletListAsync<MessageTraceDetailDto>(tenantId, "Get-MessageTraceDetail", parameters, cancellationToken);

@@ -16,7 +16,7 @@ public class AppConsentService : IAppConsentService {
         _logger = logger;
     }
 
-    public async Task<PagedResponse<AppConsentRequestDto>> GetAppConsentRequestsAsync(string tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<AppConsentRequestDto>> GetAppConsentRequestsAsync(Guid tenantId, PagingParameters? paging = null, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting app consent requests for tenant {TenantId}", tenantId);
         
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);

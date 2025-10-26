@@ -17,7 +17,7 @@ public static class RemoveRole {
     private static async Task<IResult> Handle(
         string roleId,
         string userId,
-        string tenantId,
+        Guid tenantId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {

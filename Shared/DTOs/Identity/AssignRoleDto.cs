@@ -10,5 +10,5 @@ public class AssignRoleDto {
     public string RoleId { get; set; } = string.Empty;
     
     [Required]
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
 }

@@ -3,5 +3,5 @@ using DispatchR.Abstractions.Send;
 
 namespace CIPP.Api.Modules.ConditionalAccess.Commands;
 
-public record DeployConditionalAccessTemplateCommand(DeployConditionalAccessTemplateDto DeployDto) 
+public record DeployConditionalAccessTemplateCommand(Guid TenantId, DeployConditionalAccessTemplateDto DeployDto)
     : IRequest<DeployConditionalAccessTemplateCommand, Task<ConditionalAccessPolicyDto>>;

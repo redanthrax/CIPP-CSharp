@@ -16,7 +16,7 @@ public static class GetDistributionGroup {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string groupId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

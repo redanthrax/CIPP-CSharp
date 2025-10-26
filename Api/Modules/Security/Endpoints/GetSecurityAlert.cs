@@ -16,7 +16,7 @@ public static class GetSecurityAlert {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string alertId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

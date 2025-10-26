@@ -10,5 +10,5 @@ public class IntuneAppDto {
     public string? AppType { get; set; }
     public bool IsAssigned { get; set; }
     public List<string>? AssignedTo { get; set; }
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
 }

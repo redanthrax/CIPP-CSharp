@@ -14,5 +14,5 @@ public class GroupDto {
     public int MemberCount { get; set; }
     public List<string> Owners { get; set; } = new();
     public List<string> Members { get; set; } = new();
-    public string? TenantId { get; set; }
+    public Guid? TenantId { get; set; }
 }

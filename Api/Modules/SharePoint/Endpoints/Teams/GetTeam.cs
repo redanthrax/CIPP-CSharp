@@ -16,7 +16,7 @@ public static class GetTeam {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         string teamId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {

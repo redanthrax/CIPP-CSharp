@@ -1,10 +1,1 @@
-using CIPP.Shared.DTOs.Applications;
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Applications.Commands;
-
-public record UpdateServicePrincipalCommand(
-    string TenantId,
-    string ServicePrincipalId,
-    UpdateServicePrincipalDto ServicePrincipal
-) : IRequest<UpdateServicePrincipalCommand, Task<ServicePrincipalDto>>;
+using CIPP.Shared.DTOs.Applications;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Applications.Commands;public record UpdateServicePrincipalCommand(    Guid TenantId,    string ServicePrincipalId,    UpdateServicePrincipalDto ServicePrincipal) : IRequest<UpdateServicePrincipalCommand, Task<ServicePrincipalDto>>;

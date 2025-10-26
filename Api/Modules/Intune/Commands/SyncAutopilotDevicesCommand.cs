@@ -1,6 +1,1 @@
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Intune.Commands;
-
-public record SyncAutopilotDevicesCommand(string TenantId) 
-    : IRequest<SyncAutopilotDevicesCommand, Task>;
+using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Intune.Commands;public record SyncAutopilotDevicesCommand(Guid TenantId)     : IRequest<SyncAutopilotDevicesCommand, Task>;

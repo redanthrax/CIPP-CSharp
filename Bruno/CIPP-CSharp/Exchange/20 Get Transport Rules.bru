@@ -1,0 +1,24 @@
+meta {
+  name: Get Transport Rules
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseUrl}}/v1/exchange/transport-rules?tenantId={{exampleTenant}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  tenantId: {{exampleTenant}}
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+settings {
+  encodeUrl: true
+}

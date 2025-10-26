@@ -16,7 +16,7 @@ public static class ListTeamsVoice {
     }
 
     private static async Task<IResult> Handle(
-        string tenantId,
+        Guid tenantId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {

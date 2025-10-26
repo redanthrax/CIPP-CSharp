@@ -14,7 +14,7 @@ public class ContactService : IContactService {
         _logger = logger;
     }
 
-    public async Task<List<ContactDto>> GetContactsAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<List<ContactDto>> GetContactsAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting contacts for tenant {TenantId}", tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -43,7 +43,7 @@ public class ContactService : IContactService {
         }).ToList();
     }
 
-    public async Task<ContactDetailsDto?> GetContactAsync(string tenantId, string contactId, CancellationToken cancellationToken = default) {
+    public async Task<ContactDetailsDto?> GetContactAsync(Guid tenantId, string contactId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting contact {ContactId} for tenant {TenantId}", contactId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -82,7 +82,7 @@ public class ContactService : IContactService {
         };
     }
 
-    public async Task<string> CreateContactAsync(string tenantId, CreateContactDto createDto, CancellationToken cancellationToken = default) {
+    public async Task<string> CreateContactAsync(Guid tenantId, CreateContactDto createDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Creating contact {DisplayName} for tenant {TenantId}", createDto.DisplayName, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -101,7 +101,7 @@ public class ContactService : IContactService {
         return string.Empty;
     }
 
-    public async Task UpdateContactAsync(string tenantId, string contactId, UpdateContactDto updateDto, CancellationToken cancellationToken = default) {
+    public async Task UpdateContactAsync(Guid tenantId, string contactId, UpdateContactDto updateDto, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Updating contact {ContactId} for tenant {TenantId}", contactId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -110,7 +110,7 @@ public class ContactService : IContactService {
         await Task.CompletedTask;
     }
 
-    public async Task DeleteContactAsync(string tenantId, string contactId, CancellationToken cancellationToken = default) {
+    public async Task DeleteContactAsync(Guid tenantId, string contactId, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Deleting contact {ContactId} for tenant {TenantId}", contactId, tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);

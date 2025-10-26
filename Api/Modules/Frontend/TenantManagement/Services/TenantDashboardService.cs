@@ -28,14 +28,14 @@ public class TenantDashboardService : ITenantDashboardService {
 
     public async Task<TenantDashboardData> GetTenantDashboardDataAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         var tenant = await _context.GetEntitySet<Tenant>()
-            .FirstOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
+            .FirstOrDefaultAsync(t => t.TenantId == tenantId, cancellationToken);
 
         if (tenant == null) {
             throw new InvalidOperationException($"Tenant with ID {tenantId} not found");
         }
 
         return new TenantDashboardData {
-            TenantId = tenant.Id,
+            TenantId = tenant.TenantId,
             DisplayName = tenant.DisplayName,
             HealthStatus = await GetTenantHealthStatusAsync(tenantId, cancellationToken),
             ActiveUsers = await GetActiveUsersCountAsync(tenant.TenantId, cancellationToken),
@@ -50,7 +50,7 @@ public class TenantDashboardService : ITenantDashboardService {
 
     public async Task<TenantHealthStatus> GetTenantHealthStatusAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         var tenant = await _context.GetEntitySet<Tenant>()
-            .FirstOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
+            .FirstOrDefaultAsync(t => t.TenantId == tenantId, cancellationToken);
 
         if (tenant == null) {
             return TenantHealthStatus.Unknown;
@@ -67,7 +67,7 @@ public class TenantDashboardService : ITenantDashboardService {
         return TenantHealthStatus.Healthy;
     }
 
-    public async Task<int> GetActiveUsersCountAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<int> GetActiveUsersCountAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         try {
             var usersResponse = await _graphUserService.ListUsersAsync(tenantId, 
                 filter: "accountEnabled eq true and userType eq 'Member'",
@@ -81,7 +81,7 @@ public class TenantDashboardService : ITenantDashboardService {
         }
     }
 
-    public async Task<int> GetUsedLicensesCountAsync(string tenantId, CancellationToken cancellationToken = default) {
+    public async Task<int> GetUsedLicensesCountAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         try {
             var usersResponse = await _graphUserService.ListUsersAsync(tenantId,
                 filter: "assignedLicenses/any()",
@@ -97,7 +97,7 @@ public class TenantDashboardService : ITenantDashboardService {
 
     public async Task RefreshTenantDataAsync(Guid tenantId, CancellationToken cancellationToken = default) {
         var tenant = await _context.GetEntitySet<Tenant>()
-            .FirstOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
+            .FirstOrDefaultAsync(t => t.TenantId == tenantId, cancellationToken);
 
         if (tenant == null) {
             throw new InvalidOperationException($"Tenant with ID {tenantId} not found");

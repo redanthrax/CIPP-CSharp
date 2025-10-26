@@ -8,5 +8,5 @@ public class AppConsentRequestDto {
     public DateTime? RequestDateTime { get; set; }
     public string Status { get; set; } = string.Empty;
     public List<string> RequestedPermissions { get; set; } = new();
-    public string? TenantId { get; set; }
+    public Guid? TenantId { get; set; }
 }

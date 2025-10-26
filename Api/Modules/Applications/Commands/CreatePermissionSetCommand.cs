@@ -1,8 +1,1 @@
-using CIPP.Shared.DTOs.Applications;
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Applications.Commands;
-
-public record CreatePermissionSetCommand(
-    CreatePermissionSetDto CreateDto
-) : IRequest<CreatePermissionSetCommand, Task<PermissionSetDto>>;
+using CIPP.Shared.DTOs.Applications;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Applications.Commands;public record CreatePermissionSetCommand(CreatePermissionSetDto CreateDto) : IRequest<CreatePermissionSetCommand, Task<PermissionSetDto>>;

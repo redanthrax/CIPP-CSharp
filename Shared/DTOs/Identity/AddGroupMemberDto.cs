@@ -9,5 +9,5 @@ public class AddGroupMemberDto {
     public bool AsOwner { get; set; } = false;
     
     [Required]
-    public string TenantId { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
 }

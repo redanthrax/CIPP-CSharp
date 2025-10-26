@@ -1,9 +1,1 @@
-using CIPP.Shared.DTOs;
-using CIPP.Shared.DTOs.Alerts;
-using DispatchR.Abstractions.Send;
-
-namespace CIPP.Api.Modules.Alerts.Queries;
-
-public record GetAlertConfigurationsQuery(
-    PagingParameters? Paging = null
-) : IRequest<GetAlertConfigurationsQuery, Task<PagedResponse<AlertConfigurationDto>>>;
+using CIPP.Shared.DTOs;using CIPP.Shared.DTOs.Alerts;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Alerts.Queries;public record GetAlertConfigurationsQuery(PagingParameters? Paging = null) : IRequest<GetAlertConfigurationsQuery, Task<PagedResponse<AlertConfigurationDto>>>;
