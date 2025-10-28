@@ -14,7 +14,7 @@ public class IdentityUserService : IIdentityUserService {
         _logger = logger;
     }
 
-    public async Task<Response<List<UserDto>>> GetUsersAsync(string tenantId) {
+    public async Task<Response<List<UserDto>>> GetUsersAsync(Guid tenantId) {
         try {
             _logger.LogInformation("Getting users for tenant {TenantId}", tenantId);
             return await _apiClient.GetAsync<List<UserDto>>($"identity/users?tenantId={tenantId}");
@@ -25,7 +25,7 @@ public class IdentityUserService : IIdentityUserService {
         }
     }
 
-    public async Task<Response<UserDto?>> GetUserAsync(string tenantId, string userId) {
+    public async Task<Response<UserDto?>> GetUserAsync(Guid tenantId, string userId) {
         try {
             _logger.LogInformation("Getting user {UserId} for tenant {TenantId}", userId, tenantId);
             return await _apiClient.GetAsync<UserDto?>($"identity/users/{userId}?tenantId={tenantId}");
@@ -48,7 +48,7 @@ public class IdentityUserService : IIdentityUserService {
         }
     }
 
-    public async Task<Response<UserDto>> UpdateUserAsync(string tenantId, string userId, UpdateUserDto userDto) {
+    public async Task<Response<UserDto>> UpdateUserAsync(Guid tenantId, string userId, UpdateUserDto userDto) {
         try {
             _logger.LogInformation("Updating user {UserId} for tenant {TenantId}", userId, tenantId);
             return await _apiClient.PutAsync<UserDto>($"identity/users/{userId}?tenantId={tenantId}", userDto);
@@ -59,7 +59,7 @@ public class IdentityUserService : IIdentityUserService {
         }
     }
 
-    public async Task<Response<object>> DeleteUserAsync(string tenantId, string userId) {
+    public async Task<Response<object>> DeleteUserAsync(Guid tenantId, string userId) {
         try {
             _logger.LogInformation("Deleting user {UserId} for tenant {TenantId}", userId, tenantId);
             var deleteResult = await _apiClient.DeleteAsync($"identity/users/{userId}?tenantId={tenantId}");
@@ -73,7 +73,7 @@ public class IdentityUserService : IIdentityUserService {
         }
     }
 
-    public async Task<Response<string>> ResetUserPasswordAsync(string tenantId, string userId, ResetUserPasswordDto passwordDto) {
+    public async Task<Response<string>> ResetUserPasswordAsync(Guid tenantId, string userId, ResetUserPasswordDto passwordDto) {
         try {
             _logger.LogInformation("Resetting password for user {UserId} in tenant {TenantId}", userId, tenantId);
             return await _apiClient.PostAsync<string>($"identity/users/{userId}/reset-password", passwordDto);
@@ -84,7 +84,7 @@ public class IdentityUserService : IIdentityUserService {
         }
     }
 
-    public async Task<Response<object>> EnableUserMfaAsync(string tenantId, string userId) {
+    public async Task<Response<object>> EnableUserMfaAsync(Guid tenantId, string userId) {
         try {
             _logger.LogInformation("Enabling MFA for user {UserId} in tenant {TenantId}", userId, tenantId);
             return await _apiClient.PostAsync<object>($"identity/users/{userId}/enable-mfa?tenantId={tenantId}", new { });
@@ -95,7 +95,7 @@ public class IdentityUserService : IIdentityUserService {
         }
     }
 
-    public async Task<Response<object>> DisableUserMfaAsync(string tenantId, string userId) {
+    public async Task<Response<object>> DisableUserMfaAsync(Guid tenantId, string userId) {
         try {
             _logger.LogInformation("Disabling MFA for user {UserId} in tenant {TenantId}", userId, tenantId);
             return await _apiClient.PostAsync<object>($"identity/users/{userId}/disable-mfa?tenantId={tenantId}", new { });
@@ -106,7 +106,7 @@ public class IdentityUserService : IIdentityUserService {
         }
     }
 
-    public async Task<Response<UserMfaStatusDto>> GetUserMfaStatusAsync(string tenantId, string userId) {
+    public async Task<Response<UserMfaStatusDto>> GetUserMfaStatusAsync(Guid tenantId, string userId) {
         try {
             _logger.LogInformation("Getting MFA status for user {UserId} in tenant {TenantId}", userId, tenantId);
             return await _apiClient.GetAsync<UserMfaStatusDto>($"identity/users/{userId}/mfa-status?tenantId={tenantId}");

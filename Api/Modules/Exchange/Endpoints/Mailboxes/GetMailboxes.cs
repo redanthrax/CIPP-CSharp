@@ -1,3 +1,4 @@
+using CIPP.Api.Extensions;
 using CIPP.Api.Modules.Authorization.Extensions;
 using CIPP.Api.Modules.Exchange.Queries;
 using CIPP.Shared.DTOs;
@@ -16,15 +17,17 @@ public static class GetMailboxes {
     }
 
     private static async Task<IResult> Handle(
+        HttpContext context,
         Guid tenantId,
         string? mailboxType,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
-            var query = new GetMailboxesQuery(tenantId, mailboxType);
+            var pagingParams = context.GetPagingParameters();
+            var query = new GetMailboxesQuery(tenantId, mailboxType, pagingParams);
             var result = await mediator.Send(query, cancellationToken);
 
-            return Results.Ok(Response<List<MailboxDto>>.SuccessResult(result, "Mailboxes retrieved successfully"));
+            return Results.Ok(Response<PagedResponse<MailboxDto>>.SuccessResult(result, "Mailboxes retrieved successfully"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

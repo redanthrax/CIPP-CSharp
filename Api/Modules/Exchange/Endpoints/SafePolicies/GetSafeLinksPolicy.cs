@@ -26,6 +26,10 @@ public static class GetSafeLinksPolicy {
             var query = new GetSafeLinksPolicyQuery(tenantId, policyName);
             var result = await mediator.Send(query, cancellationToken);
 
+            if (result == null) {
+                return Results.NotFound(Response<SafeLinksPolicyDto>.ErrorResult("Safe Links policy not found"));
+            }
+
             return Results.Ok(Response<SafeLinksPolicyDto>.SuccessResult(result, "Get Safe Links policy successful"));
         } catch (Exception ex) {
             return Results.Problem(

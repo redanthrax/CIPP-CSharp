@@ -340,7 +340,7 @@
                 
                 _editRequest = new EditTenantRequestDto
                 {
-                    Id = _tenantDetails.Id,
+                    TenantId = _tenantDetails.TenantId,
                     TenantAlias = _tenantDetails.TenantAlias,
                     TenantGroups = _tenantDetails.Groups?.Select(g => g.Id).ToList(),
                     CustomVariables = null,

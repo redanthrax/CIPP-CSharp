@@ -26,7 +26,7 @@ public static class UpdateInboxRule {
             var command = new UpdateInboxRuleCommand(tenantId, mailboxId, ruleId, updateDto);
             await mediator.Send(command, cancellationToken);
 
-            return Results.Ok(Response<object>.SuccessResult(null, "Inbox rule updated successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Inbox rule updated successfully"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

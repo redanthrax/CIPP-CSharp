@@ -23,7 +23,7 @@ public static class RemoveDistributionGroupMember {
         try {
             var command = new RemoveDistributionGroupMemberCommand(tenantId, groupId, memberEmail);
             await mediator.Send(command, cancellationToken);
-            return Results.Ok(Response<object>.SuccessResult(null, "Member removed successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Member removed successfully"));
         } catch (Exception ex) {
             return Results.Problem(detail: ex.Message, statusCode: 500, title: "Error removing group member");
         }

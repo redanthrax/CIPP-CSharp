@@ -27,7 +27,7 @@ public static class UpdateSafeAttachmentPolicy {
             var command = new UpdateSafeAttachmentPolicyCommand(tenantId, policyName, updateDto);
             await mediator.Send(command, cancellationToken);
 
-            return Results.Ok(Response<object>.SuccessResult(null, "Update Safe Attachments policy successful"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Update Safe Attachments policy successful"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

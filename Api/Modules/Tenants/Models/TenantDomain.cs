@@ -37,7 +37,7 @@ public class TenantDomain : IEntityConfiguration<TenantDomain>
                   
             entity.HasIndex(e => e.DomainName);
             entity.HasIndex(e => new { e.TenantId, e.IsInitial }).IsUnique()
-                  .HasFilter("[IsInitial] = 1");
+                  .HasFilter("\"IsInitial\" = true");
         });
     }
 }

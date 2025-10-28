@@ -1,11 +1,17 @@
+using CIPP.Api.Modules.Exchange.Endpoints.ActiveSync;
 using CIPP.Api.Modules.Exchange.Endpoints.CalendarProcessing;
 using CIPP.Api.Modules.Exchange.Endpoints.Connectors;
 using CIPP.Api.Modules.Exchange.Endpoints.Contacts;
 using CIPP.Api.Modules.Exchange.Endpoints.DistributionGroups;
 using CIPP.Api.Modules.Exchange.Endpoints.InboxRules;
+using CIPP.Api.Modules.Exchange.Endpoints.JournalRules;
 using CIPP.Api.Modules.Exchange.Endpoints.MailboxAdvanced;
+using CIPP.Api.Modules.Exchange.Endpoints.MailboxDelegates;
 using CIPP.Api.Modules.Exchange.Endpoints.Mailboxes;
+using CIPP.Api.Modules.Exchange.Endpoints.MailResources;
 using CIPP.Api.Modules.Exchange.Endpoints.MessageTrace;
+using CIPP.Api.Modules.Exchange.Endpoints.MobileDevices;
+using CIPP.Api.Modules.Exchange.Endpoints.OwaMailboxPolicies;
 using CIPP.Api.Modules.Exchange.Endpoints.SafePolicies;
 using CIPP.Api.Modules.Exchange.Endpoints.SpamFilters;
 using CIPP.Api.Modules.Exchange.Endpoints.TransportRules;
@@ -29,6 +35,12 @@ public class ExchangeModule {
         services.AddScoped<IDistributionGroupService, DistributionGroupService>();
         services.AddScoped<ICalendarProcessingService, CalendarProcessingService>();
         services.AddScoped<IMessageTraceService, MessageTraceService>();
+        services.AddScoped<IJournalRuleService, JournalRuleService>();
+        services.AddScoped<IMailboxDelegateService, MailboxDelegateService>();
+        services.AddScoped<IOwaMailboxPolicyService, OwaMailboxPolicyService>();
+        services.AddScoped<IMobileDeviceService, MobileDeviceService>();
+        services.AddScoped<IActiveSyncService, ActiveSyncService>();
+        services.AddScoped<IMailResourceService, MailResourceService>();
     }
 
     public void ConfigureEndpoints(RouteGroupBuilder group) {
@@ -42,6 +54,11 @@ public class ExchangeModule {
         mailboxesGroup.MapUpdateMailboxForwarding();
         mailboxesGroup.MapGetCalendarProcessing();
         mailboxesGroup.MapUpdateCalendarProcessing();
+        
+        var sharedMailboxesGroup = group.MapGroup("/").WithTags("Exchange Shared Mailboxes");
+        sharedMailboxesGroup.MapGetSharedMailboxes();
+        sharedMailboxesGroup.MapCreateSharedMailbox();
+        sharedMailboxesGroup.MapConvertToSharedMailbox();
         
         var contactsGroup = group.MapGroup("/contacts").WithTags("Exchange Contacts");
         contactsGroup.MapGetContacts();
@@ -119,5 +136,43 @@ public class ExchangeModule {
         var messageTraceGroup = group.MapGroup("/message-trace").WithTags("Exchange Message Trace");
         messageTraceGroup.MapGetMessageTrace();
         messageTraceGroup.MapGetMessageTraceDetail();
+        
+        var journalRulesGroup = group.MapGroup("/").WithTags("Exchange Journal Rules");
+        journalRulesGroup.MapGetJournalRules();
+        journalRulesGroup.MapCreateJournalRule();
+        journalRulesGroup.MapDeleteJournalRule();
+        
+        var mailboxDelegatesGroup = group.MapGroup("/mailboxes/{mailboxId}").WithTags("Exchange Mailbox Delegates");
+        mailboxDelegatesGroup.MapGetMailboxDelegates();
+        mailboxDelegatesGroup.MapAddMailboxDelegate();
+        mailboxDelegatesGroup.MapRemoveMailboxDelegate();
+        
+        var owaMailboxPoliciesGroup = group.MapGroup("/owa-mailbox-policies").WithTags("Exchange OWA Mailbox Policies");
+        owaMailboxPoliciesGroup.MapGetOwaMailboxPolicies();
+        owaMailboxPoliciesGroup.MapGetOwaMailboxPolicy();
+        owaMailboxPoliciesGroup.MapUpdateOwaMailboxPolicy();
+        
+        var mobileDevicesGroup = group.MapGroup("/mobile-devices").WithTags("Exchange Mobile Devices");
+        mobileDevicesGroup.MapGetMobileDevices();
+        mobileDevicesGroup.MapGetMobileDevice();
+        mobileDevicesGroup.MapGetMobileDeviceStatistics();
+        mobileDevicesGroup.MapRemoveMobileDevice();
+        mobileDevicesGroup.MapClearMobileDevice();
+        
+        var activeSyncGroup = group.MapGroup("/").WithTags("Exchange ActiveSync");
+        activeSyncGroup.MapGetActiveSyncDeviceAccessRules();
+        activeSyncGroup.MapGetActiveSyncDeviceAccessRule();
+        activeSyncGroup.MapCreateActiveSyncDeviceAccessRule();
+        activeSyncGroup.MapUpdateActiveSyncDeviceAccessRule();
+        activeSyncGroup.MapDeleteActiveSyncDeviceAccessRule();
+        
+        var mailResourcesGroup = group.MapGroup("/").WithTags("Exchange Mail Resources");
+        mailResourcesGroup.MapGetRoomMailboxes();
+        mailResourcesGroup.MapGetEquipmentMailboxes();
+        mailResourcesGroup.MapGetRoomMailbox();
+        mailResourcesGroup.MapGetEquipmentMailbox();
+        mailResourcesGroup.MapCreateRoomMailbox();
+        mailResourcesGroup.MapCreateEquipmentMailbox();
+        mailResourcesGroup.MapUpdateResourceBookingPolicy();
     }
 }

@@ -24,7 +24,7 @@ public static class DeleteInboxRule {
             var command = new DeleteInboxRuleCommand(tenantId, mailboxId, ruleId);
             await mediator.Send(command, cancellationToken);
 
-            return Results.Ok(Response<object>.SuccessResult(null, "Inbox rule deleted successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Inbox rule deleted successfully"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

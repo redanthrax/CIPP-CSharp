@@ -23,7 +23,7 @@ public static class CreateDistributionGroup {
         try {
             var command = new CreateDistributionGroupCommand(tenantId, dto);
             await mediator.Send(command, cancellationToken);
-            return Results.Ok(Response<object>.SuccessResult(null, "Distribution group created successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Distribution group created successfully"));
         } catch (Exception ex) {
             return Results.Problem(detail: ex.Message, statusCode: 500, title: "Error creating distribution group");
         }

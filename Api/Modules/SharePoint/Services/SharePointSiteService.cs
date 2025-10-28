@@ -1,5 +1,7 @@
+using CIPP.Api.Extensions;
 using CIPP.Api.Modules.MsGraph.Interfaces;
 using CIPP.Api.Modules.SharePoint.Interfaces;
+using CIPP.Shared.DTOs;
 using CIPP.Shared.DTOs.SharePoint;
 using Microsoft.Graph.Beta.Models;
 
@@ -14,7 +16,7 @@ public class SharePointSiteService : ISharePointSiteService {
         _logger = logger;
     }
 
-    public async Task<List<SharePointSiteDto>> GetSitesAsync(Guid tenantId, string type, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<SharePointSiteDto>> GetSitesAsync(Guid tenantId, string type, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting SharePoint sites for tenant {TenantId}, type {Type}", tenantId, type);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -27,10 +29,10 @@ public class SharePointSiteService : ISharePointSiteService {
         }, cancellationToken);
 
         if (sites?.Value == null) {
-            return new List<SharePointSiteDto>();
+            return new List<SharePointSiteDto>().ToPagedResponse(pagingParams);
         }
 
-        return sites.Value.Select(site => new SharePointSiteDto {
+        var siteList = sites.Value.Select(site => new SharePointSiteDto {
             SiteId = site.SharepointIds?.SiteId ?? string.Empty,
             WebId = site.SharepointIds?.WebId ?? string.Empty,
             CreatedDateTime = site.CreatedDateTime?.DateTime,
@@ -38,6 +40,8 @@ public class SharePointSiteService : ISharePointSiteService {
             WebUrl = site.WebUrl ?? string.Empty,
             IsPersonalSite = site.IsPersonalSite ?? false
         }).ToList();
+
+        return siteList.ToPagedResponse(pagingParams);
     }
 
     public async Task<SharePointSiteDto?> GetSiteAsync(Guid tenantId, string siteId, CancellationToken cancellationToken = default) {
@@ -162,9 +166,9 @@ public class SharePointSiteService : ISharePointSiteService {
         }
     }
 
-    public async Task<string> SetPermissionsAsync(Guid tenantId, string userId, string accessUser, string? url, bool removePermission, CancellationToken cancellationToken = default) {
+    public Task<string> SetPermissionsAsync(Guid tenantId, string userId, string accessUser, string? url, bool removePermission, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Setting SharePoint permissions for user {UserId} in tenant {TenantId}", userId, tenantId);
         var action = removePermission ? "removed from" : "added to";
-        return $"Successfully {action} SharePoint permissions for {accessUser}";
+        return Task.FromResult($"Successfully {action} SharePoint permissions for {accessUser}");
     }
 }

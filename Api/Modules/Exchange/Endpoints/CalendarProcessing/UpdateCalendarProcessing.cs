@@ -24,7 +24,7 @@ public static class UpdateCalendarProcessing {
         try {
             var command = new UpdateCalendarProcessingCommand(tenantId, mailboxIdentity, dto);
             await mediator.Send(command, cancellationToken);
-            return Results.Ok(Response<object>.SuccessResult(null, "Calendar processing settings updated successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Calendar processing settings updated successfully"));
         } catch (Exception ex) {
             return Results.Problem(detail: ex.Message, statusCode: 500, title: "Error updating calendar processing settings");
         }

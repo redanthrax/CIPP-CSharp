@@ -25,7 +25,7 @@ public static class UpdateMailboxQuota {
             var command = new UpdateMailboxQuotaCommand(tenantId, mailboxId, updateDto);
             await mediator.Send(command, cancellationToken);
 
-            return Results.Ok(Response<object>.SuccessResult(null, "Mailbox quota updated successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Mailbox quota updated successfully"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

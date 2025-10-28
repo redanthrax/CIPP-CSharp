@@ -671,9 +671,121 @@ namespace CIPP.Api.Migrations
                     b.ToTable("ConditionalAccessTemplate");
                 });
 
-            modelBuilder.Entity("CIPP.Api.Modules.Tenants.Models.Tenant", b =>
+            modelBuilder.Entity("CIPP.Api.Modules.Standards.Models.StandardExecution", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("DurationMs")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("ExecutedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("ExecutedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Result")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExecutedDate");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("TemplateId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("StandardExecutions", (string)null);
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Standards.Models.StandardTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Configuration")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsGlobal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category");
+
+                    b.HasIndex("IsEnabled");
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("StandardTemplates", (string)null);
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Tenants.Models.Tenant", b =>
+                {
+                    b.Property<Guid>("TenantId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -751,12 +863,7 @@ namespace CIPP.Api.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<string>("TenantId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
+                    b.HasKey("TenantId");
 
                     b.HasIndex("DelegatedPrivilegeStatus");
 
@@ -767,9 +874,6 @@ namespace CIPP.Api.Migrations
                     b.HasIndex("RequiresRefresh");
 
                     b.HasIndex("Status");
-
-                    b.HasIndex("TenantId")
-                        .IsUnique();
 
                     b.ToTable("Tenant");
                 });
@@ -817,7 +921,7 @@ namespace CIPP.Api.Migrations
 
                     b.HasIndex("TenantId", "IsInitial")
                         .IsUnique()
-                        .HasFilter("[IsInitial] = 1");
+                        .HasFilter("\"IsInitial\" = true");
 
                     b.ToTable("TenantDomain");
                 });
@@ -978,6 +1082,17 @@ namespace CIPP.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CIPP.Api.Modules.Standards.Models.StandardExecution", b =>
+                {
+                    b.HasOne("CIPP.Api.Modules.Standards.Models.StandardTemplate", "Template")
+                        .WithMany("Executions")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+                });
+
             modelBuilder.Entity("CIPP.Api.Modules.Tenants.Models.Tenant", b =>
                 {
                     b.OwnsOne("CIPP.Api.Modules.Tenants.Models.TenantCapabilities", "Capabilities", b1 =>
@@ -1078,6 +1193,11 @@ namespace CIPP.Api.Migrations
                     b.Navigation("RolePermissions");
 
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Standards.Models.StandardTemplate", b =>
+                {
+                    b.Navigation("Executions");
                 });
 
             modelBuilder.Entity("CIPP.Api.Modules.Tenants.Models.Tenant", b =>

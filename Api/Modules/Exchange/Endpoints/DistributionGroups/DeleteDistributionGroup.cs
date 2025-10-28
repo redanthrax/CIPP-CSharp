@@ -22,7 +22,7 @@ public static class DeleteDistributionGroup {
         try {
             var command = new DeleteDistributionGroupCommand(tenantId, groupId);
             await mediator.Send(command, cancellationToken);
-            return Results.Ok(Response<object>.SuccessResult(null, "Distribution group deleted successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Distribution group deleted successfully"));
         } catch (Exception ex) {
             return Results.Problem(detail: ex.Message, statusCode: 500, title: "Error deleting distribution group");
         }

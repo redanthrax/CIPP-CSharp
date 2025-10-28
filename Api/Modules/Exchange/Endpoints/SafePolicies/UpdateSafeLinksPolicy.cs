@@ -27,7 +27,7 @@ public static class UpdateSafeLinksPolicy {
             var command = new UpdateSafeLinksPolicyCommand(tenantId, policyName, updateDto);
             await mediator.Send(command, cancellationToken);
 
-            return Results.Ok(Response<object>.SuccessResult(null, "Update Safe Links policy successful"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Update Safe Links policy successful"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

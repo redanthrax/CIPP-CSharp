@@ -1,5 +1,7 @@
+using CIPP.Api.Extensions;
 using CIPP.Api.Modules.Exchange.Interfaces;
 using CIPP.Api.Modules.MsGraph.Interfaces;
+using CIPP.Shared.DTOs;
 using CIPP.Shared.DTOs.Exchange;
 using Microsoft.Graph.Beta.Models;
 
@@ -14,7 +16,7 @@ public class ContactService : IContactService {
         _logger = logger;
     }
 
-    public async Task<List<ContactDto>> GetContactsAsync(Guid tenantId, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<ContactDto>> GetContactsAsync(Guid tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting contacts for tenant {TenantId}", tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -25,10 +27,10 @@ public class ContactService : IContactService {
         }, cancellationToken);
 
         if (contacts?.Value == null) {
-            return new List<ContactDto>();
+            return new List<ContactDto>().ToPagedResponse(pagingParams);
         }
 
-        return contacts.Value.Select(contact => new ContactDto {
+        var contactList = contacts.Value.Select(contact => new ContactDto {
             Id = contact.Id ?? string.Empty,
             DisplayName = contact.DisplayName ?? string.Empty,
             EmailAddress = contact.Mail ?? string.Empty,
@@ -41,6 +43,8 @@ public class ContactService : IContactService {
             MobilePhone = null,
             BusinessPhone = null
         }).ToList();
+
+        return contactList.ToPagedResponse(pagingParams);
     }
 
     public async Task<ContactDetailsDto?> GetContactAsync(Guid tenantId, string contactId, CancellationToken cancellationToken = default) {

@@ -1,3 +1,4 @@
+using CIPP.Api.Extensions;
 using CIPP.Api.Modules.Authorization.Extensions;
 using CIPP.Api.Modules.SharePoint.Queries;
 using CIPP.Shared.DTOs;
@@ -16,15 +17,17 @@ public static class ListTeamsActivity {
     }
 
     private static async Task<IResult> Handle(
+        HttpContext context,
         Guid tenantId,
         string type,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
-            var query = new GetTeamsActivityQuery(tenantId, type);
+            var pagingParams = context.GetPagingParameters();
+            var query = new GetTeamsActivityQuery(tenantId, type, pagingParams);
             var result = await mediator.Send(query, cancellationToken);
 
-            return Results.Ok(Response<List<TeamsActivityDto>>.SuccessResult(result, "Teams activity retrieved successfully"));
+            return Results.Ok(Response<PagedResponse<TeamsActivityDto>>.SuccessResult(result, "Teams activity retrieved successfully"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

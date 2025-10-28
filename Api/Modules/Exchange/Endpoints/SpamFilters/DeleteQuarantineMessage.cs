@@ -23,7 +23,7 @@ public static class DeleteQuarantineMessage {
             var command = new DeleteQuarantineMessageCommand(tenantId, messageId);
             await mediator.Send(command, cancellationToken);
 
-            return Results.Ok(Response<object>.SuccessResult(null, "Quarantine message deleted successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Quarantine message deleted successfully"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

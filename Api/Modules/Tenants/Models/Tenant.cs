@@ -1,5 +1,6 @@
 using CIPP.Api.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
@@ -60,7 +61,12 @@ public class Tenant : IEntityConfiguration<Tenant>
             entity.Property(e => e.DomainList)
                   .HasConversion(
                       v => JsonSerializer.Serialize(v, JsonSerializerOptions.Default),
-                      v => JsonSerializer.Deserialize<List<string>>(v, JsonSerializerOptions.Default) ?? new List<string>());
+                      v => JsonSerializer.Deserialize<List<string>>(v, JsonSerializerOptions.Default) ?? new List<string>())
+                  .Metadata.SetValueComparer(
+                      new ValueComparer<List<string>>(
+                          (c1, c2) => c1 != null && c2 != null && c1.SequenceEqual(c2),
+                          c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                          c => c.ToList()));
             
             entity.OwnsOne(e => e.Capabilities, cap =>
             {
@@ -72,7 +78,12 @@ public class Tenant : IEntityConfiguration<Tenant>
                 cap.Property(c => c.Licenses)
                    .HasConversion(
                        v => JsonSerializer.Serialize(v, JsonSerializerOptions.Default),
-                       v => JsonSerializer.Deserialize<List<string>>(v, JsonSerializerOptions.Default) ?? new List<string>());
+                       v => JsonSerializer.Deserialize<List<string>>(v, JsonSerializerOptions.Default) ?? new List<string>())
+                   .Metadata.SetValueComparer(
+                       new ValueComparer<List<string>>(
+                           (c1, c2) => c1 != null && c2 != null && c1.SequenceEqual(c2),
+                           c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                           c => c.ToList()));
             });
             
             entity.HasIndex(e => e.Status);

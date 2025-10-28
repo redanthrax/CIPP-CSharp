@@ -163,7 +163,7 @@
 
 
     private void RemoveTenant(TenantDto tenant) {
-        _selectedTenants = _selectedTenants.Where(t => t.Id != tenant.Id);
+        _selectedTenants = _selectedTenants.Where(t => t.TenantId != tenant.TenantId);
         StateHasChanged();
     }
 
@@ -193,7 +193,7 @@
         StateHasChanged();
 
         try {
-            var memberIds = _selectedTenants.Select(t => t.Id).ToList();
+            var memberIds = _selectedTenants.Select(t => t.TenantId).ToList();
             var createRequest = new CreateTenantGroupDto(
                 _groupRequest.Name,
                 string.IsNullOrWhiteSpace(_groupRequest.Description) ? null : _groupRequest.Description,

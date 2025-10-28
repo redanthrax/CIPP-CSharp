@@ -21,16 +21,16 @@
             </CardHeaderContent>
             <CardHeaderActions>
                 <MudStack Row>
-                    <MudSelect T="string" 
+                    <MudSelect T="Guid" 
                               Label="Select Tenant" 
-                              Value="_selectedTenantId" 
-                              ValueChanged="@(async (string value) => await OnTenantChanged(value))"
+                              Value="_selectedTenantId ?? Guid.Empty" 
+                              ValueChanged="@(async (Guid value) => await OnTenantChanged(value))"
                               Variant="Variant.Outlined"
                               Margin="Margin.Dense"
                               Style="min-width: 250px;">
                         @if (_tenantOptions != null) {
                             @foreach (var option in _tenantOptions) {
-                                <MudSelectItem T="string" Value="@option.Value">
+                                <MudSelectItem T="Guid" Value="@option.CustomerId">
                                     @option.Label
                                 </MudSelectItem>
                             }
@@ -40,13 +40,13 @@
                         <MudButton Color="Color.Success" 
                                   StartIcon="@Icons.Material.Filled.Add"
                                   OnClick="@(() => OpenCreateUserDialog())"
-                                  Disabled="@(string.IsNullOrEmpty(_selectedTenantId))">
+                                  Disabled="@(!_selectedTenantId.HasValue || _selectedTenantId == Guid.Empty)">
                             Add User
                         </MudButton>
                         <MudButton Color="Color.Primary" 
                                   StartIcon="@Icons.Material.Filled.Refresh"
                                   OnClick="@(() => LoadUsers())"
-                                  Disabled="@(_loading || string.IsNullOrEmpty(_selectedTenantId))">
+                                  Disabled="@(_loading || !_selectedTenantId.HasValue || _selectedTenantId == Guid.Empty)">
                             @if (_loading) {
                                 <MudProgressCircular Size="Size.Small" Indeterminate="true" />
                             } else {
@@ -58,7 +58,7 @@
             </CardHeaderActions>
         </MudCardHeader>
         <MudCardContent>
-            @if (string.IsNullOrEmpty(_selectedTenantId)) {
+            @if (!_selectedTenantId.HasValue || _selectedTenantId == Guid.Empty) {
                 <MudPaper Class="pa-8 text-center" Elevation="0">
                     <MudIcon Icon="@Icons.Material.Filled.People" 
                              Size="Size.Large" 
@@ -254,7 +254,7 @@
 @code {
     private List<UserDto>? _usersList;
     private List<TenantSelectorOptionDto>? _tenantOptions;
-    private string? _selectedTenantId;
+    private Guid? _selectedTenantId;
     private bool _loading = false;
     private string? _error;
     private DateTime? _lastUpdated;
@@ -276,9 +276,9 @@
         }
     }
 
-    private async Task OnTenantChanged(string tenantId) {
+    private async Task OnTenantChanged(Guid tenantId) {
         _selectedTenantId = tenantId;
-        if (!string.IsNullOrEmpty(tenantId)) {
+        if (tenantId != Guid.Empty) {
             await LoadUsers();
         } else {
             _usersList = null;
@@ -286,14 +286,14 @@
     }
 
     private async Task LoadUsers() {
-        if (string.IsNullOrEmpty(_selectedTenantId)) return;
+        if (!_selectedTenantId.HasValue || _selectedTenantId == Guid.Empty) return;
 
         _loading = true;
         _error = null;
         StateHasChanged();
 
         try {
-            var response = await IdentityUserService.GetUsersAsync(_selectedTenantId);
+            var response = await IdentityUserService.GetUsersAsync(_selectedTenantId.Value);
             if (response.Success && response.Data != null) {
                 _usersList = response.Data;
                 _lastUpdated = DateTime.Now;
@@ -336,15 +336,15 @@
             "Reset Password", 
             $"Are you sure you want to reset the password for '{user.DisplayName}'?");
             
-        if (confirmed && !string.IsNullOrEmpty(_selectedTenantId)) {
+        if (confirmed && _selectedTenantId.HasValue) {
             try {
                 var resetRequest = new ResetUserPasswordDto {
                     AutoGeneratePassword = true,
                     ForceChangePasswordNextSignIn = true,
-                    TenantId = _selectedTenantId
+                    TenantId = _selectedTenantId.Value
                 };
                 
-                var result = await IdentityUserService.ResetUserPasswordAsync(_selectedTenantId, user.Id, resetRequest);
+                var result = await IdentityUserService.ResetUserPasswordAsync(_selectedTenantId.Value, user.Id, resetRequest);
                 if (result.Success) {
                     NotificationService.ShowSuccess($"Password reset successfully. New password: {result.Data}");
                 } else {
@@ -358,10 +358,10 @@
     }
 
     private async Task EnableMfa(UserDto user) {
-        if (string.IsNullOrEmpty(_selectedTenantId)) return;
+        if (!_selectedTenantId.HasValue) return;
         
         try {
-            var result = await IdentityUserService.EnableUserMfaAsync(_selectedTenantId, user.Id);
+            var result = await IdentityUserService.EnableUserMfaAsync(_selectedTenantId.Value, user.Id);
             if (result.Success) {
                 NotificationService.ShowSuccess($"MFA enabled for '{user.DisplayName}'");
                 await LoadUsers();
@@ -375,7 +375,7 @@
     }
 
     private async Task DisableMfa(UserDto user) {
-        if (string.IsNullOrEmpty(_selectedTenantId)) return;
+        if (!_selectedTenantId.HasValue) return;
         
         var confirmed = await NotificationService.ShowConfirmationAsync(
             "Disable MFA", 
@@ -383,7 +383,7 @@
             
         if (confirmed) {
             try {
-                var result = await IdentityUserService.DisableUserMfaAsync(_selectedTenantId, user.Id);
+                var result = await IdentityUserService.DisableUserMfaAsync(_selectedTenantId.Value, user.Id);
                 if (result.Success) {
                     NotificationService.ShowSuccess($"MFA disabled for '{user.DisplayName}'");
                     await LoadUsers();
@@ -398,7 +398,7 @@
     }
 
     private async Task DeleteUser(UserDto user) {
-        if (string.IsNullOrEmpty(_selectedTenantId)) return;
+        if (!_selectedTenantId.HasValue) return;
         
         var confirmed = await NotificationService.ShowConfirmationAsync(
             "Delete User", 
@@ -406,7 +406,7 @@
             
         if (confirmed) {
             try {
-                var result = await IdentityUserService.DeleteUserAsync(_selectedTenantId, user.Id);
+                var result = await IdentityUserService.DeleteUserAsync(_selectedTenantId.Value, user.Id);
                 if (result.Success) {
                     NotificationService.ShowSuccess($"User '{user.DisplayName}' deleted successfully.");
                     await LoadUsers();

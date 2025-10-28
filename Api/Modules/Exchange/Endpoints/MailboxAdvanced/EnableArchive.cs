@@ -23,7 +23,7 @@ public static class EnableArchive {
             var command = new EnableArchiveCommand(tenantId, mailboxId);
             await mediator.Send(command, cancellationToken);
 
-            return Results.Ok(Response<object>.SuccessResult(null, "Mailbox archive enabled successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Mailbox archive enabled successfully"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

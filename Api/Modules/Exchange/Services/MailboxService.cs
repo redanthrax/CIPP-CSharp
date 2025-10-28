@@ -19,7 +19,7 @@ public class MailboxService : IMailboxService {
         _logger = logger;
     }
 
-    public async Task<List<MailboxDto>> GetMailboxesAsync(Guid tenantId, string? mailboxType = null, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<MailboxDto>> GetMailboxesAsync(Guid tenantId, string? mailboxType, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting mailboxes for tenant {TenantId}, type {MailboxType}", tenantId, mailboxType ?? "all");
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -41,10 +41,10 @@ public class MailboxService : IMailboxService {
         }, cancellationToken);
 
         if (users?.Value == null) {
-            return new List<MailboxDto>();
+            return new List<MailboxDto>().ToPagedResponse(pagingParams);
         }
 
-        return users.Value.Where(u => !string.IsNullOrEmpty(u.Mail)).Select(user => new MailboxDto {
+        var mailboxes = users.Value.Where(u => !string.IsNullOrEmpty(u.Mail)).Select(user => new MailboxDto {
             Id = user.Id ?? string.Empty,
             UserPrincipalName = user.UserPrincipalName ?? string.Empty,
             DisplayName = user.DisplayName ?? string.Empty,
@@ -54,6 +54,8 @@ public class MailboxService : IMailboxService {
             MailboxType = mailboxType ?? "UserMailbox",
             RecipientType = "UserMailbox"
         }).ToList();
+
+        return mailboxes.ToPagedResponse(pagingParams);
     }
 
     public async Task<MailboxDetailsDto?> GetMailboxAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default) {
@@ -333,6 +335,205 @@ public class MailboxService : IMailboxService {
         );
 
         _logger.LogInformation("Successfully updated litigation hold for mailbox {MailboxId}", mailboxId);
+    }
+
+    public async Task<PagedResponse<SharedMailboxDto>> GetSharedMailboxesAsync(Guid tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
+        _logger.LogInformation("Getting shared mailboxes for tenant {TenantId}", tenantId);
+
+        var parameters = new Dictionary<string, object> {
+            { "RecipientTypeDetails", "SharedMailbox" },
+            { "ResultSize", pagingParams.PageSize }
+        };
+
+        var mailboxes = await _exoService.ExecuteCmdletListAsync<SharedMailboxDto>(
+            tenantId,
+            "Get-Mailbox",
+            parameters,
+            cancellationToken
+        );
+
+        return mailboxes.ToPagedResponse(pagingParams);
+    }
+
+    public async Task<string> CreateSharedMailboxAsync(Guid tenantId, CreateSharedMailboxDto createDto, CancellationToken cancellationToken = default) {
+        _logger.LogInformation("Creating shared mailbox {Name} in tenant {TenantId}", createDto.Name, tenantId);
+
+        var parameters = new Dictionary<string, object> {
+            { "Name", createDto.Name },
+            { "DisplayName", createDto.DisplayName },
+            { "Alias", createDto.Alias },
+            { "Shared", true }
+        };
+
+        if (!string.IsNullOrEmpty(createDto.PrimarySmtpAddress)) {
+            parameters.Add("PrimarySmtpAddress", createDto.PrimarySmtpAddress);
+        }
+
+        if (createDto.HiddenFromAddressListsEnabled) {
+            parameters.Add("HiddenFromAddressListsEnabled", true);
+        }
+
+        await _exoService.ExecuteCmdletNoResultAsync(
+            tenantId,
+            "New-Mailbox",
+            parameters,
+            cancellationToken
+        );
+
+        _logger.LogInformation("Successfully created shared mailbox {Alias}", createDto.Alias);
+        return createDto.Alias;
+    }
+
+    public async Task ConvertToSharedMailboxAsync(Guid tenantId, string identity, CancellationToken cancellationToken = default) {
+        _logger.LogInformation("Converting mailbox {Identity} to shared in tenant {TenantId}", identity, tenantId);
+
+        var parameters = new Dictionary<string, object> {
+            { "Identity", identity },
+            { "Type", "Shared" }
+        };
+
+        await _exoService.ExecuteCmdletNoResultAsync(
+            tenantId,
+            "Set-Mailbox",
+            parameters,
+            cancellationToken
+        );
+
+        _logger.LogInformation("Successfully converted mailbox {Identity} to shared", identity);
+    }
+
+    public async Task<MailboxCalendarConfigurationDto?> GetMailboxCalendarConfigurationAsync(Guid tenantId, string mailboxId, CancellationToken cancellationToken = default) {
+        _logger.LogInformation("Getting calendar configuration for mailbox {MailboxId} in tenant {TenantId}", mailboxId, tenantId);
+
+        var parameters = new Dictionary<string, object> {
+            { "Identity", mailboxId }
+        };
+
+        var config = await _exoService.ExecuteCmdletAsync<MailboxCalendarConfigurationDto>(
+            tenantId,
+            "Get-MailboxCalendarConfiguration",
+            parameters,
+            cancellationToken
+        );
+
+        return config;
+    }
+
+    public async Task UpdateMailboxCalendarConfigurationAsync(Guid tenantId, string mailboxId, UpdateMailboxCalendarConfigurationDto updateDto, CancellationToken cancellationToken = default) {
+        _logger.LogInformation("Updating calendar configuration for mailbox {MailboxId} in tenant {TenantId}", mailboxId, tenantId);
+
+        var parameters = new Dictionary<string, object> {
+            { "Identity", mailboxId }
+        };
+
+        if (updateDto.AutomateProcessing.HasValue)
+            parameters.Add("AutomateProcessing", updateDto.AutomateProcessing.Value);
+
+        if (updateDto.AddOrganizerToSubject.HasValue)
+            parameters.Add("AddOrganizerToSubject", updateDto.AddOrganizerToSubject.Value);
+
+        if (updateDto.DeleteComments.HasValue)
+            parameters.Add("DeleteComments", updateDto.DeleteComments.Value);
+
+        if (updateDto.DeleteSubject.HasValue)
+            parameters.Add("DeleteSubject", updateDto.DeleteSubject.Value);
+
+        if (updateDto.RemovePrivateProperty.HasValue)
+            parameters.Add("RemovePrivateProperty", updateDto.RemovePrivateProperty.Value);
+
+        if (updateDto.WorkDays.HasValue)
+            parameters.Add("WorkDays", updateDto.WorkDays.Value);
+
+        if (!string.IsNullOrEmpty(updateDto.WorkingHoursStartTime))
+            parameters.Add("WorkingHoursStartTime", updateDto.WorkingHoursStartTime);
+
+        if (!string.IsNullOrEmpty(updateDto.WorkingHoursEndTime))
+            parameters.Add("WorkingHoursEndTime", updateDto.WorkingHoursEndTime);
+
+        if (!string.IsNullOrEmpty(updateDto.WorkingHoursTimeZone))
+            parameters.Add("WorkingHoursTimeZone", updateDto.WorkingHoursTimeZone);
+
+        if (!string.IsNullOrEmpty(updateDto.WeekStartDay))
+            parameters.Add("WeekStartDay", updateDto.WeekStartDay);
+
+        if (updateDto.ShowWeekNumbers.HasValue)
+            parameters.Add("ShowWeekNumbers", updateDto.ShowWeekNumbers.Value);
+
+        if (!string.IsNullOrEmpty(updateDto.TimeFormat))
+            parameters.Add("TimeFormat", updateDto.TimeFormat);
+
+        if (!string.IsNullOrEmpty(updateDto.DateFormat))
+            parameters.Add("DateFormat", updateDto.DateFormat);
+
+        if (updateDto.RemindersEnabled.HasValue)
+            parameters.Add("RemindersEnabled", updateDto.RemindersEnabled.Value);
+
+        if (updateDto.ReminderSoundEnabled.HasValue)
+            parameters.Add("ReminderSoundEnabled", updateDto.ReminderSoundEnabled.Value);
+
+        if (updateDto.DefaultReminderTime.HasValue)
+            parameters.Add("DefaultReminderTime", updateDto.DefaultReminderTime.Value);
+
+        await _exoService.ExecuteCmdletNoResultAsync(
+            tenantId,
+            "Set-MailboxCalendarConfiguration",
+            parameters,
+            cancellationToken
+        );
+
+        _logger.LogInformation("Successfully updated calendar configuration for mailbox {MailboxId}", mailboxId);
+    }
+
+    public async Task<MailboxAutoReplyConfigurationDto?> GetMailboxAutoReplyConfigurationAsync(Guid tenantId, string mailboxId, CancellationToken cancellationToken = default) {
+        _logger.LogInformation("Getting auto-reply configuration for mailbox {MailboxId} in tenant {TenantId}", mailboxId, tenantId);
+
+        var parameters = new Dictionary<string, object> {
+            { "Identity", mailboxId }
+        };
+
+        var config = await _exoService.ExecuteCmdletAsync<MailboxAutoReplyConfigurationDto>(
+            tenantId,
+            "Get-MailboxAutoReplyConfiguration",
+            parameters,
+            cancellationToken
+        );
+
+        return config;
+    }
+
+    public async Task UpdateMailboxAutoReplyConfigurationAsync(Guid tenantId, string mailboxId, UpdateMailboxAutoReplyConfigurationDto updateDto, CancellationToken cancellationToken = default) {
+        _logger.LogInformation("Updating auto-reply configuration for mailbox {MailboxId} in tenant {TenantId}", mailboxId, tenantId);
+
+        var parameters = new Dictionary<string, object> {
+            { "Identity", mailboxId }
+        };
+
+        if (!string.IsNullOrEmpty(updateDto.AutoReplyState))
+            parameters.Add("AutoReplyState", updateDto.AutoReplyState);
+
+        if (!string.IsNullOrEmpty(updateDto.InternalMessage))
+            parameters.Add("InternalMessage", updateDto.InternalMessage);
+
+        if (!string.IsNullOrEmpty(updateDto.ExternalMessage))
+            parameters.Add("ExternalMessage", updateDto.ExternalMessage);
+
+        if (!string.IsNullOrEmpty(updateDto.ExternalAudience))
+            parameters.Add("ExternalAudience", updateDto.ExternalAudience);
+
+        if (updateDto.StartTime.HasValue)
+            parameters.Add("StartTime", updateDto.StartTime.Value);
+
+        if (updateDto.EndTime.HasValue)
+            parameters.Add("EndTime", updateDto.EndTime.Value);
+
+        await _exoService.ExecuteCmdletNoResultAsync(
+            tenantId,
+            "Set-MailboxAutoReplyConfiguration",
+            parameters,
+            cancellationToken
+        );
+
+        _logger.LogInformation("Successfully updated auto-reply configuration for mailbox {MailboxId}", mailboxId);
     }
 
     private Dictionary<string, object> BuildCreateInboxRuleParameters(string mailboxId, CreateInboxRuleDto createDto) {

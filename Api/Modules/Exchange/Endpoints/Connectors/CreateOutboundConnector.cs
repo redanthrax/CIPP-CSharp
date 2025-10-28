@@ -23,7 +23,7 @@ public static class CreateOutboundConnector {
         try {
             var command = new CreateOutboundConnectorCommand(tenantId, dto);
             await mediator.Send(command, cancellationToken);
-            return Results.Ok(Response<object>.SuccessResult(null, "Outbound connector created successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Outbound connector created successfully"));
         } catch (Exception ex) {
             return Results.Problem(detail: ex.Message, statusCode: 500, title: "Error creating outbound connector");
         }

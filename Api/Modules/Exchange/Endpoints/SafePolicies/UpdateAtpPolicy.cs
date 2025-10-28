@@ -26,7 +26,7 @@ public static class UpdateAtpPolicy {
             var command = new UpdateAtpPolicyCommand(tenantId, updateDto);
             await mediator.Send(command, cancellationToken);
 
-            return Results.Ok(Response<object>.SuccessResult(null, "Update ATP policy successful"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Update ATP policy successful"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

@@ -55,12 +55,12 @@ public class TenantService : ITenantService {
                 selectorOptions.AddRange(tenantsResponse.Items
                     .Where(t => includeOffboardingDefaults || !t.Excluded)
                     .Select(t => new TenantSelectorOptionDto(
-                        t.TenantId,
+                        t.TenantId.ToString(),
                         t.DisplayName,
                         "Tenant",
                         t.DefaultDomainName,
                         t.DisplayName,
-                        t.Id,
+                        t.TenantId,
                         t.Excluded ? "Excluded" : null
                     )));
             }
@@ -96,7 +96,7 @@ public class TenantService : ITenantService {
     }
     
     public async Task<Response<TenantDetailsDto>> UpdateTenantAsync(EditTenantRequestDto request) {
-        return await _apiClient.PutAsync<TenantDetailsDto>($"tenants/{request.Id}", request);
+        return await _apiClient.PutAsync<TenantDetailsDto>($"tenants/{request.TenantId}", request);
     }
     
     public async Task<Response<bool>> DeleteTenantAsync(Guid tenantId) {

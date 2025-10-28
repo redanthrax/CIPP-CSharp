@@ -25,6 +25,10 @@ public static class GetAtpPolicy {
             var query = new GetAtpPolicyQuery(tenantId);
             var result = await mediator.Send(query, cancellationToken);
 
+            if (result == null) {
+                return Results.NotFound(Response<AtpPolicyDto>.ErrorResult("ATP policy not found"));
+            }
+
             return Results.Ok(Response<AtpPolicyDto>.SuccessResult(result, "Get ATP policy successful"));
         } catch (Exception ex) {
             return Results.Problem(

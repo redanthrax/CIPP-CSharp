@@ -26,6 +26,10 @@ public static class GetSafeAttachmentPolicy {
             var query = new GetSafeAttachmentPolicyQuery(tenantId, policyName);
             var result = await mediator.Send(query, cancellationToken);
 
+            if (result == null) {
+                return Results.NotFound(Response<SafeAttachmentsPolicyDto>.ErrorResult("Safe Attachments policy not found"));
+            }
+
             return Results.Ok(Response<SafeAttachmentsPolicyDto>.SuccessResult(result, "Get Safe Attachments policy successful"));
         } catch (Exception ex) {
             return Results.Problem(

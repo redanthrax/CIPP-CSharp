@@ -4,7 +4,7 @@ using CIPP.Shared.DTOs.Exchange;
 namespace CIPP.Api.Modules.Exchange.Interfaces;
 
 public interface IMailboxService {
-    Task<List<MailboxDto>> GetMailboxesAsync(Guid tenantId, string? mailboxType = null, CancellationToken cancellationToken = default);
+    Task<PagedResponse<MailboxDto>> GetMailboxesAsync(Guid tenantId, string? mailboxType, PagingParameters pagingParams, CancellationToken cancellationToken = default);
     Task<MailboxDetailsDto?> GetMailboxAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default);
     Task UpdateMailboxAsync(Guid tenantId, string userId, UpdateMailboxDto updateDto, CancellationToken cancellationToken = default);
     Task<MailboxForwardingDto> GetMailboxForwardingAsync(Guid tenantId, string userId, CancellationToken cancellationToken = default);
@@ -21,4 +21,11 @@ public interface IMailboxService {
     Task<MailboxQuotaDto?> GetMailboxQuotaAsync(Guid tenantId, string mailboxId, CancellationToken cancellationToken = default);
     Task UpdateMailboxQuotaAsync(Guid tenantId, string mailboxId, UpdateMailboxQuotaDto updateDto, CancellationToken cancellationToken = default);
     Task UpdateLitigationHoldAsync(Guid tenantId, string mailboxId, LitigationHoldDto holdDto, CancellationToken cancellationToken = default);
+    Task<PagedResponse<SharedMailboxDto>> GetSharedMailboxesAsync(Guid tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default);
+    Task<string> CreateSharedMailboxAsync(Guid tenantId, CreateSharedMailboxDto createDto, CancellationToken cancellationToken = default);
+    Task ConvertToSharedMailboxAsync(Guid tenantId, string identity, CancellationToken cancellationToken = default);
+    Task<MailboxCalendarConfigurationDto?> GetMailboxCalendarConfigurationAsync(Guid tenantId, string mailboxId, CancellationToken cancellationToken = default);
+    Task UpdateMailboxCalendarConfigurationAsync(Guid tenantId, string mailboxId, UpdateMailboxCalendarConfigurationDto updateDto, CancellationToken cancellationToken = default);
+    Task<MailboxAutoReplyConfigurationDto?> GetMailboxAutoReplyConfigurationAsync(Guid tenantId, string mailboxId, CancellationToken cancellationToken = default);
+    Task UpdateMailboxAutoReplyConfigurationAsync(Guid tenantId, string mailboxId, UpdateMailboxAutoReplyConfigurationDto updateDto, CancellationToken cancellationToken = default);
 }

@@ -25,7 +25,7 @@ public static class UpdateLitigationHold {
             var command = new UpdateLitigationHoldCommand(tenantId, mailboxId, holdDto);
             await mediator.Send(command, cancellationToken);
 
-            return Results.Ok(Response<object>.SuccessResult(null, "Litigation hold updated successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Litigation hold updated successfully"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

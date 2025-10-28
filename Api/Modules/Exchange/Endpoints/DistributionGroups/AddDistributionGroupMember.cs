@@ -23,7 +23,7 @@ public static class AddDistributionGroupMember {
         try {
             var command = new AddDistributionGroupMemberCommand(tenantId, groupId, request.MemberEmail);
             await mediator.Send(command, cancellationToken);
-            return Results.Ok(Response<object>.SuccessResult(null, "Member added successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Member added successfully"));
         } catch (Exception ex) {
             return Results.Problem(detail: ex.Message, statusCode: 500, title: "Error adding group member");
         }

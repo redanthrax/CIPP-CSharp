@@ -25,7 +25,7 @@ public static class UpdateAntiSpamPolicy {
             var command = new UpdateAntiSpamPolicyCommand(tenantId, policyId, updateDto);
             await mediator.Send(command, cancellationToken);
 
-            return Results.Ok(Response<object>.SuccessResult(null, "Anti-spam policy updated successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Anti-spam policy updated successfully"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

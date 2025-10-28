@@ -345,7 +345,7 @@
     {
         if (args.MouseEventArgs.Detail == 2) // Double click
         {
-            ViewTenant(args.Item.Id);
+            ViewTenant(args.Item.TenantId);
         }
     }
 
@@ -406,14 +406,14 @@
         try
         {
             var newExclusionState = !tenant.Excluded;
-            var result = await TenantService.ExcludeTenantAsync(new List<Guid> { tenant.Id }, newExclusionState);
+            var result = await TenantService.ExcludeTenantAsync(new List<Guid> { tenant.TenantId }, newExclusionState);
             
             if (result.Success)
             {
                 tenant = tenant with { Excluded = newExclusionState };
                 
                 // Update the tenant in the lists
-                var tenantIndex = _tenants.FindIndex(t => t.Id == tenant.Id);
+                var tenantIndex = _tenants.FindIndex(t => t.TenantId == tenant.TenantId);
                 if (tenantIndex >= 0)
                 {
                     _tenants[tenantIndex] = tenant;
@@ -443,7 +443,7 @@
         {
             try
             {
-                var result = await TenantService.DeleteTenantAsync(tenant.Id);
+                var result = await TenantService.DeleteTenantAsync(tenant.TenantId);
                 if (result.Success)
                 {
                     NotificationService.ShowSuccess($"Tenant '{tenant.DisplayName}' deleted successfully");
@@ -482,7 +482,7 @@
         {
             try
             {
-                var tenantIds = _selectedTenants.Select(t => t.Id).ToList();
+                var tenantIds = _selectedTenants.Select(t => t.TenantId).ToList();
                 var result = await TenantService.ExcludeTenantAsync(tenantIds, true);
                 
                 if (result.Success)
@@ -520,7 +520,7 @@
         {
             try
             {
-                var tenantIds = excludedTenants.Select(t => t.Id).ToList();
+                var tenantIds = excludedTenants.Select(t => t.TenantId).ToList();
                 var result = await TenantService.ExcludeTenantAsync(tenantIds, false);
                 
                 if (result.Success)
@@ -558,7 +558,7 @@
                 {
                     try
                     {
-                        var result = await TenantService.DeleteTenantAsync(tenant.Id);
+                        var result = await TenantService.DeleteTenantAsync(tenant.TenantId);
                         if (result.Success)
                         {
                             deletedCount++;

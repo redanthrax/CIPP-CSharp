@@ -109,13 +109,13 @@
                                     <MudButtonGroup Size="Size.Small" Variant="Variant.Outlined">
                                         <MudButton StartIcon="@Icons.Material.Filled.Visibility"
                                                    Size="Size.Small"
-                                                   Href="@($"/tenants/{context.Item.Id}/details")"
+                                                   Href="@($"/tenants/{context.Item.TenantId}/details")"
                                                    Color="Color.Info">
                                             View
                                         </MudButton>
                                         <MudButton StartIcon="@Icons.Material.Filled.Edit"
                                                    Size="Size.Small"
-                                                   Href="@($"/tenants/{context.Item.Id}/edit")"
+                                                   Href="@($"/tenants/{context.Item.TenantId}/edit")"
                                                    Color="Color.Primary">
                                             Edit
                                         </MudButton>
@@ -125,7 +125,7 @@
                                                 Portal Links
                                             </MudMenuItem>
                                             <MudMenuItem Icon="@Icons.Material.Filled.Backup"
-                                                        Href="@($"/tenants/{context.Item.Id}/backup")">
+                                                        Href="@($"/tenants/{context.Item.TenantId}/backup")">
                                                 Configure Backup
                                             </MudMenuItem>
                                             <MudDivider />
@@ -244,7 +244,7 @@
             
         if (confirmed) {
             try {
-                var result = await TenantService.DeleteTenantAsync(tenant.Id);
+                var result = await TenantService.DeleteTenantAsync(tenant.TenantId);
             if (result.Success) {
                     NotificationService.ShowSuccess($"Tenant '{tenant.DisplayName}' deleted successfully.");
                     await LoadTenants(noCache: true);

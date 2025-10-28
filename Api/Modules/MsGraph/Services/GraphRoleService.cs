@@ -114,7 +114,7 @@ public class GraphRoleService {
         return new UnifiedRoleDefinitionCollectionResponse {
             OdataCount = stableResponse.OdataCount,
             OdataNextLink = stableResponse.OdataNextLink,
-            Value = stableResponse.Value?.Select(ConvertToBetaRoleDefinition).ToList()
+            Value = stableResponse.Value?.Select(ConvertToBetaRoleDefinition).OfType<UnifiedRoleDefinition>().ToList()
         };
     }
 
@@ -134,7 +134,7 @@ public class GraphRoleService {
                 Condition = p.Condition
             }).ToList(),
             Version = stable.Version,
-            InheritsPermissionsFrom = stable.InheritsPermissionsFrom?.Select(ConvertToBetaRoleDefinition).ToList()
+            InheritsPermissionsFrom = stable.InheritsPermissionsFrom?.Select(ConvertToBetaRoleDefinition).OfType<UnifiedRoleDefinition>().ToList()
         };
     }
 
@@ -145,7 +145,7 @@ public class GraphRoleService {
         return new UnifiedRoleAssignmentCollectionResponse {
             OdataCount = stableResponse.OdataCount,
             OdataNextLink = stableResponse.OdataNextLink,
-            Value = stableResponse.Value?.Select(ConvertToBetaRoleAssignment).ToList()
+            Value = stableResponse.Value?.Select(ConvertToBetaRoleAssignment).OfType<UnifiedRoleAssignment>().ToList()
         };
     }
 

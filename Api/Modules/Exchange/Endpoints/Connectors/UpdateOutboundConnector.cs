@@ -24,7 +24,7 @@ public static class UpdateOutboundConnector {
         try {
             var command = new UpdateOutboundConnectorCommand(tenantId, connectorName, dto);
             await mediator.Send(command, cancellationToken);
-            return Results.Ok(Response<object>.SuccessResult(null, "Outbound connector updated successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Outbound connector updated successfully"));
         } catch (Exception ex) {
             return Results.Problem(detail: ex.Message, statusCode: 500, title: "Error updating outbound connector");
         }

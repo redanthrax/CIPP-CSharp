@@ -2,7 +2,7 @@ namespace CIPP.Shared.DTOs.Tenants;
 
 public class EditTenantRequestDto
 {
-    public Guid Id { get; set; }
+    public Guid TenantId { get; set; }
     public string? TenantAlias { get; set; }
     public List<Guid>? TenantGroups { get; set; }
     public Dictionary<string, object>? CustomVariables { get; set; }
@@ -10,10 +10,10 @@ public class EditTenantRequestDto
 
     public EditTenantRequestDto() { }
 
-    public EditTenantRequestDto(Guid id, string? tenantAlias, List<Guid>? tenantGroups,
+    public EditTenantRequestDto(Guid tenantId, string? tenantAlias, List<Guid>? tenantGroups,
         Dictionary<string, object>? customVariables, string? offboardingDefaults)
     {
-        Id = id;
+        TenantId = tenantId;
         TenantAlias = tenantAlias;
         TenantGroups = tenantGroups;
         CustomVariables = customVariables;

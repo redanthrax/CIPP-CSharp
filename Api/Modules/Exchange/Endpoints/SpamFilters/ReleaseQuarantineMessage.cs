@@ -23,7 +23,7 @@ public static class ReleaseQuarantineMessage {
             var command = new ReleaseQuarantineMessageCommand(tenantId, messageId);
             await mediator.Send(command, cancellationToken);
 
-            return Results.Ok(Response<object>.SuccessResult(null, "Quarantine message released successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Quarantine message released successfully"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

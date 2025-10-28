@@ -96,7 +96,7 @@
             IEnumerable<TenantDto>? filteredTenants = _tenants.Where(t => 
                 (t.DisplayName?.ToLowerInvariant().Contains(searchTerm) == true) ||
                 (t.DefaultDomainName?.ToLowerInvariant().Contains(searchTerm) == true) ||
-                (t.TenantId?.ToLowerInvariant().Contains(searchTerm) == true)
+                (t.TenantId.ToString().ToLowerInvariant().Contains(searchTerm) == true)
             );
 
             return filteredTenants;

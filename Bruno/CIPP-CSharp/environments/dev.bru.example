@@ -1,20 +1,34 @@
 vars {
   baseUrl: https://localhost:8000/api
+  
+  // Azure AD OAuth Configuration
   tenantId: YOUR_TENANT_ID_HERE
   clientId: YOUR_CLIENT_ID_HERE
   clientSecret: YOUR_CLIENT_SECRET_HERE
   scope: api://YOUR_CLIENT_ID_HERE/access_as_user
   audience: api://YOUR_CLIENT_ID_HERE
 
-  exampleTenant: YOUR_EXAMPLE_TENANT_ID
-  exampleSearch: YOUR_SEARCH_TERM
-  alertId: YOUR_ALERT_ID
-  searchId: YOUR_SEARCH_ID
-  applicationId: YOUR_APPLICATION_ID
-  groupId: YOUR_GROUP_ID
-  deviceId: YOUR_DEVICE_ID
-  roleId: YOUR_ROLE_ID
-  policyId: YOUR_POLICY_ID
-  mailboxId: YOUR_MAILBOX_ID
-  teamId: YOUR_TEAM_ID
+  // Example Tenant ID - MUST be a valid GUID format (e.g., 00000000-0000-0000-0000-000000000000)
+  exampleTenant: 00000000-0000-0000-0000-000000000000
+  
+  // Search and Filter Examples
+  exampleSearch: test
+  
+  // Resource IDs - Use actual GUIDs from your tenant
+  alertId: 00000000-0000-0000-0000-000000000000
+  searchId: 00000000-0000-0000-0000-000000000000
+  applicationId: 00000000-0000-0000-0000-000000000000
+  groupId: 00000000-0000-0000-0000-000000000000
+  userId: 00000000-0000-0000-0000-000000000000
+  deviceId: 00000000-0000-0000-0000-000000000000
+  roleId: 00000000-0000-0000-0000-000000000000
+  policyId: 00000000-0000-0000-0000-000000000000
+  templateId: 00000000-0000-0000-0000-000000000000
+  mailboxId: user@domain.com
+  teamId: 00000000-0000-0000-0000-000000000000
+  siteId: 00000000-0000-0000-0000-000000000000
+  locationId: 00000000-0000-0000-0000-000000000000
+  servicePrincipalId: 00000000-0000-0000-0000-000000000000
+  incidentId: 1
+  apiKeyId: 00000000-0000-0000-0000-000000000000
 }

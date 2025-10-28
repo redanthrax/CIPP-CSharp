@@ -24,7 +24,7 @@ public static class UpdateDistributionGroup {
         try {
             var command = new UpdateDistributionGroupCommand(tenantId, groupId, dto);
             await mediator.Send(command, cancellationToken);
-            return Results.Ok(Response<object>.SuccessResult(null, "Distribution group updated successfully"));
+            return Results.Ok(Response<object>.SuccessResult(new { }, "Distribution group updated successfully"));
         } catch (Exception ex) {
             return Results.Problem(detail: ex.Message, statusCode: 500, title: "Error updating distribution group");
         }

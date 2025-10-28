@@ -212,7 +212,7 @@
                 
                 if (_groupDetails?.MemberTenantIds?.Any() == true) {
                     _selectedTenants = _availableTenants
-                        .Where(t => _groupDetails.MemberTenantIds.Contains(t.Id))
+                        .Where(t => _groupDetails.MemberTenantIds.Contains(t.TenantId))
                         .ToList();
                 }
             }
@@ -232,7 +232,7 @@
 
 
     private void RemoveTenant(TenantDto tenant) {
-        _selectedTenants = _selectedTenants.Where(t => t.Id != tenant.Id);
+        _selectedTenants = _selectedTenants.Where(t => t.TenantId != tenant.TenantId);
         StateHasChanged();
     }
 
@@ -262,7 +262,7 @@
         StateHasChanged();
 
         try {
-            var memberIds = _selectedTenants.Select(t => t.Id).ToList();
+            var memberIds = _selectedTenants.Select(t => t.TenantId).ToList();
             var updateRequest = new CreateTenantGroupDto(
                 _editRequest.Name,
                 string.IsNullOrWhiteSpace(_editRequest.Description) ? null : _editRequest.Description,

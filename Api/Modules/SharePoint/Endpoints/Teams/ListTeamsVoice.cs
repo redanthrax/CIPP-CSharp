@@ -1,3 +1,4 @@
+using CIPP.Api.Extensions;
 using CIPP.Api.Modules.Authorization.Extensions;
 using CIPP.Api.Modules.SharePoint.Queries;
 using CIPP.Shared.DTOs;
@@ -16,14 +17,16 @@ public static class ListTeamsVoice {
     }
 
     private static async Task<IResult> Handle(
+        HttpContext context,
         Guid tenantId,
         IMediator mediator,
         CancellationToken cancellationToken = default) {
         try {
-            var query = new GetTeamsVoiceQuery(tenantId);
+            var pagingParams = context.GetPagingParameters();
+            var query = new GetTeamsVoiceQuery(tenantId, pagingParams);
             var result = await mediator.Send(query, cancellationToken);
 
-            return Results.Ok(Response<List<TeamsVoiceDto>>.SuccessResult(result, "Teams voice numbers retrieved successfully"));
+            return Results.Ok(Response<PagedResponse<TeamsVoiceDto>>.SuccessResult(result, "Teams voice numbers retrieved successfully"));
         } catch (Exception ex) {
             return Results.Problem(
                 detail: ex.Message,

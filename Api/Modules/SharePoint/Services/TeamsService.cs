@@ -1,5 +1,7 @@
+using CIPP.Api.Extensions;
 using CIPP.Api.Modules.MsGraph.Interfaces;
 using CIPP.Api.Modules.SharePoint.Interfaces;
+using CIPP.Shared.DTOs;
 using CIPP.Shared.DTOs.SharePoint;
 using Microsoft.Graph.Beta.Models;
 
@@ -14,7 +16,7 @@ public class TeamsService : ITeamsService {
         _logger = logger;
     }
 
-    public async Task<List<TeamDto>> GetTeamsAsync(Guid tenantId, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<TeamDto>> GetTeamsAsync(Guid tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Teams for tenant {TenantId}", tenantId);
 
         var graphClient = await _graphService.GetGraphServiceClientAsync(tenantId);
@@ -24,16 +26,18 @@ public class TeamsService : ITeamsService {
         }, cancellationToken);
 
         if (groups?.Value == null) {
-            return new List<TeamDto>();
+            return new List<TeamDto>().ToPagedResponse(pagingParams);
         }
 
-        return groups.Value.Select(g => new TeamDto {
+        var teamList = groups.Value.Select(g => new TeamDto {
             Id = g.Id ?? string.Empty,
             DisplayName = g.DisplayName ?? string.Empty,
             Description = g.Description,
             Visibility = g.Visibility?.ToString(),
             MailNickname = g.MailNickname
         }).OrderBy(t => t.DisplayName).ToList();
+
+        return teamList.ToPagedResponse(pagingParams);
     }
 
     public async Task<TeamDetailsDto?> GetTeamDetailsAsync(Guid tenantId, string teamId, CancellationToken cancellationToken = default) {
@@ -108,14 +112,14 @@ public class TeamsService : ITeamsService {
         return $"Successfully created Team: '{createDto.DisplayName}'";
     }
 
-    public async Task<List<TeamsActivityDto>> GetTeamsActivityAsync(Guid tenantId, string type, CancellationToken cancellationToken = default) {
+    public Task<PagedResponse<TeamsActivityDto>> GetTeamsActivityAsync(Guid tenantId, string type, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Teams activity for tenant {TenantId}, type {Type}", tenantId, type);
-        return new List<TeamsActivityDto>();
+        return Task.FromResult(new List<TeamsActivityDto>().ToPagedResponse(pagingParams));
     }
 
-    public async Task<List<TeamsVoiceDto>> GetTeamsVoiceAsync(Guid tenantId, CancellationToken cancellationToken = default) {
+    public Task<PagedResponse<TeamsVoiceDto>> GetTeamsVoiceAsync(Guid tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting Teams voice for tenant {TenantId}", tenantId);
-        return new List<TeamsVoiceDto>();
+        return Task.FromResult(new List<TeamsVoiceDto>().ToPagedResponse(pagingParams));
     }
 
     public async Task<string> AssignPhoneNumberAsync(Guid tenantId, AssignTeamsPhoneNumberDto assignDto, CancellationToken cancellationToken = default) {

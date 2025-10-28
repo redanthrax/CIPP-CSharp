@@ -1,4 +1,6 @@
+using CIPP.Api.Extensions;
 using CIPP.Api.Modules.Exchange.Interfaces;
+using CIPP.Shared.DTOs;
 using CIPP.Shared.DTOs.Exchange;
 
 namespace CIPP.Api.Modules.Exchange.Services;
@@ -12,7 +14,7 @@ public class TransportRuleService : ITransportRuleService {
         _logger = logger;
     }
 
-    public async Task<List<TransportRuleDto>> GetTransportRulesAsync(Guid tenantId, CancellationToken cancellationToken = default) {
+    public async Task<PagedResponse<TransportRuleDto>> GetTransportRulesAsync(Guid tenantId, PagingParameters pagingParams, CancellationToken cancellationToken = default) {
         _logger.LogInformation("Getting transport rules for tenant {TenantId}", tenantId);
         
         var rules = await _exoService.ExecuteCmdletListAsync<TransportRuleDto>(
@@ -22,7 +24,7 @@ public class TransportRuleService : ITransportRuleService {
             cancellationToken
         );
 
-        return rules;
+        return rules.ToPagedResponse(pagingParams);
     }
 
     public async Task<TransportRuleDetailsDto?> GetTransportRuleAsync(Guid tenantId, string ruleId, CancellationToken cancellationToken = default) {
