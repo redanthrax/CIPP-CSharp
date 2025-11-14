@@ -19,6 +19,7 @@ public static class AuthenticationModule {
 
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<UnauthorizedResponseHandler>();
+        services.AddScoped<ServerErrorHandler>();
         
         services.AddHttpClient<ICippApiClient, CippApiClient>((serviceProvider, client) => {
             var config = serviceProvider.GetRequiredService<IConfiguration>();
@@ -28,7 +29,8 @@ public static class AuthenticationModule {
             }
             
             client.BaseAddress = new Uri(baseUrl);
-        }).AddHttpMessageHandler<UnauthorizedResponseHandler>();
+        }).AddHttpMessageHandler<ServerErrorHandler>()
+          .AddHttpMessageHandler<UnauthorizedResponseHandler>();
 
         return services;
     }

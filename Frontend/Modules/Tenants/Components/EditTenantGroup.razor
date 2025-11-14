@@ -254,7 +254,7 @@
     
     private void NavigateBackToGroups()
     {
-        Navigation.NavigateTo("/tenants/groups");
+        Navigation.NavigateTo("/tenant/administration/tenants?tab=groups");
     }
 
     private async Task UpdateGroup() {
@@ -273,7 +273,7 @@
 
             if (result.Success && result.Data != null) {
                 NotificationService.ShowSuccess($"Tenant group '{result.Data.Name}' updated successfully!");
-                Navigation.NavigateTo("/tenants/groups");
+                Navigation.NavigateTo("/tenant/administration/tenants?tab=groups");
             }
             else {
                 NotificationService.ShowError($"Failed to update tenant group: {result.Message ?? "Unknown error"}");

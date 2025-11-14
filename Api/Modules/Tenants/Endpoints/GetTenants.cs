@@ -1,3 +1,4 @@
+using CIPP.Api.Extensions;
 using CIPP.Api.Modules.Tenants.Queries;
 using CIPP.Api.Modules.Authorization.Extensions;
 using CIPP.Shared.DTOs;
@@ -29,6 +30,7 @@ public static class GetTenants
     {
         try
         {
+            
             var query = new GetTenantsQuery(
                 PagingParams: pagingParams,
                 Filter: filter,
@@ -61,11 +63,7 @@ public static class GetTenants
         }
         catch (Exception ex)
         {
-            return Results.Problem(
-                detail: ex.Message,
-                statusCode: 500,
-                title: "Error retrieving tenants"
-            );
+            return ResultsExtensions.ErrorResponse<PagedResponse<TenantDto>>("Error retrieving tenants", ex);
         }
     }
 }

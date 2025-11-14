@@ -185,7 +185,7 @@
     
     private void NavigateBackToGroups()
     {
-        Navigation.NavigateTo("/tenants/groups");
+        Navigation.NavigateTo("/tenant/administration/tenants?tab=groups");
     }
 
     private async Task CreateGroup() {
@@ -204,7 +204,7 @@
 
             if (result.Success && result.Data != null) {
                 NotificationService.ShowSuccess($"Tenant group '{result.Data.Name}' created successfully!");
-                Navigation.NavigateTo("/tenants/groups");
+                Navigation.NavigateTo("/tenant/administration/tenants?tab=groups");
             }
             else {
                 NotificationService.ShowError($"Failed to create tenant group: {result.Message ?? "Unknown error"}");

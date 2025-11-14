@@ -1,0 +1,13 @@
+{
+  "AzureAd": {
+    "Authority": "https://login.microsoftonline.com/{your-tenant-id-or-common}",
+    "ClientId": "{your-frontend-client-id}",
+    "ValidateAuthority": true
+  },
+  "Api": {
+    "BaseUrl": "https://localhost:7000",
+    "Scopes": [
+      "api://{your-api-client-id}/access_as_user"
+    ]
+  }
+}

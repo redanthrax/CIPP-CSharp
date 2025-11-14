@@ -1,0 +1,151 @@
+@typeparam TItem where TItem : class
+@using System.Linq.Expressions
+@attribute [CascadingTypeParameter(nameof(TItem))]
+
+<MudPaper Class="overflow-hidden" Elevation="2">
+    <!-- Filters and Search Section -->
+    @if (ShowFilters)
+    {
+        <MudStack Class="pa-4 pb-3" Spacing="3">
+            <MudStack Row Spacing="3" AlignItems="AlignItems.End">
+                @if (ShowSearch)
+                {
+                    <MudTextField @bind-Value="_searchText"
+                                 Label="@SearchLabel"
+                                 Placeholder="@SearchPlaceholder"
+                                 Adornment="Adornment.Start"
+                                 AdornmentIcon="@Icons.Material.Filled.Search"
+                                 Immediate="true"
+                                 DebounceInterval="300"
+                                 OnDebounceIntervalElapsed="OnSearchTextChanged"
+                                 Style="min-width: 300px;" />
+                }
+                
+                @FilterContent
+            </MudStack>
+            
+            @if (!string.IsNullOrEmpty(HelpText))
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    @HelpText
+                </MudText>
+            }
+        </MudStack>
+        
+        <MudDivider />
+    }
+    
+    <!-- Bulk Actions Section -->
+    @if (MultiSelection && _selectedItems.Any())
+    {
+        <MudStack Class="pa-4 pb-2" Spacing="0">
+            <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.subtitle1">
+                    @_selectedItems.Count item(s) selected
+                </MudText>
+                @BulkActionsContent
+                <MudSpacer />
+                <MudButton Size="Size.Small"
+                          Variant="Variant.Text"
+                          OnClick="ClearSelection">
+                    Clear Selection
+                </MudButton>
+            </MudStack>
+        </MudStack>
+        <MudDivider />
+    }
+    
+    @DataGridContent(this)
+</MudPaper>
+
+@code {
+    [Parameter] public IEnumerable<TItem> Items { get; set; } = Array.Empty<TItem>();
+    [Parameter, EditorRequired] public RenderFragment<CippDataGrid<TItem>> DataGridContent { get; set; } = default!;
+    [Parameter] public RenderFragment? FilterContent { get; set; }
+    [Parameter] public RenderFragment? BulkActionsContent { get; set; }
+    
+    [Parameter] public bool ShowFilters { get; set; } = true;
+    [Parameter] public bool ShowSearch { get; set; } = true;
+    [Parameter] public string SearchLabel { get; set; } = "Search";
+    [Parameter] public string SearchPlaceholder { get; set; } = "Search...";
+    [Parameter] public string? HelpText { get; set; }
+    
+    [Parameter] public Func<TItem, string, bool>? SearchFunc { get; set; }
+    [Parameter] public Func<TItem, bool>? CustomFilterFunc { get; set; }
+    
+    [Parameter] public bool MultiSelection { get; set; } = false;
+    [Parameter] public HashSet<TItem> SelectedItems { get; set; } = new();
+    [Parameter] public EventCallback<HashSet<TItem>> SelectedItemsChanged { get; set; }
+    
+    [Parameter] public bool Loading { get; set; } = false;
+    [Parameter] public bool Filterable { get; set; } = true;
+    [Parameter] public SortMode SortMode { get; set; } = SortMode.Multiple;
+    [Parameter] public bool Groupable { get; set; } = false;
+    [Parameter] public int RowsPerPage { get; set; } = 25;
+    [Parameter] public bool Hover { get; set; } = true;
+    [Parameter] public bool Dense { get; set; } = true;
+    
+    [Parameter] public EventCallback<DataGridRowClickEventArgs<TItem>> RowClick { get; set; }
+    [Parameter] public Func<TItem, int, string>? RowStyleFunc { get; set; }
+    
+    private HashSet<TItem> _selectedItems = new();
+    private string _searchText = string.Empty;
+    
+    public IEnumerable<TItem> FilteredItems
+    {
+        get
+        {
+            var items = Items;
+            
+            if (!string.IsNullOrEmpty(_searchText) && SearchFunc != null)
+            {
+                items = items.Where(item => SearchFunc(item, _searchText));
+            }
+            
+            if (CustomFilterFunc != null)
+            {
+                items = items.Where(CustomFilterFunc);
+            }
+            
+            return items;
+        }
+    }
+    
+    public HashSet<TItem> InternalSelectedItems => _selectedItems;
+    
+    protected override void OnParametersSet()
+    {
+        _selectedItems = SelectedItems;
+    }
+    
+    private async Task OnSearchTextChanged()
+    {
+        await Task.CompletedTask;
+        StateHasChanged();
+    }
+    
+    public async Task OnSelectedItemsChanged(HashSet<TItem> items)
+    {
+        _selectedItems = items;
+        await SelectedItemsChanged.InvokeAsync(items);
+    }
+    
+    public void ClearSelection()
+    {
+        _selectedItems.Clear();
+        SelectedItemsChanged.InvokeAsync(_selectedItems);
+    }
+    
+    public void OnRowClickInternal(DataGridRowClickEventArgs<TItem> args)
+    {
+        if (RowClick.HasDelegate)
+        {
+            RowClick.InvokeAsync(args);
+        }
+    }
+    
+    public void Refresh()
+    {
+        StateHasChanged();
+    }
+}

@@ -1,9 +1,12 @@
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
 <MudNavMenu>
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
         Dashboard
     </MudNavLink>
-    <MudNavGroup Title="Tenant Administration" Icon="@Icons.Material.Filled.Business">
-        <MudNavGroup Title="Administration" Icon="@Icons.Material.Filled.AdminPanelSettings">
+    <MudNavGroup Title="Tenant Administration" Icon="@Icons.Material.Filled.Business" Expanded="@_tenantAdminExpanded">
+        <MudNavGroup Title="Administration" Icon="@Icons.Material.Filled.AdminPanelSettings" Expanded="@_administrationExpanded">
             <MudNavLink Href="/tenant/administration/tenants" Icon="@Icons.Material.Filled.List">
                 Tenants
             </MudNavLink>
@@ -32,7 +35,7 @@
         <MudNavLink Href="/tenant/gdap-management" Icon="@Icons.Material.Filled.ManageAccounts">
             GDAP Management
         </MudNavLink>
-        <MudNavGroup Title="Standards & Drift" Icon="@Icons.Material.Filled.Rule">
+        <MudNavGroup Title="Standards & Drift" Icon="@Icons.Material.Filled.Rule" Expanded="@_standardsExpanded">
             <MudNavLink Href="/tenant/standards/list-standards" Icon="@Icons.Material.Filled.Rule">
                 Standards Management
             </MudNavLink>
@@ -43,7 +46,7 @@
                 Domains Analyser
             </MudNavLink>
         </MudNavGroup>
-        <MudNavGroup Title="Conditional Access" Icon="@Icons.Material.Filled.Policy">
+        <MudNavGroup Title="Conditional Access" Icon="@Icons.Material.Filled.Policy" Expanded="@_conditionalAccessExpanded">
             <MudNavLink Href="/tenant/conditional/list-policies" Icon="@Icons.Material.Filled.Policy">
                 CA Policies
             </MudNavLink>
@@ -57,7 +60,7 @@
                 Named Locations
             </MudNavLink>
         </MudNavGroup>
-        <MudNavGroup Title="Reports" Icon="@Icons.Material.Filled.Assessment">
+        <MudNavGroup Title="Reports" Icon="@Icons.Material.Filled.Assessment" Expanded="@_reportsExpanded">
             <MudNavLink Href="/tenant/reports/list-licenses" Icon="@Icons.Material.Filled.Description">
                 Licence Report
             </MudNavLink>
@@ -69,7 +72,7 @@
             </MudNavLink>
         </MudNavGroup>
     </MudNavGroup>
-    <MudNavGroup Title="CIPP">
+    <MudNavGroup Title="CIPP" Icon="@Icons.Material.Filled.Settings" Expanded="@_cippExpanded">
         <MudNavLink Href="/cipp/settings" Icon="@Icons.Material.Filled.Settings">
             Application Settings
         </MudNavLink>
@@ -80,12 +83,42 @@
 </MudNavMenu>
 
 @code {
-    private bool collapseNavMenu = true;
+    private bool _tenantAdminExpanded;
+    private bool _administrationExpanded;
+    private bool _standardsExpanded;
+    private bool _conditionalAccessExpanded;
+    private bool _reportsExpanded;
+    private bool _cippExpanded;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
+    protected override void OnInitialized()
     {
-        collapseNavMenu = !collapseNavMenu;
+        UpdateExpandedStates();
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        UpdateExpandedStates();
+        StateHasChanged();
+    }
+
+    private void UpdateExpandedStates()
+    {
+        var currentPath = NavigationManager.Uri.Replace(NavigationManager.BaseUri, "/").ToLowerInvariant();
+        
+        _administrationExpanded = currentPath.Contains("/tenant/administration/");
+        _standardsExpanded = currentPath.Contains("/tenant/standards/");
+        _conditionalAccessExpanded = currentPath.Contains("/tenant/conditional/");
+        _reportsExpanded = currentPath.Contains("/tenant/reports/");
+        _cippExpanded = currentPath.Contains("/cipp/");
+        
+        _tenantAdminExpanded = _administrationExpanded || _standardsExpanded || 
+                               _conditionalAccessExpanded || _reportsExpanded || 
+                               currentPath.Contains("/tenant/gdap-management");
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }

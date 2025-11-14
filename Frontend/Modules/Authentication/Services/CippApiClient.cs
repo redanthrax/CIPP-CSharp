@@ -86,7 +86,8 @@ public class CippApiClient : ICippApiClient {
         try {
             await PrepareAuthenticatedRequest();
             var versionedEndpoint = _apiVersionService.GetVersionedUrl(endpoint, apiVersion);
-            var url = $"{versionedEndpoint}?pageNumber={pageNumber}&pageSize={pageSize}&noCache={noCache}";
+            var separator = versionedEndpoint.Contains('?') ? '&' : '?';
+            var url = $"{versionedEndpoint}{separator}pageNumber={pageNumber}&pageSize={pageSize}&noCache={noCache}";
             _logger.LogDebug("Making paged GET request to {Url}", url);
             
             var response = await _httpClient.GetAsync(url);

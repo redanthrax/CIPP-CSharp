@@ -1,0 +1,28 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "Hangfire": "Information"
+    }
+  },
+  "Serilog": {
+    "MinimumLevel": "Information",
+    "WriteTo": [
+      {
+        "Name": "Console"
+      }
+    ]
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=cipp;Username=username;Password=password",
+    "Redis": "localhost:6379"
+  },
+  "Cors": {
+    "AllowedOrigins": [
+      "http://localhost:8001"
+    ],
+    "AllowCredentials": true
+  },
+  "AllowedHosts": "*"
+}

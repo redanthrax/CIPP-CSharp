@@ -3,6 +3,7 @@
 @using CIPP.Frontend.Modules.Tenants.Interfaces
 @using CIPP.Shared.DTOs.Tenants
 @using CIPP.Frontend.Modules.Notifications.Interfaces
+@using CIPP.Frontend.Components
 @using System.ComponentModel.DataAnnotations
 
 @inject ITenantService TenantService
@@ -35,102 +36,80 @@
 
         <!-- Tabs -->
         <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" 
-                 PanelClass="pa-6" KeepPanelsAlive="true">
+                 PanelClass="pa-6" KeepPanelsAlive="true"
+                 ActivePanelIndex="@_activeTabIndex"
+                 ActivePanelIndexChanged="OnTabChanged">
             
             <!-- Tenants Tab -->
             <MudTabPanel Text="Tenants" Icon="@Icons.Material.Filled.Business">
-                <MudStack Spacing="4">
-                    <!-- Filters and Search -->
-                    <MudPaper Class="pa-4" Elevation="2">
-                        <MudStack Row Spacing="3" AlignItems="AlignItems.End">
-                            <MudTextField @bind-Value="_searchText"
-                                         Label="Search Tenants"
-                                         Placeholder="Search by name, domain, or ID..."
-                                         Adornment="Adornment.Start"
-                                         AdornmentIcon="@Icons.Material.Filled.Search"
-                                         Immediate="true"
-                                         DebounceInterval="300"
-                                         OnDebounceIntervalElapsed="OnSearchChanged"
-                                         Style="min-width: 300px;" />
-                            
-                            <MudSelect @bind-Value="_statusFilter" 
-                                      Label="Status Filter" 
-                                      Clearable="true"
-                                      Style="min-width: 150px;">
-                                <MudSelectItem Value="@((string?)null)">All Statuses</MudSelectItem>
-                                <MudSelectItem Value="@("Active")">Active</MudSelectItem>
-                                <MudSelectItem Value="@("Suspended")">Suspended</MudSelectItem>
-                                <MudSelectItem Value="@("Deleted")">Deleted</MudSelectItem>
-                            </MudSelect>
+                <CippDataGrid TItem="TenantDto"
+                             Items="@_tenants"
+                             @bind-SelectedItems="_selectedTenants"
+                             Loading="@_loading"
+                             MultiSelection="true"
+                             SearchLabel="Search Tenants"
+                             SearchPlaceholder="Search by name, domain, or ID..."
+                             HelpText="Double-click a tenant to view details"
+                             SearchFunc="@SearchTenants"
+                             CustomFilterFunc="@FilterTenants"
+                             RowClick="@OnRowClick"
+                             RowStyleFunc="@GetRowStyle">
+                    <FilterContent>
+                        <MudSelect @bind-Value="_statusFilter" 
+                                  @bind-Value:after="StateHasChanged"
+                                  Label="Status Filter" 
+                                  Clearable="true"
+                                  Style="min-width: 150px;">
+                            <MudSelectItem Value="@((string?)null)">All Statuses</MudSelectItem>
+                            <MudSelectItem Value="@("Active")">Active</MudSelectItem>
+                            <MudSelectItem Value="@("Suspended")">Suspended</MudSelectItem>
+                            <MudSelectItem Value="@("Deleted")">Deleted</MudSelectItem>
+                        </MudSelect>
 
-                            <MudCheckBox @bind-Value="_onlyExcluded" 
-                                        @bind-Value:after="OnSearchChanged"
-                                        Label="Show Only Excluded" 
-                                        Color="Color.Warning" />
-                        </MudStack>
-                    </MudPaper>
-
-                    <!-- Bulk Operations -->
-                    @if (_selectedTenants.Any())
-                    {
-                        <MudPaper Class="pa-4" Elevation="2">
-                            <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.subtitle1">
-                                    @_selectedTenants.Count tenant(s) selected
-                                </MudText>
-                                <MudButtonGroup Size="Size.Small">
-                                    <MudButton StartIcon="@Icons.Material.Filled.Edit"
-                                              Color="Color.Primary"
-                                              OnClick="BulkEditSelected">
-                                        Bulk Edit
-                                    </MudButton>
-                                    <MudButton StartIcon="@Icons.Material.Filled.Block"
-                                              Color="Color.Warning"
-                                              OnClick="BulkExcludeSelected">
-                                        Exclude
-                                    </MudButton>
-                                    <MudButton StartIcon="@Icons.Material.Filled.CheckCircle"
-                                              Color="Color.Success"
-                                              OnClick="BulkIncludeSelected">
-                                        Include
-                                    </MudButton>
-                                    <MudButton StartIcon="@Icons.Material.Filled.Delete"
-                                              Color="Color.Error"
-                                              OnClick="BulkDeleteSelected">
-                                        Delete
-                                    </MudButton>
-                                </MudButtonGroup>
-                                <MudSpacer />
-                                <MudButton Size="Size.Small"
-                                          Variant="Variant.Text"
-                                          OnClick="ClearSelection">
-                                    Clear Selection
-                                </MudButton>
-                            </MudStack>
-                        </MudPaper>
-                    }
-
-                    <!-- Data Grid -->
-                    <MudPaper Class="overflow-hidden" Elevation="2">
-                        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="pa-4 pb-0">
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                Double-click a tenant to view details
-                            </MudText>
-                        </MudStack>
-                        <MudDataGrid T="TenantDto" 
-                                     Items="@_filteredTenants" 
-                                     @ref="_dataGrid"
-                                     MultiSelection="true"
-                                     @bind-SelectedItems="_selectedTenants"
-                                     Loading="@_loading"
-                                     Filterable="true"
-                                     SortMode="@SortMode.Multiple"
-                                     Groupable="false"
-                                     RowsPerPage="25"
-                                     Hover="true"
-                                     Dense="true"
-                                     RowClick="@OnRowClick"
-                                     RowStyleFunc="@GetRowStyle">
+                        <MudCheckBox @bind-Value="_onlyExcluded" 
+                                    @bind-Value:after="StateHasChanged"
+                                    Label="Show Only Excluded" 
+                                    Color="Color.Warning" />
+                    </FilterContent>
+                    <BulkActionsContent>
+                        <MudButtonGroup Size="Size.Small">
+                            <MudButton StartIcon="@Icons.Material.Filled.Edit"
+                                      Color="Color.Primary"
+                                      OnClick="BulkEditSelected">
+                                Bulk Edit
+                            </MudButton>
+                            <MudButton StartIcon="@Icons.Material.Filled.Block"
+                                      Color="Color.Warning"
+                                      OnClick="BulkExcludeSelected">
+                                Exclude
+                            </MudButton>
+                            <MudButton StartIcon="@Icons.Material.Filled.CheckCircle"
+                                      Color="Color.Success"
+                                      OnClick="BulkIncludeSelected">
+                                Include
+                            </MudButton>
+                            <MudButton StartIcon="@Icons.Material.Filled.Delete"
+                                      Color="Color.Error"
+                                      OnClick="BulkDeleteSelected">
+                                Delete
+                            </MudButton>
+                        </MudButtonGroup>
+                    </BulkActionsContent>
+                    <DataGridContent Context="grid">
+                        <MudDataGrid T="TenantDto"
+                                    Items="@grid.FilteredItems"
+                                    MultiSelection="@grid.MultiSelection"
+                                    SelectedItems="@grid.InternalSelectedItems"
+                                    SelectedItemsChanged="@grid.OnSelectedItemsChanged"
+                                    Loading="@grid.Loading"
+                                    Filterable="@grid.Filterable"
+                                    SortMode="@grid.SortMode"
+                                    Groupable="@grid.Groupable"
+                                    RowsPerPage="@grid.RowsPerPage"
+                                    Hover="@grid.Hover"
+                                    Dense="@grid.Dense"
+                                    RowClick="@grid.OnRowClickInternal"
+                                    RowStyleFunc="@grid.RowStyleFunc">
                             <Columns>
                                 <SelectColumn T="TenantDto" />
                                 
@@ -220,15 +199,13 @@
                                         </MudText>
                                     </CellTemplate>
                                 </PropertyColumn>
-
                             </Columns>
-
                             <PagerContent>
                                 <MudDataGridPager T="TenantDto" />
                             </PagerContent>
                         </MudDataGrid>
-                    </MudPaper>
-                </MudStack>
+                    </DataGridContent>
+                </CippDataGrid>
             </MudTabPanel>
 
             <!-- Groups Tab -->
@@ -245,19 +222,43 @@
 </MudContainer>
 
 @code {
-    private MudDataGrid<TenantDto>? _dataGrid;
+    [SupplyParameterFromQuery(Name = "tab")]
+    public string? TabParameter { get; set; }
+
     private HashSet<TenantDto> _selectedTenants = new();
     private List<TenantDto> _tenants = new();
-    private List<TenantDto> _filteredTenants = new();
     
     private bool _loading = false;
-    private string _searchText = "";
     private string? _statusFilter = null;
     private bool _onlyExcluded = false;
+    private int _activeTabIndex = 0;
 
     protected override async Task OnInitializedAsync()
     {
+        SetActiveTabFromParameter();
         await LoadTenants();
+    }
+
+    private void SetActiveTabFromParameter()
+    {
+        _activeTabIndex = TabParameter?.ToLowerInvariant() switch
+        {
+            "groups" => 1,
+            "variables" => 2,
+            _ => 0
+        };
+    }
+
+    private void OnTabChanged(int index)
+    {
+        _activeTabIndex = index;
+        var tabName = index switch
+        {
+            1 => "groups",
+            2 => "variables",
+            _ => "tenants"
+        };
+        Navigation.NavigateTo($"/tenant/administration/tenants?tab={tabName}", false);
     }
 
     private async Task LoadTenants()
@@ -271,7 +272,6 @@
             if (result?.Items != null)
             {
                 _tenants = result.Items.ToList();
-                ApplyFilters();
             }
         }
         catch (Exception ex)
@@ -285,46 +285,29 @@
         }
     }
 
-    private void ApplyFilters()
+    private bool SearchTenants(TenantDto tenant, string searchText)
     {
-        _filteredTenants = _tenants.Where(t =>
-        {
-            // Search filter
-            if (!string.IsNullOrEmpty(_searchText))
-            {
-                var searchLower = _searchText.ToLowerInvariant();
-                if (!t.DisplayName.ToLowerInvariant().Contains(searchLower) &&
-                    !t.DefaultDomainName.ToLowerInvariant().Contains(searchLower) &&
-                    !t.TenantId.ToString().ToLowerInvariant().Contains(searchLower) &&
-                    !(t.TenantAlias?.ToLowerInvariant().Contains(searchLower) == true))
-                {
-                    return false;
-                }
-            }
-
-            // Status filter
-            if (!string.IsNullOrEmpty(_statusFilter) && 
-                !string.Equals(t.Status, _statusFilter, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            // Excluded filter
-            if (_onlyExcluded && !t.Excluded)
-            {
-                return false;
-            }
-
-            return true;
-        }).ToList();
-
-        StateHasChanged();
+        var searchLower = searchText.ToLowerInvariant();
+        return tenant.DisplayName.ToLowerInvariant().Contains(searchLower) ||
+               tenant.DefaultDomainName.ToLowerInvariant().Contains(searchLower) ||
+               tenant.TenantId.ToString().ToLowerInvariant().Contains(searchLower) ||
+               (tenant.TenantAlias?.ToLowerInvariant().Contains(searchLower) == true);
     }
 
-    private async Task OnSearchChanged()
+    private bool FilterTenants(TenantDto tenant)
     {
-        ApplyFilters();
-        await Task.CompletedTask;
+        if (!string.IsNullOrEmpty(_statusFilter) && 
+            !string.Equals(tenant.Status, _statusFilter, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (_onlyExcluded && !tenant.Excluded)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private async Task RefreshData()
@@ -419,7 +402,7 @@
                     _tenants[tenantIndex] = tenant;
                 }
                 
-                ApplyFilters();
+                StateHasChanged();
                 NotificationService.ShowSuccess($"Tenant {(newExclusionState ? "excluded" : "included")} successfully");
             }
             else
@@ -461,12 +444,6 @@
         }
     }
 
-    private void ClearSelection()
-    {
-        _selectedTenants.Clear();
-        StateHasChanged();
-    }
-
     private void BulkEditSelected()
     {
         NotificationService.ShowInfo($"Bulk edit for {_selectedTenants.Count} tenants - Feature coming soon");
@@ -489,7 +466,7 @@
                 {
                     await LoadTenants(); // Reload to get updated data
                     NotificationService.ShowSuccess($"{_selectedTenants.Count} tenant(s) excluded successfully");
-                    ClearSelection();
+                    _selectedTenants.Clear();
                 }
                 else
                 {
@@ -527,7 +504,7 @@
                 {
                     await LoadTenants(); // Reload to get updated data
                     NotificationService.ShowSuccess($"{excludedTenants.Count} tenant(s) included successfully");
-                    ClearSelection();
+                    _selectedTenants.Clear();
                 }
                 else
                 {
@@ -585,7 +562,7 @@
                 }
 
                 await LoadTenants();
-                ClearSelection();
+                _selectedTenants.Clear();
             }
             catch (Exception ex)
             {
