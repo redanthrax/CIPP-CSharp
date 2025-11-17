@@ -7,6 +7,21 @@ namespace CIPP.Frontend.Modules.Tenants.Services;
 
 public class TenantService : ITenantService {
     private readonly ICippApiClient _apiClient;
+    private TenantDto? _selectedTenant;
+    
+    public event Action? OnSelectedTenantChanged;
+    
+    public TenantDto? SelectedTenant {
+        get => _selectedTenant;
+        set {
+            if (_selectedTenant?.TenantId != value?.TenantId) {
+                _selectedTenant = value;
+                OnSelectedTenantChanged?.Invoke();
+            }
+        }
+    }
+    
+    public Guid? SelectedTenantId => _selectedTenant?.TenantId;
     
     public TenantService(ICippApiClient apiClient) {
         _apiClient = apiClient;

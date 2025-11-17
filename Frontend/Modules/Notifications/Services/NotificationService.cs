@@ -41,36 +41,6 @@ public class NotificationService : INotificationService {
         _logger.LogWarning("Warning notification: {Message}", displayMessage);
     }
 
-    public void ShowApiErrors(string primaryMessage, List<string> errors, string? title = null) {
-        var displayTitle = title ?? "API Error";
-        ShowError(primaryMessage, displayTitle);
-
-        if (errors.Any()) {
-            ShowDetailedError("Error Details", errors);
-        }
-    }
-
-    public void ShowDetailedError(string message, List<string> details, string? title = null) {
-        if (!details.Any()) {
-            ShowError(message, title);
-            return;
-        }
-
-        var detailsText = string.Join("\n• ", details);
-        var fullMessage = $"{message}\n\nDetails:\n• {detailsText}";
-        
-        var displayTitle = title ?? "Detailed Error";
-        
-        _snackbar.Add(fullMessage, Severity.Error, configure => {
-            configure.RequireInteraction = true;
-            configure.ShowCloseIcon = true;
-            configure.VisibleStateDuration = 10000; 
-        });
-        
-        _logger.LogError("Detailed error notification: {Message}. Details: {Details}", 
-            message, string.Join("; ", details));
-    }
-
     public async Task<bool> ShowConfirmationAsync(string title, string message, string yesText = "Yes", string noText = "No") {
         var result = await _dialogService.ShowMessageBox(
             title, 
@@ -79,5 +49,24 @@ public class NotificationService : INotificationService {
             cancelText: noText);
         
         return result == true;
+    }
+
+    public async Task ShowErrorDialogAsync(string title, string message, List<string>? errors = null, string? technicalDetails = null) {
+        var parameters = new DialogParameters<CIPP.Frontend.Components.ErrorDetailsDialog> {
+            { x => x.Message, message },
+            { x => x.Errors, errors },
+            { x => x.TechnicalDetails, technicalDetails }
+        };
+
+        var options = new DialogOptions {
+            CloseOnEscapeKey = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true,
+            CloseButton = true
+        };
+
+        await _dialogService.ShowAsync<CIPP.Frontend.Components.ErrorDetailsDialog>(title, parameters, options);
+        
+        _logger.LogError("Error dialog shown: {Title} - {Message}", title, message);
     }
 }

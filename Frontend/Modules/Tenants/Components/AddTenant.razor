@@ -1,4 +1,4 @@
-@page "/tenants/add"
+@page "/tenant/administration/tenants/add"
 @attribute [Authorize]
 @using CIPP.Frontend.Modules.Tenants.Interfaces
 @using CIPP.Shared.DTOs.Tenants
@@ -351,7 +351,7 @@
             
             if (result.Success && result.Data != null) {
                 NotificationService.ShowSuccess($"Tenant '{result.Data.DisplayName}' created successfully!");
-                Navigation.NavigateTo("/tenants");
+                Navigation.NavigateTo("/tenant/administration/tenants");
             }
             else {
                 NotificationService.ShowError($"Failed to create tenant: {result.Message ?? "Unknown error"}");
@@ -368,6 +368,6 @@
     
     private void NavigateBackToTenants()
     {
-        Navigation.NavigateTo("/tenants");
+        Navigation.NavigateTo("/tenant/administration/tenants");
     }
 }

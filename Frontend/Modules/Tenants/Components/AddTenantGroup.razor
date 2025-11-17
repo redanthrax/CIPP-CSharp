@@ -1,4 +1,4 @@
-@page "/tenants/groups/add"
+@page "/tenant/administration/tenants/groups/add"
 @attribute [Authorize]
 @using CIPP.Frontend.Modules.Tenants.Interfaces
 @using CIPP.Shared.DTOs.Tenants
@@ -25,14 +25,10 @@
 
             <EditForm Model="_groupRequest" OnValidSubmit="CreateGroup">
                 <DataAnnotationsValidator />
-                <MudCard>
-                    <MudCardHeader>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h6">Group Properties</MudText>
-                        </CardHeaderContent>
-                    </MudCardHeader>
-                    <MudCardContent>
-                        <MudStack Spacing="3">
+                <MudStack Spacing="3">
+                    <MudText Typo="Typo.h6">Group Properties</MudText>
+                    <MudDivider />
+                    <MudStack Spacing="3">
                             <MudTextField @bind-Value="_groupRequest.Name"
                                           Label="Group Name"
                                           Placeholder="Enter the name for this group"
@@ -99,10 +95,9 @@
                                     }
                                 </MudStack>
                             }
-                        </MudStack>
-                    </MudCardContent>
-                    <MudCardActions>
-                        <MudSpacer />
+                    </MudStack>
+                    
+                    <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
                         <MudButton Variant="Variant.Text" 
                                   OnClick="NavigateBackToGroups"
                                   Disabled="@_isCreating">
@@ -121,8 +116,8 @@
                                 <span>Create Group</span>
                             }
                         </MudButton>
-                    </MudCardActions>
-                </MudCard>
+                    </MudStack>
+                </MudStack>
             </EditForm>
         </MudStack>
     </MudPaper>

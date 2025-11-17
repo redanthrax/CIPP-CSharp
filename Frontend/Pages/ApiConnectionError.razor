@@ -1,0 +1,103 @@
+@page "/api-connection-error"
+@layout EmptyLayout
+@inject NavigationManager NavigationManager
+
+<PageTitle>API Connection Error - CIPP</PageTitle>
+
+<div class="auth-container">
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudPaper Elevation="8" Class="pa-8">
+            <div class="text-center mb-6">
+                <MudIcon Icon="@Icons.Material.Filled.CloudOff" 
+                         Size="Size.Large" 
+                         Color="Color.Error" 
+                         Class="mb-4" 
+                         Style="font-size: 6rem;" />
+                <MudText Typo="Typo.h4" Color="Color.Error" Class="mb-2">
+                    Cannot Connect to API
+                </MudText>
+                <MudText Typo="Typo.h6" Color="Color.Secondary" Class="mb-4">
+                    The frontend cannot establish a connection to the backend API server.
+                </MudText>
+            </div>
+
+            <MudAlert Severity="Severity.Error" Class="mb-4" Variant="Variant.Outlined">
+                <MudText Typo="Typo.body1" Class="mb-2">
+                    <strong>Possible causes:</strong>
+                </MudText>
+                <MudList T="string" Dense="true">
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.Circle" IconSize="Size.Small">
+                        The API server is not running
+                    </MudListItem>
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.Circle" IconSize="Size.Small">
+                        Network connectivity issues
+                    </MudListItem>
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.Circle" IconSize="Size.Small">
+                        Incorrect API URL configuration
+                    </MudListItem>
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.Circle" IconSize="Size.Small">
+                        CORS policy blocking the request
+                    </MudListItem>
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.Circle" IconSize="Size.Small">
+                        Firewall or proxy blocking the connection
+                    </MudListItem>
+                </MudList>
+            </MudAlert>
+
+            <MudAlert Severity="Severity.Info" Class="mb-4" Variant="Variant.Outlined">
+                <MudText Typo="Typo.body1" Class="mb-2">
+                    <strong>What to do:</strong>
+                </MudText>
+                <MudList T="string" Dense="true">
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle" IconSize="Size.Small">
+                        Verify the API server is running
+                    </MudListItem>
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle" IconSize="Size.Small">
+                        Check your network connection
+                    </MudListItem>
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle" IconSize="Size.Small">
+                        Verify the API URL in your configuration
+                    </MudListItem>
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle" IconSize="Size.Small">
+                        Check browser console for detailed error messages
+                    </MudListItem>
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle" IconSize="Size.Small">
+                        Contact your system administrator if the problem persists
+                    </MudListItem>
+                </MudList>
+            </MudAlert>
+
+            @if (!string.IsNullOrEmpty(ErrorDetails)) {
+                <MudExpansionPanels Class="mb-4">
+                    <MudExpansionPanel Text="Technical Details">
+                        <MudPaper Elevation="0" Class="pa-3" Style="background-color: var(--mud-palette-background-grey);">
+                            <MudText Typo="Typo.caption" Style="font-family: monospace; white-space: pre-wrap;">
+                                @ErrorDetails
+                            </MudText>
+                        </MudPaper>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+            }
+
+            <MudDivider Class="my-4" />
+
+            <div class="d-flex justify-center gap-4">
+                <MudButton Variant="Variant.Filled" 
+                           Color="Color.Primary" 
+                           StartIcon="@Icons.Material.Filled.Refresh"
+                           OnClick="@Retry">
+                    Retry Connection
+                </MudButton>
+            </div>
+        </MudPaper>
+    </MudContainer>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? ErrorDetails { get; set; }
+
+    private void Retry() {
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+}

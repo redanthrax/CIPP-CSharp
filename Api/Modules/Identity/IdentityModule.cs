@@ -21,6 +21,7 @@ public class IdentityModule {
         var userGroup = group.MapGroup("/users").WithTags("Users");
         userGroup.MapGetUsers();
         userGroup.MapGetUser();
+        userGroup.MapGetUserCounts();
         userGroup.MapCreateUser();
         userGroup.MapUpdateUser();
         userGroup.MapDeleteUser();

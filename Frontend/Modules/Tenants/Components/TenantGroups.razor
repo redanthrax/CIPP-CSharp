@@ -8,54 +8,49 @@
 
 <PageTitle>Tenant Groups - CIPP</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    <MudCard>
-        <MudCardHeader>
-            <CardHeaderContent>
-                <MudText Typo="Typo.h6">Tenant Groups</MudText>
-            </CardHeaderContent>
-            <CardHeaderActions>
-                <MudButtonGroup Variant="Variant.Outlined">
-                    <MudButton Color="Color.Success" 
-                              StartIcon="@Icons.Material.Filled.Add"
-                              Href="/tenants/groups/add">
-                        Add Group
-                    </MudButton>
-                    <MudButton Color="Color.Primary" 
-                              StartIcon="@Icons.Material.Filled.Refresh"
-                              OnClick="@(() => LoadTenantGroups(noCache: true))"
-                              Disabled="@_loading">
-                        @if (_loading) {
-                            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
-                        } else {
-                            <span>Refresh</span>
-                        }
-                    </MudButton>
-                </MudButtonGroup>
-            </CardHeaderActions>
-        </MudCardHeader>
-        <MudCardContent>
-            @if (_loading && (_tenantGroups == null || !_tenantGroups.Any())) {
-                <div class="d-flex justify-center pa-4">
-                    <MudProgressCircular Indeterminate="true" />
-                </div>
-                <MudText Class="text-center mt-2" Color="Color.Secondary">
-                    Loading tenant groups...
-                </MudText>
-            }
-            else if (_error != null) {
-                <MudAlert Severity="Severity.Error" Class="mb-4">
-                    Error loading tenant groups: @_error
-                    <MudButton Color="Color.Error" 
-                               Variant="Variant.Text" 
-                               Size="Size.Small"
-                               OnClick="@(() => LoadTenantGroups())"
-                               Class="ml-2">
-                        Retry
-                    </MudButton>
-                </MudAlert>
-            }
-            else if (_tenantGroups?.Any() == true) {
+<MudStack Spacing="3">
+    <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h6">Tenant Groups</MudText>
+        <MudButtonGroup Variant="Variant.Outlined">
+            <MudButton Color="Color.Success" 
+                      StartIcon="@Icons.Material.Filled.Add"
+                      Href="/tenant/administration/tenants/groups/add">
+                Add Group
+            </MudButton>
+            <MudButton Color="Color.Primary" 
+                      StartIcon="@Icons.Material.Filled.Refresh"
+                      OnClick="@(() => LoadTenantGroups(noCache: true))"
+                      Disabled="@_loading">
+                @if (_loading) {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                } else {
+                    <span>Refresh</span>
+                }
+            </MudButton>
+        </MudButtonGroup>
+    </MudStack>
+
+    @if (_loading && (_tenantGroups == null || !_tenantGroups.Any())) {
+        <div class="d-flex justify-center pa-4">
+            <MudProgressCircular Indeterminate="true" />
+        </div>
+        <MudText Class="text-center mt-2" Color="Color.Secondary">
+            Loading tenant groups...
+        </MudText>
+    }
+    else if (_error != null) {
+        <MudAlert Severity="Severity.Error" Class="mb-4">
+            Error loading tenant groups: @_error
+            <MudButton Color="Color.Error" 
+                       Variant="Variant.Text" 
+                       Size="Size.Small"
+                       OnClick="@(() => LoadTenantGroups())"
+                       Class="ml-2">
+                Retry
+            </MudButton>
+        </MudAlert>
+    }
+    else if (_tenantGroups?.Any() == true) {
                 <MudDataGrid T="TenantGroupDto" 
                              Items="@_tenantGroups" 
                              Filterable="true" 
@@ -100,7 +95,7 @@
                                 <MudButtonGroup Size="Size.Small" Variant="Variant.Outlined">
                                     <MudButton StartIcon="@Icons.Material.Filled.Edit"
                                                Size="Size.Small"
-                                               Href="@($"/tenants/groups/{context.Item.Id}/edit")"
+                                               Href="@($"/tenant/administration/tenants/groups/{context.Item.Id}/edit")"
                                                Color="Color.Primary">
                                         Edit
                                     </MudButton>
@@ -127,30 +122,28 @@
                         Last updated: @(_lastUpdated?.ToString("HH:mm:ss") ?? "Never")
                     </MudText>
                 </MudStack>
-            }
-            else {
-                <MudPaper Class="pa-8 text-center" Elevation="0">
-                    <MudIcon Icon="@Icons.Material.Filled.Group" 
-                             Size="Size.Large" 
-                             Color="Color.Secondary" 
-                             Class="mb-4" />
-                    <MudText Typo="Typo.h6" Color="Color.Secondary">
-                        No tenant groups found
-                    </MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
-                        Create your first tenant group to organize your tenants.
-                    </MudText>
-                    <MudButton Variant="Variant.Filled" 
-                               Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.Add"
-                               Href="/tenants/groups/add">
-                        Add First Group
-                    </MudButton>
-                </MudPaper>
-            }
-        </MudCardContent>
-    </MudCard>
-</MudContainer>
+    }
+    else {
+        <MudPaper Class="pa-8 text-center" Elevation="0">
+            <MudIcon Icon="@Icons.Material.Filled.Group" 
+                     Size="Size.Large" 
+                     Color="Color.Secondary" 
+                     Class="mb-4" />
+            <MudText Typo="Typo.h6" Color="Color.Secondary">
+                No tenant groups found
+            </MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                Create your first tenant group to organize your tenants.
+            </MudText>
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       Href="/tenant/administration/tenants/groups/add">
+                Add First Group
+            </MudButton>
+        </MudPaper>
+    }
+</MudStack>
 
 @code {
     private List<TenantGroupDto>? _tenantGroups;

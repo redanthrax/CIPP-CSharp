@@ -1,168 +1,300 @@
 @page "/"
 @attribute [Authorize]
+@using CIPP.Frontend.Extensions
+@using CIPP.Frontend.Modules.Tenants.Interfaces
+@using CIPP.Frontend.Modules.Notifications.Interfaces
+@using CIPP.Shared.DTOs.Identity
+@using CIPP.Shared.DTOs.SharePoint
+@using CIPP.Shared.DTOs.Tenants
 @inject ICippApiClient ApiClient
+@inject ITenantService TenantService
+@inject IErrorHandlingService ErrorHandler
 @inject ILogger<Dashboard> Logger
+@implements IDisposable
 
 <PageTitle>Dashboard - CIPP</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="py-8">
-        <MudText Typo="Typo.h3" Class="mb-6">Dashboard</MudText>
-        
-        <MudGrid>
-            <MudItem xs="12" md="6" lg="3">
-                <MudPaper Elevation="2" Class="pa-4">
-                    <MudText Typo="Typo.h6" Class="mb-2">Total Tenants</MudText>
-                    <MudText Typo="Typo.h4" Color="Color.Primary">
-                        @(_stats?.TotalTenants?.ToString() ?? "Loading...")
-                    </MudText>
-                </MudPaper>
-            </MudItem>
-            
-            <MudItem xs="12" md="6" lg="3">
-                <MudPaper Elevation="2" Class="pa-4">
-                    <MudText Typo="Typo.h6" Class="mb-2">Active Users</MudText>
-                    <MudText Typo="Typo.h4" Color="Color.Secondary">
-                        @(_stats?.ActiveUsers?.ToString() ?? "Loading...")
-                    </MudText>
-                </MudPaper>
-            </MudItem>
-            
-            <MudItem xs="12" md="6" lg="3">
-                <MudPaper Elevation="2" Class="pa-4">
-                    <MudText Typo="Typo.h6" Class="mb-2">Alerts</MudText>
-                    <MudText Typo="Typo.h4" Color="Color.Warning">
-                        @(_stats?.Alerts?.ToString() ?? "Loading...")
-                    </MudText>
-                </MudPaper>
-            </MudItem>
-            
-            <MudItem xs="12" md="6" lg="3">
-                <MudPaper Elevation="2" Class="pa-4">
-                    <MudText Typo="Typo.h6" Class="mb-2">Last Sync</MudText>
-                    <MudText Typo="Typo.body1">
-                        @(_stats?.LastSync?.ToString("MMM dd, HH:mm") ?? "Loading...")
-                    </MudText>
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="py-8">
+    @if (!TenantService.SelectedTenantId.HasValue || TenantService.SelectedTenantId == Guid.Empty) {
+        <MudPaper Class="pa-8 text-center" Elevation="0">
+            <MudIcon Icon="@Icons.Material.Filled.Dashboard" Size="Size.Large" Color="Color.Secondary" Class="mb-4" />
+            <MudText Typo="Typo.h6" Color="Color.Secondary">Select a Tenant</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                Please select a tenant from the top bar to view dashboard information.
+            </MudText>
+        </MudPaper>
+    } else {
+        <MudStack Spacing="4">
+            <MudCard Elevation="2">
+                <MudCardContent Class="pa-4">
+                    <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+                        <MudText Typo="Typo.h6">Dashboard: @(TenantService.SelectedTenant?.DisplayName ?? "Loading...")</MudText>
+                        <MudSpacer />
+                        <MudButton Variant="Variant.Outlined" 
+                                  StartIcon="@Icons.Material.Filled.Refresh"
+                                  OnClick="@LoadDashboardData"
+                                  Disabled="@_loading">
+                            @if (_loading) {
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                            } else {
+                                <span>Refresh</span>
+                            }
+                        </MudButton>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
 
-        @if (_loading) {
-            <MudGrid Class="mt-6">
-                <MudItem xs="12">
-                    <MudSkeleton Height="200px" />
-                </MudItem>
-            </MudGrid>
-        } else if (_error != null) {
-            <MudAlert Severity="Severity.Error" Class="mt-6">
-                Error loading dashboard: @_error
-            </MudAlert>
-        } else {
-            <MudGrid Class="mt-6">
-                <MudItem xs="12" lg="8">
-                    <MudPaper Elevation="2" Class="pa-4">
-                        <MudText Typo="Typo.h6" Class="mb-4">Recent Activity</MudText>
-                        @if (_recentActivity?.Any() == true) {
-                            <MudTimeline>
-                                @foreach (var activity in _recentActivity.Take(5)) {
-                                    <MudTimelineItem Color="Color.Primary" Size="Size.Small">
-                                        <ItemContent>
-                                            <MudText Typo="Typo.body1">@activity.Message</MudText>
-                                            <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                                @activity.Timestamp.ToString("MMM dd, HH:mm")
-                                            </MudText>
-                                        </ItemContent>
-                                    </MudTimelineItem>
-                                }
-                            </MudTimeline>
-                        } else {
-                            <MudText Color="Color.Secondary">No recent activity</MudText>
-                        }
-                    </MudPaper>
-                </MudItem>
-                
-                <MudItem xs="12" lg="4">
-                    <MudPaper Elevation="2" Class="pa-4">
-                        <MudText Typo="Typo.h6" Class="mb-4">Quick Actions</MudText>
-                        <MudStack>
-                            <MudButton Variant="Variant.Outlined" 
-                                       StartIcon="@Icons.Material.Filled.Business"
-                                       Href="/tenants"
-                                       FullWidth="true">
-                                View All Tenants
-                            </MudButton>
-                            <MudButton Variant="Variant.Outlined" 
-                                       StartIcon="@Icons.Material.Filled.Refresh"
-                                       OnClick="@RefreshDashboard"
-                                       FullWidth="true"
-                                       Disabled="@_loading">
-                                @if (_loading) {
-                                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+            @if (_loading && _organization == null) {
+                <MudStack Spacing="3">
+                    <MudSkeleton Height="100px" />
+                    <MudGrid>
+                        <MudItem xs="12" md="4"><MudSkeleton Height="400px" /></MudItem>
+                        <MudItem xs="12" md="4"><MudSkeleton Height="400px" /></MudItem>
+                        <MudItem xs="12" md="4"><MudSkeleton Height="400px" /></MudItem>
+                    </MudGrid>
+                </MudStack>
+            } else {
+                <MudCard Elevation="2">
+                    <MudCardContent Class="pa-0">
+                        <MudGrid Spacing="0">
+                            <MudItem xs="12" sm="6" md="3" Class="pa-4" Style="border-right: 1px solid var(--mud-palette-divider); border-bottom: 1px solid var(--mud-palette-divider);">
+                                <MudText Typo="Typo.overline" Color="Color.Secondary">Tenant Name</MudText>
+                                <MudText Typo="Typo.h6">@(_organization?.DisplayName ?? "Loading...")</MudText>
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="3" Class="pa-4" Style="border-right: 1px solid var(--mud-palette-divider); border-bottom: 1px solid var(--mud-palette-divider);">
+                                <MudText Typo="Typo.overline" Color="Color.Secondary">Tenant ID</MudText>
+                                <MudText Typo="Typo.body2">@(_organization?.Id ?? "Loading...")</MudText>
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="3" Class="pa-4" Style="border-right: 1px solid var(--mud-palette-divider); border-bottom: 1px solid var(--mud-palette-divider);">
+                                <MudText Typo="Typo.overline" Color="Color.Secondary">Default Domain</MudText>
+                                <MudText Typo="Typo.body2">@(GetDefaultDomain())</MudText>
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="3" Class="pa-4" Style="border-bottom: 1px solid var(--mud-palette-divider);">
+                                <MudText Typo="Typo.overline" Color="Color.Secondary">AD Sync Enabled</MudText>
+                                <MudChip T="string" Size="Size.Small" Color="@((_organization?.OnPremisesSyncEnabled ?? false) ? Color.Success : Color.Default)">
+                                    @((_organization?.OnPremisesSyncEnabled ?? false) ? "Yes" : "No")
+                                </MudChip>
+                            </MudItem>
+                        </MudGrid>
+                    </MudCardContent>
+                </MudCard>
+
+                <MudGrid>
+                    <MudItem xs="12" md="4">
+                        <MudCard Elevation="2" Style="height: 100%;">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">User Statistics</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudDivider />
+                            <MudCardContent>
+                                @if (_loading || _userCounts == null) {
+                                    <MudSkeleton Height="280px" />
                                 } else {
-                                    <span>Refresh Data</span>
+                                    <div style="height: 280px; display: flex; align-items: center; justify-content: center;">
+                                        <MudText Color="Color.Secondary">Chart visualization coming soon</MudText>
+                                    </div>
+                                    <MudStack Class="pt-4">
+                                        <MudText Typo="Typo.h5" Align="Align.Center">Total Users: @_userCounts.Users</MudText>
+                                        <MudStack Spacing="2">
+                                            <MudStack Row Justify="Justify.SpaceBetween">
+                                                <MudStack Row Spacing="1">
+                                                    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--mud-palette-success); margin-top: 6px;"></div>
+                                                    <MudText Typo="Typo.body2" Color="Color.Secondary">Licensed Users</MudText>
+                                                </MudStack>
+                                                <MudText Typo="Typo.body2" Color="Color.Secondary">@_userCounts.LicUsers</MudText>
+                                            </MudStack>
+                                            <MudStack Row Justify="Justify.SpaceBetween">
+                                                <MudStack Row Spacing="1">
+                                                    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--mud-palette-warning); margin-top: 6px;"></div>
+                                                    <MudText Typo="Typo.body2" Color="Color.Secondary">Unlicensed Users</MudText>
+                                                </MudStack>
+                                                <MudText Typo="Typo.body2" Color="Color.Secondary">@(_userCounts.Users - _userCounts.LicUsers)</MudText>
+                                            </MudStack>
+                                            <MudStack Row Justify="Justify.SpaceBetween">
+                                                <MudStack Row Spacing="1">
+                                                    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--mud-palette-error); margin-top: 6px;"></div>
+                                                    <MudText Typo="Typo.body2" Color="Color.Secondary">Guests</MudText>
+                                                </MudStack>
+                                                <MudText Typo="Typo.body2" Color="Color.Secondary">@_userCounts.Guests</MudText>
+                                            </MudStack>
+                                            <MudStack Row Justify="Justify.SpaceBetween">
+                                                <MudStack Row Spacing="1">
+                                                    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--mud-palette-tertiary); margin-top: 6px;"></div>
+                                                    <MudText Typo="Typo.body2" Color="Color.Secondary">Global Admins</MudText>
+                                                </MudStack>
+                                                <MudText Typo="Typo.body2" Color="Color.Secondary">@_userCounts.Gas</MudText>
+                                            </MudStack>
+                                        </MudStack>
+                                    </MudStack>
                                 }
-                            </MudButton>
-                        </MudStack>
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
-        }
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudCard Elevation="2" Style="height: 100%;">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">SharePoint Quota</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudDivider />
+                            <MudCardContent>
+                                @if (_loading || _sharepointQuota == null) {
+                                    <MudSkeleton Height="280px" />
+                                } else {
+                                    <div style="height: 280px; display: flex; align-items: center; justify-content: center;">
+                                        <MudText Color="Color.Secondary">Chart visualization coming soon</MudText>
+                                    </div>
+                                    <MudStack Class="pt-4">
+                                        <MudStack Spacing="2">
+                                            <MudStack Row Justify="Justify.SpaceBetween">
+                                                <MudStack Row Spacing="1">
+                                                    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--mud-palette-success); margin-top: 6px;"></div>
+                                                    <MudText Typo="Typo.body2" Color="Color.Secondary">Free (@FormatStorage(_sharepointQuota.TenantStorageMB - _sharepointQuota.GeoUsedStorageMB))</MudText>
+                                                </MudStack>
+                                                <MudText Typo="Typo.body2" Color="Color.Secondary">@(_sharepointQuota.TenantStorageMB - _sharepointQuota.GeoUsedStorageMB) MB</MudText>
+                                            </MudStack>
+                                            <MudStack Row Justify="Justify.SpaceBetween">
+                                                <MudStack Row Spacing="1">
+                                                    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--mud-palette-warning); margin-top: 6px;"></div>
+                                                    <MudText Typo="Typo.body2" Color="Color.Secondary">Used (@FormatStorage(_sharepointQuota.GeoUsedStorageMB))</MudText>
+                                                </MudStack>
+                                                <MudText Typo="Typo.body2" Color="Color.Secondary">@_sharepointQuota.GeoUsedStorageMB MB</MudText>
+                                            </MudStack>
+                                        </MudStack>
+                                        <MudProgressLinear Color="Color.Warning" Value="@_sharepointQuota.Percentage" Class="mt-4" />
+                                    </MudStack>
+                                }
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudCard Elevation="2" Style="height: 100%;">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Domain Names</MudText>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                    @if ((_organization?.VerifiedDomains?.Count ?? 0) > 3) {
+                                        <MudButton Size="Size.Small" OnClick="@(() => _showAllDomains = !_showAllDomains)">
+                                            @(_showAllDomains ? "See less" : "See more...")
+                                        </MudButton>
+                                    }
+                                </CardHeaderActions>
+                            </MudCardHeader>
+                            <MudDivider />
+                            <MudCardContent>
+                                <MudList T="string" Dense>
+                                    @if (_loading || _organization == null) {
+                                        <MudListItem T="string">
+                                            <MudSkeleton Width="200px" />
+                                        </MudListItem>
+                                    } else {
+                                        @foreach (var domain in GetDisplayedDomains()) {
+                                            <MudListItem T="string">
+                                                <MudText>@domain.Name</MudText>
+                                            </MudListItem>
+                                        }
+                                    }
+                                </MudList>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                </MudGrid>
+            }
+        </MudStack>
+    }
 </MudContainer>
 
 @code {
-    private DashboardStats? _stats;
-    private List<ActivityItem>? _recentActivity;
-    private bool _loading = true;
-    private string? _error;
+    private OrganizationDto? _organization;
+    private UserCountsDto? _userCounts;
+    private SharePointQuotaDto? _sharepointQuota;
+    private bool _loading = false;
+    private bool _showAllDomains = false;
 
     protected override async Task OnInitializedAsync() {
-        await LoadDashboardData();
+        TenantService.OnSelectedTenantChanged += OnTenantChanged;
+        
+        if (TenantService.SelectedTenantId.HasValue && TenantService.SelectedTenantId != Guid.Empty) {
+            await LoadDashboardData();
+        }
+    }
+
+    private async void OnTenantChanged() {
+        if (TenantService.SelectedTenantId.HasValue && TenantService.SelectedTenantId != Guid.Empty) {
+            await LoadDashboardData();
+        }
+    }
+    
+    public void Dispose() {
+        TenantService.OnSelectedTenantChanged -= OnTenantChanged;
     }
 
     private async Task LoadDashboardData() {
+        var selectedTenantId = TenantService.SelectedTenantId;
+        if (!selectedTenantId.HasValue || selectedTenantId == Guid.Empty) {
+            return;
+        }
+
         _loading = true;
-        _error = null;
+        ErrorHandler.ClearErrors();
 
         try {
-            Logger.LogInformation(message: "Loading dashboard data");
-            
-            Response<DashboardStats>? statsResponse = await ApiClient.GetAsync<DashboardStats>("/dashboard/stats");
-            if (statsResponse.Success) {
-                _stats = statsResponse.Data;
-            } else {
-                Logger.LogWarning(message: "Failed to load dashboard stats: {Error}", statsResponse.Message);
-                _error = statsResponse.Message;
-            }
+            Logger.LogInformation("Loading dashboard data for tenant {TenantId}", selectedTenantId);
 
-            Response<List<ActivityItem>>? activityResponse = await ApiClient.GetAsync<List<ActivityItem>>("/dashboard/activity");
-            if (activityResponse.Success) {
-                _recentActivity = activityResponse.Data;
-            } else {
-                Logger.LogWarning(message: "Failed to load recent activity: {Error}", activityResponse.Message);
-            }
+            var organizationTask = ApiClient.GetAsync<OrganizationDto>($"/tenants/{selectedTenantId}/organization");
+            var userCountsTask = ApiClient.GetAsync<UserCountsDto>($"/identity/users/counts?tenantId={selectedTenantId}");
+            var sharepointTask = ApiClient.GetAsync<SharePointQuotaDto>($"/sharepoint/sites/quota?tenantId={selectedTenantId}");
+
+            await Task.WhenAll(organizationTask, userCountsTask, sharepointTask);
+
+            var organizationResponse = await organizationTask;
+            organizationResponse.HandleError(ErrorHandler, "Organization Data");
+            _organization = organizationResponse.GetDataOrDefault();
+
+            var userCountsResponse = await userCountsTask;
+            userCountsResponse.HandleError(ErrorHandler, "User Counts");
+            _userCounts = userCountsResponse.GetDataOrDefault();
+
+            var sharepointResponse = await sharepointTask;
+            sharepointResponse.HandleError(ErrorHandler, "SharePoint Quota");
+            _sharepointQuota = sharepointResponse.GetDataOrDefault();
 
         } catch (Exception ex) {
-            Logger.LogError(ex, message: "Error loading dashboard data");
-            _error = "Failed to load dashboard data. Please try again.";
+            Logger.LogError(ex, "Error loading dashboard data");
+            ErrorHandler.AddError("Dashboard Load", ex.Message, ex.ToString());
         } finally {
+            if (ErrorHandler.HasErrors) {
+                await ErrorHandler.ShowAccumulatedErrorsAsync();
+            }
             _loading = false;
             StateHasChanged();
         }
     }
 
-    private async Task RefreshDashboard() {
-        await LoadDashboardData();
+    private string GetDefaultDomain() {
+        return _organization?.VerifiedDomains?.FirstOrDefault(d => d.IsDefault)?.Name ?? "N/A";
     }
 
-    public class DashboardStats {
-        public int? TotalTenants { get; set; }
-        public int? ActiveUsers { get; set; }
-        public int? Alerts { get; set; }
-        public DateTime? LastSync { get; set; }
+    private IEnumerable<VerifiedDomainDto> GetDisplayedDomains() {
+        if (_organization?.VerifiedDomains == null) {
+            return Enumerable.Empty<VerifiedDomainDto>();
+        }
+
+        return _showAllDomains 
+            ? _organization.VerifiedDomains 
+            : _organization.VerifiedDomains.Take(3);
     }
 
-    public class ActivityItem {
-        public string Message { get; set; } = "";
-        public DateTime Timestamp { get; set; }
-        public string Type { get; set; } = "";
+    private string FormatStorage(long sizeInMB) {
+        if (sizeInMB >= 1024) {
+            return $"{(sizeInMB / 1024.0):F2}GB";
+        }
+        return $"{sizeInMB}MB";
     }
 }

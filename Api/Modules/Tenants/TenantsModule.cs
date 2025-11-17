@@ -17,8 +17,7 @@ public class TenantsModule
         services.AddScoped<IMicrosoftGraphService, MicrosoftGraphService>();
     }
     
-    public void ConfigureEndpoints(RouteGroupBuilder moduleGroup)
-    {
+    public void ConfigureEndpoints(RouteGroupBuilder moduleGroup) {
         moduleGroup.MapGetTenants();
         moduleGroup.MapGetTenantById();
         moduleGroup.MapGetTenantDetails();
@@ -33,5 +32,7 @@ public class TenantsModule
         moduleGroup.MapGetTenantCapabilities();
         moduleGroup.MapSyncTenantFromGraph();
         moduleGroup.MapValidateDomain();
+        moduleGroup.MapGetOrganization();
+        moduleGroup.MapGetPartnerRelationships();
     }
 }

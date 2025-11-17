@@ -1,6 +1,6 @@
 using CIPP.Shared.DTOs;
 using Microsoft.AspNetCore.Components;
-using System.Net;
+using System.Net.Sockets;
 using System.Text.Json;
 
 namespace CIPP.Frontend.Modules.Authentication.Handlers;
@@ -20,38 +20,48 @@ public class ServerErrorHandler : DelegatingHandler {
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) {
-        var response = await base.SendAsync(request, cancellationToken);
+        try {
+            var response = await base.SendAsync(request, cancellationToken);
 
-        if ((int)response.StatusCode >= 400 && response.StatusCode != System.Net.HttpStatusCode.Unauthorized) {
-            var endpoint = request.RequestUri?.PathAndQuery ?? "unknown";
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            
-            _logger.LogError("Error response from API endpoint: {Endpoint}, Status: {StatusCode}", endpoint, response.StatusCode);
-            
-            try {
-                var errorResponse = JsonSerializer.Deserialize<Response<object>>(content, _jsonOptions);
-
-                if (errorResponse != null && !errorResponse.Success) {
-                    var errorMessage = Uri.EscapeDataString(errorResponse.Message ?? $"Error {response.StatusCode}");
-                    var errors = errorResponse.Errors != null && errorResponse.Errors.Any() 
-                        ? Uri.EscapeDataString(string.Join("||", errorResponse.Errors))
-                        : string.Empty;
-                    
-                    var errorUrl = $"/error?statusCode={(int)response.StatusCode}&endpoint={Uri.EscapeDataString(endpoint)}&message={errorMessage}";
-                    if (!string.IsNullOrEmpty(errors)) {
-                        errorUrl += $"&errors={errors}";
+            if ((int)response.StatusCode >= 400 && response.StatusCode != System.Net.HttpStatusCode.Unauthorized) {
+                var endpoint = request.RequestUri?.PathAndQuery ?? "unknown";
+                var content = await response.Content.ReadAsStringAsync(cancellationToken);
+                
+                _logger.LogError("Error response from API endpoint: {Endpoint}, Status: {StatusCode}, Content: {Content}", 
+                    endpoint, response.StatusCode, content);
+                
+                try {
+                    var errorResponse = JsonSerializer.Deserialize<Response<object>>(content, _jsonOptions);
+                    if (errorResponse != null && !errorResponse.Success && errorResponse.Errors?.Any() == true) {
+                        _logger.LogError("API Errors: {Errors}", string.Join("; ", errorResponse.Errors));
                     }
-                    _navigationManager.NavigateTo(errorUrl);
-                } else {
-                    var errorMessage = Uri.EscapeDataString($"Server returned {response.StatusCode}");
-                    _navigationManager.NavigateTo($"/error?statusCode={(int)response.StatusCode}&endpoint={Uri.EscapeDataString(endpoint)}&message={errorMessage}");
+                } catch (JsonException) {
+                    _logger.LogWarning("Failed to deserialize error response content");
                 }
-            } catch (JsonException) {
-                var errorMessage = Uri.EscapeDataString($"Server returned {response.StatusCode}");
-                _navigationManager.NavigateTo($"/error?statusCode={(int)response.StatusCode}&endpoint={Uri.EscapeDataString(endpoint)}&message={errorMessage}");
             }
-        }
 
-        return response;
+            return response;
+        } catch (HttpRequestException ex) {
+            _logger.LogError(ex, "Failed to connect to API: {Message}", ex.Message);
+            
+            var errorDetails = Uri.EscapeDataString($"Exception: {ex.GetType().Name}\nMessage: {ex.Message}\n\n{ex}");
+            _navigationManager.NavigateTo($"/api-connection-error?errorDetails={errorDetails}");
+            
+            throw;
+        } catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested) {
+            _logger.LogError(ex, "API request timeout");
+            
+            var errorDetails = Uri.EscapeDataString($"Request Timeout\n\nThe API server did not respond within the expected time.");
+            _navigationManager.NavigateTo($"/api-connection-error?errorDetails={errorDetails}");
+            
+            throw;
+        } catch (SocketException ex) {
+            _logger.LogError(ex, "Network socket error: {Message}", ex.Message);
+            
+            var errorDetails = Uri.EscapeDataString($"Socket Error: {ex.SocketErrorCode}\nMessage: {ex.Message}");
+            _navigationManager.NavigateTo($"/api-connection-error?errorDetails={errorDetails}");
+            
+            throw;
+        }
     }
 }

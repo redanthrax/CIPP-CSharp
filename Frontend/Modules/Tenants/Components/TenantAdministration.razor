@@ -22,7 +22,7 @@
                 <MudButton Variant="Variant.Filled"
                           Color="Color.Primary"
                           StartIcon="@Icons.Material.Filled.Add"
-                          OnClick="@(() => Navigation.NavigateTo("/tenants/add"))">
+                          OnClick="@(() => Navigation.NavigateTo("/tenant/administration/tenants/add"))">
                     Add Tenant
                 </MudButton>
                 <MudButton Variant="Variant.Outlined"
@@ -36,13 +36,14 @@
 
         <!-- Tabs -->
         <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" 
-                 PanelClass="pa-6" KeepPanelsAlive="true"
+                 PanelClass="pa-4" KeepPanelsAlive="true"
                  ActivePanelIndex="@_activeTabIndex"
                  ActivePanelIndexChanged="OnTabChanged">
             
             <!-- Tenants Tab -->
             <MudTabPanel Text="Tenants" Icon="@Icons.Material.Filled.Business">
                 <CippDataGrid TItem="TenantDto"
+                             Elevation="0"
                              Items="@_tenants"
                              @bind-SelectedItems="_selectedTenants"
                              Loading="@_loading"
@@ -191,14 +192,6 @@
                                         </MudStack>
                                     </CellTemplate>
                                 </TemplateColumn>
-
-                                <PropertyColumn Property="x => x.CreatedAt" Title="Created" Sortable="true">
-                                    <CellTemplate>
-                                        <MudText Typo="Typo.body2">
-                                            @context.Item.CreatedAt.ToString("MMM dd, yyyy")
-                                        </MudText>
-                                    </CellTemplate>
-                                </PropertyColumn>
                             </Columns>
                             <PagerContent>
                                 <MudDataGridPager T="TenantDto" />

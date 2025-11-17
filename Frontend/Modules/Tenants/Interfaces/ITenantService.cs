@@ -4,6 +4,10 @@ using CIPP.Shared.DTOs.Tenants;
 namespace CIPP.Frontend.Modules.Tenants.Interfaces;
 
 public interface ITenantService {
+    event Action? OnSelectedTenantChanged;
+    TenantDto? SelectedTenant { get; set; }
+    Guid? SelectedTenantId { get; }
+    
     Task<PagedResponse<TenantDto>> GetTenantsAsync(int pageNumber = 1, int pageSize = 50, 
         bool allTenants = false, bool includeOffboardingDefaults = false, bool noCache = false);
     

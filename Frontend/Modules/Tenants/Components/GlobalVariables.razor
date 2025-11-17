@@ -8,61 +8,56 @@
 
 <PageTitle>Global Variables - CIPP</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    <MudCard>
-        <MudCardHeader>
-            <CardHeaderContent>
-                <MudStack Spacing="2">
-                    <MudText Typo="Typo.h6">Global Variables</MudText>
-                    <MudAlert Severity="Severity.Info" Dense="true">
-                        Global variables are key-value pairs that can be used to store additional information for All Tenants. 
-                        These are applied to templates in standards using the format %variablename%. 
-                        If a tenant has a custom variable with the same name, the tenant's variable will take precedence.
-                    </MudAlert>
-                </MudStack>
-            </CardHeaderContent>
-            <CardHeaderActions>
-                <MudButtonGroup Variant="Variant.Outlined">
-                    <MudButton Color="Color.Success" 
-                              StartIcon="@Icons.Material.Filled.Add"
-                              OnClick="ShowAddDialog">
-                        Add Variable
-                    </MudButton>
-                    <MudButton Color="Color.Primary" 
-                              StartIcon="@Icons.Material.Filled.Refresh"
-                              OnClick="@(() => LoadVariables(noCache: true))"
-                              Disabled="@_loading">
-                        @if (_loading) {
-                            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
-                        } else {
-                            <span>Refresh</span>
-                        }
-                    </MudButton>
-                </MudButtonGroup>
-            </CardHeaderActions>
-        </MudCardHeader>
-        <MudCardContent>
-            @if (_loading && (_variables == null || !_variables.Any())) {
-                <div class="d-flex justify-center pa-4">
-                    <MudProgressCircular Indeterminate="true" />
-                </div>
-                <MudText Class="text-center mt-2" Color="Color.Secondary">
-                    Loading global variables...
-                </MudText>
-            }
-            else if (_error != null) {
-                <MudAlert Severity="Severity.Error" Class="mb-4">
-                    Error loading global variables: @_error
-                    <MudButton Color="Color.Error" 
-                               Variant="Variant.Text" 
-                               Size="Size.Small"
-                               OnClick="@(() => LoadVariables())"
-                               Class="ml-2">
-                        Retry
-                    </MudButton>
-                </MudAlert>
-            }
-            else if (_variables?.Any() == true) {
+<MudStack Spacing="3">
+    <MudStack Spacing="2">
+        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h6">Global Variables</MudText>
+            <MudButtonGroup Variant="Variant.Outlined">
+                <MudButton Color="Color.Success" 
+                          StartIcon="@Icons.Material.Filled.Add"
+                          OnClick="ShowAddDialog">
+                    Add Variable
+                </MudButton>
+                <MudButton Color="Color.Primary" 
+                          StartIcon="@Icons.Material.Filled.Refresh"
+                          OnClick="@(() => LoadVariables(noCache: true))"
+                          Disabled="@_loading">
+                    @if (_loading) {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                    } else {
+                        <span>Refresh</span>
+                    }
+                </MudButton>
+            </MudButtonGroup>
+        </MudStack>
+        <MudAlert Severity="Severity.Info" Dense="true">
+            Global variables are key-value pairs that can be used to store additional information for All Tenants. 
+            These are applied to templates in standards using the format %variablename%. 
+            If a tenant has a custom variable with the same name, the tenant's variable will take precedence.
+        </MudAlert>
+    </MudStack>
+
+    @if (_loading && (_variables == null || !_variables.Any())) {
+        <div class="d-flex justify-center pa-4">
+            <MudProgressCircular Indeterminate="true" />
+        </div>
+        <MudText Class="text-center mt-2" Color="Color.Secondary">
+            Loading global variables...
+        </MudText>
+    }
+    else if (_error != null) {
+        <MudAlert Severity="Severity.Error" Class="mb-4">
+            Error loading global variables: @_error
+            <MudButton Color="Color.Error" 
+                       Variant="Variant.Text" 
+                       Size="Size.Small"
+                       OnClick="@(() => LoadVariables())"
+                       Class="ml-2">
+                Retry
+            </MudButton>
+        </MudAlert>
+    }
+    else if (_variables?.Any() == true) {
                 <MudDataGrid T="CustomVariable" 
                              Items="@_variables" 
                              Filterable="true" 
@@ -119,30 +114,28 @@
                         Last updated: @(_lastUpdated?.ToString("HH:mm:ss") ?? "Never")
                     </MudText>
                 </MudStack>
-            }
-            else {
-                <MudPaper Class="pa-8 text-center" Elevation="0">
-                    <MudIcon Icon="@Icons.Material.Filled.SettingsApplications" 
-                             Size="Size.Large" 
-                             Color="Color.Secondary" 
-                             Class="mb-4" />
-                    <MudText Typo="Typo.h6" Color="Color.Secondary">
-                        No Global Variables
-                    </MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
-                        Add custom variables to store global configuration that applies to all tenants.
-                    </MudText>
-                    <MudButton Variant="Variant.Filled" 
-                               Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.Add"
-                               OnClick="ShowAddDialog">
-                        Add First Variable
-                    </MudButton>
-                </MudPaper>
-            }
-        </MudCardContent>
-    </MudCard>
-</MudContainer>
+    }
+    else {
+        <MudPaper Class="pa-8 text-center" Elevation="0">
+            <MudIcon Icon="@Icons.Material.Filled.SettingsApplications" 
+                     Size="Size.Large" 
+                     Color="Color.Secondary" 
+                     Class="mb-4" />
+            <MudText Typo="Typo.h6" Color="Color.Secondary">
+                No Global Variables
+            </MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                Add custom variables to store global configuration that applies to all tenants.
+            </MudText>
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="ShowAddDialog">
+                Add First Variable
+            </MudButton>
+        </MudPaper>
+    }
+</MudStack>
 
 <MudDialog @bind-Visible="_showDialog" Options="_dialogOptions">
     <TitleContent>

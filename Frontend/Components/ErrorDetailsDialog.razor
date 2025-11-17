@@ -1,0 +1,61 @@
+@using MudBlazor
+@inject ILogger<ErrorDetailsDialog> Logger
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            @if (!string.IsNullOrEmpty(Message)) {
+                <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
+                    @Message
+                </MudAlert>
+            }
+            
+            @if (Errors != null && Errors.Any()) {
+                <MudText Typo="Typo.subtitle2" Class="mt-2">Error Details:</MudText>
+                <MudPaper Elevation="0" Class="pa-3" Style="background-color: var(--mud-palette-background-grey); max-height: 400px; overflow-y: auto;">
+                    <MudStack Spacing="2">
+                        @foreach (var error in Errors) {
+                            <MudStack Row Spacing="1" AlignItems="AlignItems.Start">
+                                <MudIcon Icon="@Icons.Material.Filled.Error" Size="Size.Small" Color="Color.Error" Style="margin-top: 2px;" />
+                                <MudText Typo="Typo.body2" Style="white-space: pre-wrap; word-break: break-word;">@error</MudText>
+                            </MudStack>
+                        }
+                    </MudStack>
+                </MudPaper>
+            }
+            
+            @if (!string.IsNullOrEmpty(TechnicalDetails)) {
+                <MudExpansionPanels>
+                    <MudExpansionPanel Text="Technical Details" Dense>
+                        <MudPaper Elevation="0" Class="pa-2" Style="background-color: var(--mud-palette-background-grey); max-height: 200px; overflow-y: auto;">
+                            <MudText Typo="Typo.caption" Style="font-family: monospace; white-space: pre-wrap; word-break: break-all;">@TechnicalDetails</MudText>
+                        </MudPaper>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Dismiss" Color="Color.Primary" Variant="Variant.Filled">
+            OK
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public string? Message { get; set; }
+
+    [Parameter]
+    public List<string>? Errors { get; set; }
+
+    [Parameter]
+    public string? TechnicalDetails { get; set; }
+
+    private void Dismiss() {
+        MudDialog?.Close();
+    }
+}

@@ -25,18 +25,18 @@
     }
     else
     {
-        <MudAutocomplete Label="Select Tenant" T="TenantDto" 
-            Value="_selectedTenant" ValueChanged="OnTenantSelected"
+        <MudAutocomplete Label="@(_tenantService.SelectedTenant == null ? "Select Tenant" : "")" T="TenantDto" 
+            Value="_tenantService.SelectedTenant" ValueChanged="OnTenantSelected"
             SearchFunc="Search" ToStringFunc="@(tenant => tenant?.DisplayName ?? "")"
             Clearable="true" 
             Variant="Variant.Outlined" Margin="Margin.Dense"
-            MinCharacters="0" MaxItems="50" />
+            MinCharacters="0" MaxItems="50"
+            Style="background-color: white; border-radius: 4px;" />
     }
 </MudContainer>
 
 @code {
     private List<TenantDto> _tenants = new();
-    private TenantDto? _selectedTenant;
     private bool _isLoading = true;
     private bool _hasError = false;
 
@@ -113,7 +113,7 @@
 
     private async Task OnTenantSelected(TenantDto? selectedTenant)
     {
-        _selectedTenant = selectedTenant;
+        _tenantService.SelectedTenant = selectedTenant;
         if (OnTenantChanged.HasDelegate)
         {
             await OnTenantChanged.InvokeAsync(selectedTenant);

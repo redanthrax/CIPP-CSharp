@@ -2,7 +2,7 @@
 @using System.Linq.Expressions
 @attribute [CascadingTypeParameter(nameof(TItem))]
 
-<MudPaper Class="overflow-hidden" Elevation="2">
+<MudPaper Class="overflow-hidden" Elevation="@Elevation">
     <!-- Filters and Search Section -->
     @if (ShowFilters)
     {
@@ -76,6 +76,7 @@
     [Parameter] public bool MultiSelection { get; set; } = false;
     [Parameter] public HashSet<TItem> SelectedItems { get; set; } = new();
     [Parameter] public EventCallback<HashSet<TItem>> SelectedItemsChanged { get; set; }
+    [Parameter] public int Elevation { get; set; } = 2;
     
     [Parameter] public bool Loading { get; set; } = false;
     [Parameter] public bool Filterable { get; set; } = true;

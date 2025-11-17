@@ -149,19 +149,23 @@ public class SharePointSiteService : ISharePointSiteService {
                 }
             }
             
+            long totalStorageQuotaMB = 1099511627776 / (1024 * 1024);
+            long usedStorageMB = totalStorageUsed / (1024 * 1024);
+            int percentage = totalStorageQuotaMB > 0 ? (int)((usedStorageMB * 100) / totalStorageQuotaMB) : 0;
+            
             return new SharePointQuotaDto {
-                StorageQuota = 1099511627776,
-                StorageQuotaAllocated = totalStorageUsed,
-                StorageQuotaGB = Math.Round(1099511627776 / (1024.0 * 1024.0 * 1024.0), 2),
-                StorageQuotaAllocatedGB = Math.Round(totalStorageUsed / (1024.0 * 1024.0 * 1024.0), 2)
+                GeoUsedStorageMB = usedStorageMB,
+                TenantStorageMB = totalStorageQuotaMB,
+                Percentage = percentage,
+                Dashboard = $"{percentage} / 100"
             };
         } catch (Exception ex) {
             _logger.LogWarning(ex, "Failed to retrieve SharePoint quota information");
             return new SharePointQuotaDto {
-                StorageQuota = 0,
-                StorageQuotaAllocated = 0,
-                StorageQuotaGB = 0,
-                StorageQuotaAllocatedGB = 0
+                GeoUsedStorageMB = 0,
+                TenantStorageMB = 0,
+                Percentage = 0,
+                Dashboard = "0 / 100"
             };
         }
     }
