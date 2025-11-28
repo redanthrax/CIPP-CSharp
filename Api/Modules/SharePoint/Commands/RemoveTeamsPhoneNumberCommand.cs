@@ -1,1 +1,0 @@
-using CIPP.Shared.DTOs.SharePoint;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.SharePoint.Commands;public record RemoveTeamsPhoneNumberCommand(Guid TenantId, RemoveTeamsPhoneNumberDto RemoveDto) : IRequest<RemoveTeamsPhoneNumberCommand, Task<string>>;

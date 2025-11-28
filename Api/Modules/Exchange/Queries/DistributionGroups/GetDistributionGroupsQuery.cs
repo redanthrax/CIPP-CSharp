@@ -1,1 +1,0 @@
-using CIPP.Shared.DTOs;using CIPP.Shared.DTOs.Exchange;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Exchange.Queries.DistributionGroups;public record GetDistributionGroupsQuery(Guid TenantId, PagingParameters PagingParams, string? Filter = null) : IRequest<GetDistributionGroupsQuery, Task<PagedResponse<DistributionGroupDto>>>;

@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Intune.Commands;public record RebootDeviceCommand(Guid TenantId, string DeviceId)     : IRequest<RebootDeviceCommand, Task>;

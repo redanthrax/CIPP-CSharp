@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Applications.Commands;public record EnableServicePrincipalCommand(    Guid TenantId,    string ServicePrincipalId) : IRequest<EnableServicePrincipalCommand, Task>;

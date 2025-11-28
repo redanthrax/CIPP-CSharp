@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Intune.Commands;public record DeleteIntuneAppCommand(Guid TenantId, string AppId)     : IRequest<DeleteIntuneAppCommand, Task>;

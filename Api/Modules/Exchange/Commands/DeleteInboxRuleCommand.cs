@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Exchange.Commands;public record DeleteInboxRuleCommand(Guid TenantId, string MailboxId, string RuleId) : IRequest<DeleteInboxRuleCommand, Task>;

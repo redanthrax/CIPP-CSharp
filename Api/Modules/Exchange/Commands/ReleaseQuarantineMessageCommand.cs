@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Exchange.Commands;public record ReleaseQuarantineMessageCommand(Guid TenantId, string MessageId) : IRequest<ReleaseQuarantineMessageCommand, Task>;

@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Tenants.Commands;public record ExcludeTenantCommand(List<Guid> TenantIds,    bool AddExclusion) : IRequest<ExcludeTenantCommand, Task<string>>;

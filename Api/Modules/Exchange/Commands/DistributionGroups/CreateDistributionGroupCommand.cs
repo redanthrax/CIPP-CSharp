@@ -1,1 +1,0 @@
-using CIPP.Shared.DTOs.Exchange;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Exchange.Commands.DistributionGroups;public record CreateDistributionGroupCommand(Guid TenantId, CreateDistributionGroupDto Group) : IRequest<CreateDistributionGroupCommand, Task>;

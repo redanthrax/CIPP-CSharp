@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Intune.Commands;public record DeleteIntunePolicyCommand(Guid TenantId, string PolicyId, string UrlName)     : IRequest<DeleteIntunePolicyCommand, Task>;

@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Exchange.Commands;public record DeleteContactCommand(Guid TenantId, string ContactId) : IRequest<DeleteContactCommand, Task>;

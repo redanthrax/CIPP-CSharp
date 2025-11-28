@@ -1,1 +1,0 @@
-using CIPP.Shared.DTOs.Exchange;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Exchange.Commands;public record UpdateMailboxPermissionsCommand(Guid TenantId, string UserId, UpdateMailboxPermissionsDto UpdateDto) : IRequest<UpdateMailboxPermissionsCommand, Task>;

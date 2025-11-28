@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Identity.Commands;public record RemoveRoleCommand(Guid TenantId, string RoleId, string UserId) : IRequest<RemoveRoleCommand, Task>;

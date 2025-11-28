@@ -1,1 +1,0 @@
-using CIPP.Api.Modules.Tenants.Models;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Tenants.Commands;public record UpdateTenantGroupCommand(Guid GroupId,    string Name,    string? Description,    List<Guid>? MemberTenantIds) : IRequest<UpdateTenantGroupCommand, Task<TenantGroup>>;

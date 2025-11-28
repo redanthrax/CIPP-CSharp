@@ -1,1 +1,0 @@
-using CIPP.Shared.DTOs.Intune;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Intune.Queries;public record GetAutopilotDeviceQuery(Guid TenantId, string DeviceId)     : IRequest<GetAutopilotDeviceQuery, Task<AutopilotDeviceDto?>>;

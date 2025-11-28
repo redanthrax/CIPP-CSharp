@@ -1,1 +1,0 @@
-using CIPP.Shared.DTOs.Identity;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Identity.Commands;public record CreateGroupCommand(Guid TenantId, CreateGroupDto GroupData) : IRequest<CreateGroupCommand, Task<GroupDto>>;

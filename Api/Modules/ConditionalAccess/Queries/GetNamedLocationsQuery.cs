@@ -1,1 +1,0 @@
-using CIPP.Shared.DTOs;using CIPP.Shared.DTOs.ConditionalAccess;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.ConditionalAccess.Queries;public record GetNamedLocationsQuery(    Guid TenantId,    PagingParameters? Paging = null) : IRequest<GetNamedLocationsQuery, Task<PagedResponse<NamedLocationDto>>>;

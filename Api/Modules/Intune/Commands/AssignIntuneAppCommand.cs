@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Intune.Commands;public record AssignIntuneAppCommand(Guid TenantId, string AppId, string AssignTo)     : IRequest<AssignIntuneAppCommand, Task>;

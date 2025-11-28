@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Exchange.Commands.DistributionGroups;public record RemoveDistributionGroupMemberCommand(Guid TenantId, string GroupId, string MemberEmail) : IRequest<RemoveDistributionGroupMemberCommand, Task>;

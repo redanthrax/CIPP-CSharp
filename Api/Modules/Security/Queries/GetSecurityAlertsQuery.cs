@@ -1,1 +1,0 @@
-using CIPP.Shared.DTOs.Security;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Security.Queries;public record GetSecurityAlertsQuery(    Guid TenantId,    string? ServiceSource = null) : IRequest<GetSecurityAlertsQuery, Task<SecurityAlertsResponseDto>>;

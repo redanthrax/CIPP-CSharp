@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.ConditionalAccess.Commands;public record DeleteNamedLocationCommand(    Guid TenantId,    string LocationId) : IRequest<DeleteNamedLocationCommand, Task>;

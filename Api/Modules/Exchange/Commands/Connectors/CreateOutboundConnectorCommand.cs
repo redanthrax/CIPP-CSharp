@@ -1,1 +1,0 @@
-using CIPP.Shared.DTOs.Exchange;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Exchange.Commands.Connectors;public record CreateOutboundConnectorCommand(Guid TenantId, CreateOutboundConnectorDto Connector) : IRequest<CreateOutboundConnectorCommand, Task>;

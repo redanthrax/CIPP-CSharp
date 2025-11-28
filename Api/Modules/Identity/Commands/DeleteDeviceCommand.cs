@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Identity.Commands;public record DeleteDeviceCommand(    Guid TenantId,    string DeviceId) : IRequest<DeleteDeviceCommand, Task>;

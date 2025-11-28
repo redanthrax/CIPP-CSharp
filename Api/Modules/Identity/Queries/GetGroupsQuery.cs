@@ -1,1 +1,0 @@
-using CIPP.Shared.DTOs;using CIPP.Shared.DTOs.Identity;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Identity.Queries;public record GetGroupsQuery(    Guid TenantId,    PagingParameters? Paging = null) : IRequest<GetGroupsQuery, Task<PagedResponse<GroupDto>>>;

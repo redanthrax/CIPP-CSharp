@@ -1,1 +1,0 @@
-using CIPP.Shared.DTOs.Applications;using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Applications.Commands;public record CreateAppTemplateCommand(CreateAppTemplateDto CreateDto) : IRequest<CreateAppTemplateCommand, Task<AppTemplateDto>>;

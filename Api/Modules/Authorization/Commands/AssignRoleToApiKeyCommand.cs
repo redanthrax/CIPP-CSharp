@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Authorization.Commands;public record AssignRoleToApiKeyCommand(Guid ApiKeyId,    Guid RoleId,    string AssignedBy) : IRequest<AssignRoleToApiKeyCommand, Task<bool>>;

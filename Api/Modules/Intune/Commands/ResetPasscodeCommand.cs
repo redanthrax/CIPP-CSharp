@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Intune.Commands;public record ResetPasscodeCommand(Guid TenantId, string DeviceId)     : IRequest<ResetPasscodeCommand, Task>;

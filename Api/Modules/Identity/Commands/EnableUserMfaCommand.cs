@@ -1,1 +1,0 @@
-using DispatchR.Abstractions.Send;namespace CIPP.Api.Modules.Identity.Commands;public record EnableUserMfaCommand(    Guid TenantId,    string UserId) : IRequest<EnableUserMfaCommand, Task>;
