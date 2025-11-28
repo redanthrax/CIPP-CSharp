@@ -44,7 +44,7 @@
                                     <MudChip T="string" OnClose="@(() => RemoveExcludedTenant(excluded))" 
                                            Variant="Variant.Filled" 
                                            Color="Color.Secondary">
-                                        @excluded.Label
+                                        @excluded
                                     </MudChip>
                                 }
                             </MudStack>
@@ -155,6 +155,14 @@
                             </MudStack>
                         }
                     </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_alertComment"
+                                    Label="Alert Comment"
+                                    Placeholder="Add documentation, FAQ links, or instructions for when this alert triggers..."
+                                    Lines="3"
+                                    Variant="Variant.Outlined" />
+                    </MudItem>
                 </MudGrid>
             </MudPaper>
         </MudItem>
@@ -167,18 +175,19 @@
     [Parameter] public EventCallback OnSave { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
 
-    private CreateScriptedTaskAlertDto _formModel = new();
+    private CreateScriptedAlertDto _formModel = new();
     private bool _isFormValid = false;
     
     private TenantSelectorOptionDto? _selectedTenant;
     private TenantSelectorOptionDto? _excludedTenant;
-    private List<TenantSelectorOptionDto> _excludedTenants = new();
+    private List<string> _excludedTenants = new();
     private AlertCommandDto? _selectedCommand;
     private RecurrenceOptionDto? _selectedRecurrence;
     private IEnumerable<PostExecutionOptionDto> _selectedPostExecutions = new List<PostExecutionOptionDto>();
     private DateTime? _startDate;
     private TimeSpan? _startTime;
     private string _commandInput = string.Empty;
+    private string _alertComment = string.Empty;
     
     private List<AlertCommandDto> _commandOptions = new();
     private List<RecurrenceOptionDto> _recurrenceOptions = new();
@@ -288,15 +297,15 @@
         return Task.FromResult<IEnumerable<string>>(options.Where(o => o.Contains(value, StringComparison.OrdinalIgnoreCase)));
     }
 
-    private void RemoveExcludedTenant(TenantSelectorOptionDto tenant) {
+    private void RemoveExcludedTenant(string tenant) {
         _excludedTenants.Remove(tenant);
         ValidateForm();
         StateHasChanged();
     }
 
     private void OnExcludedTenantSelected() {
-        if (_excludedTenant != null && !_excludedTenants.Contains(_excludedTenant)) {
-            _excludedTenants.Add(_excludedTenant);
+        if (_excludedTenant != null && !_excludedTenants.Contains(_excludedTenant.Value)) {
+            _excludedTenants.Add(_excludedTenant.Value);
             _excludedTenant = null;
             ValidateForm();
             StateHasChanged();
@@ -306,25 +315,26 @@
     private async Task HandleSubmit() {
         try {
             var startDateTime = _startDate.HasValue && _startTime.HasValue 
-                ? new DateTimeOffset(_startDate.Value.Date.Add(_startTime.Value)).ToUnixTimeSeconds()
-                : (long?)null;
+                ? new DateTimeOffset(_startDate.Value.Date.Add(_startTime.Value)).ToUnixTimeSeconds().ToString()
+                : null;
 
             var parameters = new Dictionary<string, object>();
             if (_selectedCommand?.RequiresInput == true && !string.IsNullOrEmpty(_commandInput)) {
                 parameters[_selectedCommand.InputName ?? "InputValue"] = _commandInput;
             }
 
-            _formModel = new CreateScriptedTaskAlertDto {
+            _formModel = new CreateScriptedAlertDto {
                 RowKey = IsEditMode && !string.IsNullOrEmpty(AlertData?.RowKey) ? AlertData.RowKey : null,
                 TenantFilter = _selectedTenant,
                 ExcludedTenants = _excludedTenants,
                 Name = $"{_selectedTenant?.Label ?? _selectedTenant?.Value}: {_selectedCommand?.Label}",
-                Command = _selectedCommand != null ? $"Get-CIPPAlert{_selectedCommand.Value}" : "",
+                Command = _selectedCommand,
                 Parameters = parameters,
                 ScheduledTime = DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeSeconds(),
                 DesiredStartTime = startDateTime,
-                Recurrence = _selectedRecurrence?.Value ?? "",
-                PostExecution = string.Join(",", _selectedPostExecutions.Select(p => p.Value))
+                Recurrence = _selectedRecurrence,
+                PostExecution = _selectedPostExecutions.ToList(),
+                AlertComment = _alertComment
             };
 
             var result = await ApiClient.PostAsync<string>("/v1/alerts/scripted", _formModel);

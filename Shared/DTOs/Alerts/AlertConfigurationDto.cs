@@ -12,5 +12,6 @@ public class AlertConfigurationDto {
     public string LogType { get; set; } = string.Empty;
     public string EventType { get; set; } = string.Empty;
     public string RepeatsEvery { get; set; } = string.Empty;
+    public string AlertComment { get; set; } = string.Empty;
     public object? RawAlert { get; set; }
 }

@@ -77,6 +77,7 @@ public class AlertConfigurationService : IAlertConfigurationService {
                     Conditions = config.Conditions,
                     Actions = config.Actions,
                     RepeatsEvery = config.ScheduleCron ?? "On demand",
+                    AlertComment = config.AlertComment ?? string.Empty,
                     Tenants = JsonSerializer.Deserialize<List<TenantSelectorOptionDto>>(config.TenantFilter, _jsonOptions) ?? new List<TenantSelectorOptionDto>(),
                     ExcludedTenants = JsonSerializer.Deserialize<List<string>>(config.ExcludedTenants, _jsonOptions) ?? new List<string>(),
                     RawAlert = new {
@@ -86,7 +87,8 @@ public class AlertConfigurationService : IAlertConfigurationService {
                         LastExecuted = config.LastExecuted,
                         LastExecutionResult = config.LastExecutionResult,
                         HangfireJobId = config.HangfireJobId,
-                        WebhookSubscriptionId = config.WebhookSubscriptionId
+                        WebhookSubscriptionId = config.WebhookSubscriptionId,
+                        AlertComment = config.AlertComment
                     }
                 };
                 alerts.Add(alert);
@@ -119,7 +121,8 @@ public class AlertConfigurationService : IAlertConfigurationService {
                 TenantFilter = JsonSerializer.Serialize(alertData.TenantFilter, _jsonOptions),
                 ExcludedTenants = JsonSerializer.Serialize(alertData.ExcludedTenants.Select(t => t.Value).ToList(), _jsonOptions),
                 Conditions = JsonSerializer.Serialize(alertData.Conditions, _jsonOptions),
-                Actions = JsonSerializer.Serialize(alertData.Actions, _jsonOptions)
+                Actions = JsonSerializer.Serialize(alertData.Actions, _jsonOptions),
+                AlertComment = alertData.AlertComment
             };
 
             string? webhookSubscriptionId = null;
@@ -207,12 +210,13 @@ public class AlertConfigurationService : IAlertConfigurationService {
                 Id = Guid.NewGuid(),
                 Name = alertData.Name ?? $"Scripted Alert - {DateTime.UtcNow:yyyy-MM-dd HH:mm}",
                 AlertType = "Scripted",
-                LogType = alertData.LogType ?? "General",
+                LogType = "Scripted",
                 TenantFilter = JsonSerializer.Serialize(alertData.TenantFilter, _jsonOptions),
-                ExcludedTenants = JsonSerializer.Serialize(alertData.ExcludedTenants?.Select(t => t.Value).ToList() ?? new List<string>(), _jsonOptions),
-                Conditions = JsonSerializer.Serialize(alertData.Conditions, _jsonOptions),
-                Actions = JsonSerializer.Serialize(alertData.Actions, _jsonOptions),
-                ScheduleCron = alertData.ScheduleCron ?? "0 0 * * *",
+                ExcludedTenants = JsonSerializer.Serialize(alertData.ExcludedTenants ?? new List<string>(), _jsonOptions),
+                Conditions = JsonSerializer.Serialize(alertData.Command, _jsonOptions),
+                Actions = JsonSerializer.Serialize(alertData.PostExecution?.Select(p => p.Value).ToList() ?? new List<string>(), _jsonOptions),
+                ScheduleCron = alertData.Recurrence?.Value ?? "0 0 * * *",
+                AlertComment = alertData.AlertComment,
                 RawConfiguration = JsonSerializer.Serialize(alertData, _jsonOptions)
             };
 

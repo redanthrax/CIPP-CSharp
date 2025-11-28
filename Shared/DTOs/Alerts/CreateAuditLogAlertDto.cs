@@ -9,4 +9,5 @@ public class CreateAuditLogAlertDto {
     public List<AlertConditionDto> Conditions { get; set; } = new();
     public List<AlertActionDto> Actions { get; set; } = new();
     public AlertLogbookDto? Logbook { get; set; }
+    public string? AlertComment { get; set; }
 }

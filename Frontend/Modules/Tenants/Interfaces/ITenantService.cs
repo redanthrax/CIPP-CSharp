@@ -14,7 +14,7 @@ public interface ITenantService {
     Task<Response<TenantDetailsDto>> GetTenantDetailsAsync(Guid tenantId);
     
     Task<Response<List<TenantSelectorOptionDto>>> GetTenantSelectorOptionsAsync(
-        bool allTenants = false, bool includeGroups = false, bool includeOffboardingDefaults = false);
+        bool allTenants = false, bool includeGroups = false, bool includeOffboardingDefaults = false, int pageNumber = 1, bool noCache = false);
     
     Task<Response<ValidateDomainResponseDto>> ValidateTenantDomainAsync(string tenantName);
     

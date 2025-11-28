@@ -14,6 +14,7 @@ public class AlertConfiguration : IEntityConfiguration<AlertConfiguration> {
     public required string Actions { get; set; } = string.Empty;
     public string? ScheduleCron { get; set; }
     public string? HangfireJobId { get; set; }
+    public string? AlertComment { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? LastExecuted { get; set; }
@@ -38,6 +39,7 @@ public class AlertConfiguration : IEntityConfiguration<AlertConfiguration> {
             entity.Property(e => e.HangfireJobId).HasMaxLength(200);
             entity.Property(e => e.WebhookSubscriptionId).HasMaxLength(200);
             entity.Property(e => e.LastExecutionResult).HasMaxLength(1000);
+            entity.Property(e => e.AlertComment).HasMaxLength(2000);
         });
     }
 }

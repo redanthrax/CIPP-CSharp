@@ -146,6 +146,23 @@
                         </CellTemplate>
                     </PropertyColumn>
 
+                    <PropertyColumn Property="x => x.AlertComment" Title="Comment" Sortable="false" Filterable="false">
+                        <CellTemplate>
+                            @if (!string.IsNullOrEmpty(context.Item.AlertComment))
+                            {
+                                <MudTooltip Text="@context.Item.AlertComment">
+                                    <MudText Typo="Typo.body2" Style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        @context.Item.AlertComment
+                                    </MudText>
+                                </MudTooltip>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">-</MudText>
+                            }
+                        </CellTemplate>
+                    </PropertyColumn>
+
                     <TemplateColumn Title="Actions" Sortable="false" Filterable="false">
                         <CellTemplate>
                             <MudStack Row Spacing="1">
@@ -199,9 +216,9 @@
         StateHasChanged();
 
         try {
-            var result = await ApiClient.GetAsync<List<AlertConfigurationDto>>("/v1/alerts");
+            var result = await ApiClient.GetAsync<PagedResponse<AlertConfigurationDto>>("/v1/alerts");
             if (result?.Success == true && result.Data != null) {
-                _alerts = result.Data;
+                _alerts = result.Data.Items;
                 ApplyFilters();
             } else {
                 NotificationService.ShowError($"Error loading alerts: {result?.Message ?? "Unknown error"}");

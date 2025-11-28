@@ -5,7 +5,7 @@ obj/
 # Configuration files with secrets
 appsettings.*.json
 appsettings.json
-.env*
+.env
 *.env
 
 # Bruno environment file with secrets
@@ -56,5 +56,12 @@ logs/
 # OS files
 Thumbs.db
 .DS_Store
+
+# Certificates
+certs/
+*.pfx
+*.key
+*.crt
+*.pem
 
 __*

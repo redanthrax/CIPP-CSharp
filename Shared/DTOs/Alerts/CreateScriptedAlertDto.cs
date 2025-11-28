@@ -1,13 +1,18 @@
 using CIPP.Shared.DTOs.Tenants;
+using System.Text.Json.Serialization;
 
 namespace CIPP.Shared.DTOs.Alerts;
 
 public class CreateScriptedAlertDto {
+    public string? RowKey { get; set; }
+    public TenantSelectorOptionDto? TenantFilter { get; set; }
+    public List<string>? ExcludedTenants { get; set; } = new();
     public string? Name { get; set; }
-    public string? LogType { get; set; }
-    public List<TenantSelectorOptionDto> TenantFilter { get; set; } = new();
-    public List<TenantSelectorOptionDto>? ExcludedTenants { get; set; } = new();
-    public List<AlertConditionDto> Conditions { get; set; } = new();
-    public List<AlertActionDto> Actions { get; set; } = new();
-    public string? ScheduleCron { get; set; } 
+    public AlertCommandDto? Command { get; set; }
+    public Dictionary<string, object>? Parameters { get; set; }
+    public long? ScheduledTime { get; set; }
+    public string? DesiredStartTime { get; set; }
+    public RecurrenceOptionDto? Recurrence { get; set; }
+    public List<PostExecutionOptionDto>? PostExecution { get; set; } = new();
+    public string? AlertComment { get; set; }
 }

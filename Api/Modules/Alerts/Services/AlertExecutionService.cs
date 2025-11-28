@@ -2,6 +2,7 @@ using CIPP.Api.Data;
 using CIPP.Api.Modules.Alerts.Models;
 using CIPP.Api.Modules.Alerts.Interfaces;
 using CIPP.Api.Modules.MsGraph.Interfaces;
+using CIPP.Api.Modules.Tenants.Models;
 using CIPP.Shared.DTOs.Alerts;
 using CIPP.Shared.DTOs.Tenants;
 using Microsoft.EntityFrameworkCore;
@@ -12,15 +13,21 @@ namespace CIPP.Api.Modules.Alerts.Services;
 public class AlertExecutionService {
     private readonly ApplicationDbContext _dbContext;
     private readonly IMicrosoftGraphService _graphService;
+    private readonly AlertRuleEvaluator _ruleEvaluator;
+    private readonly IEnumerable<IAlertActionHandler> _actionHandlers;
     private readonly ILogger<AlertExecutionService> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
 
     public AlertExecutionService(
         ApplicationDbContext dbContext,
         IMicrosoftGraphService graphService,
+        AlertRuleEvaluator ruleEvaluator,
+        IEnumerable<IAlertActionHandler> actionHandlers,
         ILogger<AlertExecutionService> logger) {
         _dbContext = dbContext;
         _graphService = graphService;
+        _ruleEvaluator = ruleEvaluator;
+        _actionHandlers = actionHandlers;
         _logger = logger;
         _jsonOptions = new JsonSerializerOptions {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -105,39 +112,193 @@ public class AlertExecutionService {
 
     private async Task<string> ExecuteScriptedAlertAsync(AlertConfiguration alertConfig) {
         try {
-            var conditions = JsonSerializer.Deserialize<List<AlertConditionDto>>(alertConfig.Conditions, _jsonOptions) ?? new List<AlertConditionDto>();
-            var actions = JsonSerializer.Deserialize<List<AlertActionDto>>(alertConfig.Actions, _jsonOptions) ?? new List<AlertActionDto>();
-            var tenants = JsonSerializer.Deserialize<List<TenantSelectorOptionDto>>(alertConfig.TenantFilter, _jsonOptions) ?? new List<TenantSelectorOptionDto>();
+            var rawConfig = JsonSerializer.Deserialize<CreateScriptedAlertDto>(
+                alertConfig.RawConfiguration ?? "{}", 
+                _jsonOptions);
 
-            _logger.LogInformation("Executing scripted alert with {ConditionCount} conditions, {ActionCount} actions for {TenantCount} tenants", 
-                conditions.Count, actions.Count, tenants.Count);
-
-            var conditionsMet = await EvaluateConditionsAsync(conditions, tenants, alertConfig.LogType);
-            
-            if (conditionsMet) {
-                await ExecuteActionsAsync(actions, tenants);
-                return $"Conditions met, executed {actions.Count} actions for {tenants.Count} tenants";
-            } else {
-                return "Conditions not met, no actions executed";
+            if (rawConfig?.Command == null) {
+                return "No command configured for scripted alert";
             }
-            
+
+            var tenantIds = GetTenantIds(alertConfig.TenantFilter);
+            var excludedTenants = JsonSerializer.Deserialize<List<string>>(
+                alertConfig.ExcludedTenants, 
+                _jsonOptions) ?? new List<string>();
+
+            var tenantsToCheck = tenantIds.Except(excludedTenants).ToList();
+            var triggeredCount = 0;
+            var totalChecked = 0;
+
+            foreach (var tenantId in tenantsToCheck) {
+                try {
+                    totalChecked++;
+                    var data = await FetchCommandDataAsync(rawConfig.Command.Value, tenantId, rawConfig.Parameters);
+                    
+                    if (data != null && data.Any()) {
+                        var alertData = new Dictionary<string, object> {
+                            ["Command"] = rawConfig.Command.Value,
+                            ["TenantId"] = tenantId,
+                            ["DataCount"] = data.Count,
+                            ["Data"] = data,
+                            ["Timestamp"] = DateTime.UtcNow
+                        };
+
+                        await ExecuteAlertActionsAsync(
+                            alertData,
+                            tenantId,
+                            alertConfig.AlertComment,
+                            rawConfig.PostExecution);
+
+                        triggeredCount++;
+                    }
+                } catch (Exception ex) {
+                    _logger.LogError(ex, 
+                        "Failed to execute scripted alert for tenant {TenantId}",
+                        tenantId);
+                }
+            }
+
+            return $"Checked {totalChecked} tenants, triggered {triggeredCount} alerts";
         } catch (Exception ex) {
             _logger.LogError(ex, "Failed to execute scripted alert {ConfigurationId}", alertConfig.Id);
             return $"Failed to execute scripted alert: {ex.Message}";
         }
     }
 
-    private async Task<bool> EvaluateConditionsAsync(List<AlertConditionDto> conditions, List<TenantSelectorOptionDto> tenants, string logType) {
-        _logger.LogInformation("Evaluating {ConditionCount} conditions for log type {LogType}", conditions.Count, logType);
-        await Task.Delay(100);
-        return conditions.Any();
+    private List<string> GetTenantIds(string tenantFilterJson) {
+        try {
+            var tenants = JsonSerializer.Deserialize<List<TenantSelectorOptionDto>>(
+                tenantFilterJson, 
+                _jsonOptions) ?? new List<TenantSelectorOptionDto>();
+
+            if (tenants.Any(t => t.Value == "AllTenants")) {
+                var allTenants = _dbContext.GetEntitySet<Tenant>()
+                    .Where(t => !t.Excluded && t.Status == "Active")
+                    .Select(t => t.TenantId.ToString())
+                    .ToList();
+                return allTenants;
+            }
+
+            return tenants.Select(t => t.Value).ToList();
+        } catch {
+            return new List<string>();
+        }
     }
 
-    private async Task ExecuteActionsAsync(List<AlertActionDto> actions, List<TenantSelectorOptionDto> tenants) {
-        foreach (var action in actions) {
-            _logger.LogInformation("Executing action of type {ActionType} for {TenantCount} tenants", 
-                action.Value, tenants.Count);
-            await Task.Delay(50);
+    private async Task<List<Dictionary<string, object>>> FetchCommandDataAsync(
+        string command,
+        string tenantId,
+        Dictionary<string, object>? parameters) {
+        try {
+            var graphClient = await _graphService.GetGraphServiceClientAsync(Guid.Parse(tenantId));
+
+            return command switch {
+                "New-GraphGetRequest" => await FetchGraphDataAsync(graphClient, parameters),
+                "Get-CIPPMFAUsers" => await FetchMfaUsersAsync(graphClient),
+                "Get-CIPPLicenses" => await FetchLicensesAsync(graphClient),
+                _ => new List<Dictionary<string, object>>()
+            };
+        } catch (Exception ex) {
+            _logger.LogError(ex, 
+                "Failed to fetch data for command {Command} on tenant {TenantId}",
+                command, tenantId);
+            return new List<Dictionary<string, object>>();
+        }
+    }
+
+    private async Task<List<Dictionary<string, object>>> FetchGraphDataAsync(
+        Microsoft.Graph.Beta.GraphServiceClient graphClient,
+        Dictionary<string, object>? parameters) {
+        if (parameters == null || !parameters.ContainsKey("Endpoint")) {
+            return new List<Dictionary<string, object>>();
+        }
+
+        var endpoint = parameters["Endpoint"].ToString();
+        var results = new List<Dictionary<string, object>>();
+
+        return results;
+    }
+
+    private async Task<List<Dictionary<string, object>>> FetchMfaUsersAsync(
+        Microsoft.Graph.Beta.GraphServiceClient graphClient) {
+        try {
+            var users = await graphClient.Users.GetAsync(config => {
+                config.QueryParameters.Select = new[] { "id", "userPrincipalName", "displayName" };
+                config.QueryParameters.Top = 999;
+            });
+
+            var results = new List<Dictionary<string, object>>();
+            if (users?.Value != null) {
+                foreach (var user in users.Value) {
+                    var authMethods = await graphClient.Users[user.Id].Authentication.Methods.GetAsync();
+                    
+                    results.Add(new Dictionary<string, object> {
+                        ["UserId"] = user.Id ?? "",
+                        ["UserPrincipalName"] = user.UserPrincipalName ?? "",
+                        ["DisplayName"] = user.DisplayName ?? "",
+                        ["MfaMethodCount"] = authMethods?.Value?.Count ?? 0
+                    });
+                }
+            }
+
+            return results;
+        } catch {
+            return new List<Dictionary<string, object>>();
+        }
+    }
+
+    private async Task<List<Dictionary<string, object>>> FetchLicensesAsync(
+        Microsoft.Graph.Beta.GraphServiceClient graphClient) {
+        try {
+            var licenses = await graphClient.SubscribedSkus.GetAsync();
+            var results = new List<Dictionary<string, object>>();
+
+            if (licenses?.Value != null) {
+                foreach (var sku in licenses.Value) {
+                    results.Add(new Dictionary<string, object> {
+                        ["SkuId"] = sku.SkuId?.ToString() ?? "",
+                        ["SkuPartNumber"] = sku.SkuPartNumber ?? "",
+                        ["ConsumedUnits"] = sku.ConsumedUnits ?? 0,
+                        ["PrepaidUnits"] = sku.PrepaidUnits?.Enabled ?? 0
+                    });
+                }
+            }
+
+            return results;
+        } catch {
+            return new List<Dictionary<string, object>>();
+        }
+    }
+
+    private async Task ExecuteAlertActionsAsync(
+        Dictionary<string, object> alertData,
+        string tenantId,
+        string? alertComment,
+        List<PostExecutionOptionDto>? postExecutionOptions) {
+        if (postExecutionOptions == null || !postExecutionOptions.Any()) {
+            return;
+        }
+
+        foreach (var option in postExecutionOptions) {
+            try {
+                var handler = _actionHandlers.FirstOrDefault(h => 
+                    h.ActionType.Equals(option.Value, StringComparison.OrdinalIgnoreCase));
+
+                if (handler != null) {
+                    await handler.ExecuteAsync(
+                        alertData,
+                        tenantId,
+                        alertComment);
+                } else {
+                    _logger.LogWarning(
+                        "No handler found for post-execution action {ActionType}",
+                        option.Value);
+                }
+            } catch (Exception ex) {
+                _logger.LogError(ex, 
+                    "Failed to execute post-execution action {ActionType}",
+                    option.Value);
+            }
         }
     }
 }

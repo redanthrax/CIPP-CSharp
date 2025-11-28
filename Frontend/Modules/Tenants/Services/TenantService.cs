@@ -47,12 +47,11 @@ public class TenantService : ITenantService {
     }
     
     public async Task<Response<List<TenantSelectorOptionDto>>> GetTenantSelectorOptionsAsync(
-        bool allTenants = false, bool includeGroups = false, bool includeOffboardingDefaults = false) {
+        bool allTenants = false, bool includeGroups = false, bool includeOffboardingDefaults = false, int pageNumber = 1, bool noCache = false) {
         
         try {
             var selectorOptions = new List<TenantSelectorOptionDto>();
             
-            // Add "All Tenants" option if requested
             if (allTenants) {
                 selectorOptions.Add(new TenantSelectorOptionDto(
                     "AllTenants",
@@ -64,35 +63,107 @@ public class TenantService : ITenantService {
                 ));
             }
             
-            // Get individual tenants
-            var tenantsResponse = await GetTenantsAsync(pageSize: 1000, allTenants: true, includeOffboardingDefaults: includeOffboardingDefaults);
-            if (tenantsResponse?.Items != null && tenantsResponse.Items.Any()) {
-                selectorOptions.AddRange(tenantsResponse.Items
-                    .Where(t => includeOffboardingDefaults || !t.Excluded)
-                    .Select(t => new TenantSelectorOptionDto(
-                        t.TenantId.ToString(),
-                        t.DisplayName,
-                        "Tenant",
-                        t.DefaultDomainName,
-                        t.DisplayName,
-                        t.TenantId,
-                        t.Excluded ? "Excluded" : null
-                    )));
+            if (pageNumber == 0) {
+                var allTenantsList = new List<TenantDto>();
+                var currentPage = 1;
+                PagedResponse<TenantDto>? tenantsResponse;
+                
+                do {
+                    tenantsResponse = await GetTenantsAsync(
+                        pageNumber: currentPage, 
+                        pageSize: 100, 
+                        allTenants: true, 
+                        includeOffboardingDefaults: includeOffboardingDefaults,
+                        noCache: noCache);
+                    
+                    if (tenantsResponse?.Items != null && tenantsResponse.Items.Any()) {
+                        allTenantsList.AddRange(tenantsResponse.Items);
+                    }
+                    currentPage++;
+                } while (tenantsResponse?.Items?.Any() == true && tenantsResponse.Items.Count == 100);
+                
+                if (allTenantsList.Any()) {
+                    selectorOptions.AddRange(allTenantsList
+                        .Where(t => includeOffboardingDefaults || !t.Excluded)
+                        .Select(t => new TenantSelectorOptionDto(
+                            t.TenantId.ToString(),
+                            t.DisplayName,
+                            "Tenant",
+                            t.DefaultDomainName,
+                            t.DisplayName,
+                            t.TenantId,
+                            t.Excluded ? "Excluded" : null
+                        )));
+                }
+            } else {
+                var tenantsResponse = await GetTenantsAsync(
+                    pageNumber: pageNumber, 
+                    pageSize: 10, 
+                    allTenants: true, 
+                    includeOffboardingDefaults: includeOffboardingDefaults,
+                    noCache: noCache);
+                
+                if (tenantsResponse?.Items != null && tenantsResponse.Items.Any()) {
+                    selectorOptions.AddRange(tenantsResponse.Items
+                        .Where(t => includeOffboardingDefaults || !t.Excluded)
+                        .Select(t => new TenantSelectorOptionDto(
+                            t.TenantId.ToString(),
+                            t.DisplayName,
+                            "Tenant",
+                            t.DefaultDomainName,
+                            t.DisplayName,
+                            t.TenantId,
+                            t.Excluded ? "Excluded" : null
+                        )));
+                }
             }
             
-            // Add tenant groups if requested
             if (includeGroups) {
-                var groupsResponse = await GetTenantGroupsAsync(pageSize: 1000);
-                if (groupsResponse?.Items != null && groupsResponse.Items.Any()) {
-                    selectorOptions.AddRange(groupsResponse.Items
-                        .Select(g => new TenantSelectorOptionDto(
-                            g.Id.ToString(),
-                            g.Name,
-                            "Group",
-                            "",
-                            g.Name,
-                            g.Id
-                        )));
+                var groupsPageSize = pageNumber == 0 ? 100 : 10;
+                if (pageNumber == 0) {
+                    var allGroupsList = new List<TenantGroupDto>();
+                    var currentPage = 1;
+                    PagedResponse<TenantGroupDto>? groupsResponse;
+                    
+                    do {
+                        groupsResponse = await GetTenantGroupsAsync(
+                            pageNumber: currentPage, 
+                            pageSize: groupsPageSize,
+                            noCache: noCache);
+                        
+                        if (groupsResponse?.Items != null && groupsResponse.Items.Any()) {
+                            allGroupsList.AddRange(groupsResponse.Items);
+                        }
+                        currentPage++;
+                    } while (groupsResponse?.Items?.Any() == true && groupsResponse.Items.Count == groupsPageSize);
+                    
+                    if (allGroupsList.Any()) {
+                        selectorOptions.AddRange(allGroupsList
+                            .Select(g => new TenantSelectorOptionDto(
+                                g.Id.ToString(),
+                                g.Name,
+                                "Group",
+                                "",
+                                g.Name,
+                                g.Id
+                            )));
+                    }
+                } else {
+                    var groupsResponse = await GetTenantGroupsAsync(
+                        pageNumber: pageNumber, 
+                        pageSize: groupsPageSize,
+                        noCache: noCache);
+                    if (groupsResponse?.Items != null && groupsResponse.Items.Any()) {
+                        selectorOptions.AddRange(groupsResponse.Items
+                            .Select(g => new TenantSelectorOptionDto(
+                                g.Id.ToString(),
+                                g.Name,
+                                "Group",
+                                "",
+                                g.Name,
+                                g.Id
+                            )));
+                    }
                 }
             }
             

@@ -2,6 +2,7 @@ using CIPP.Api.Data;
 using CIPP.Api.Modules.Swagger;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Prometheus;
 using Serilog;
@@ -98,6 +99,10 @@ builder.Services.AddSingleton<IMetricServer>(provider =>
     return server;
 });
 
+builder.Services.AddHealthChecks()
+    .AddNpgSql(connectionString, name: "postgres", timeout: TimeSpan.FromSeconds(5))
+    .AddRedis(redisConnection, name: "redis", timeout: TimeSpan.FromSeconds(5));
+
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
@@ -135,6 +140,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapModuleEndpoints();
+app.MapHealthChecks("/health");
 
 await app.InitializeModulesAsync();
 app.MapMetrics();

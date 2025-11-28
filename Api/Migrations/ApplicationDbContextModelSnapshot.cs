@@ -32,6 +32,10 @@ namespace CIPP.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("AlertComment")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
                     b.Property<string>("AlertType")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -98,6 +102,281 @@ namespace CIPP.Api.Migrations
                     b.HasIndex("IsActive");
 
                     b.ToTable("AlertConfigurations", (string)null);
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Alerts.Models.AuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionText")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ActionUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ActionsTaken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("LocationInfo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RawData")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TenantFilter")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("WebhookRuleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("TenantFilter");
+
+                    b.HasIndex("WebhookRuleId");
+
+                    b.ToTable("AuditLogs", (string)null);
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Alerts.Models.CachedWebhookEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ChangeType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<bool>("IsProcessed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("NotificationData")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Resource")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ResourceData")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SubscriptionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("TenantFilter")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceivedAt");
+
+                    b.HasIndex("SubscriptionId");
+
+                    b.HasIndex("TenantFilter", "IsProcessed");
+
+                    b.ToTable("CachedWebhookEvents", (string)null);
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Alerts.Models.EmailTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSystemTemplate")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("TemplateType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Name", "TemplateType")
+                        .IsUnique();
+
+                    b.ToTable("EmailTemplates", (string)null);
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Alerts.Models.GraphWebhookSubscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ChangeType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ClientState")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpirationDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastRenewed")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NotificationUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Resource")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("SubscriptionId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("WebhookRuleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpirationDateTime");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("SubscriptionId")
+                        .IsUnique();
+
+                    b.HasIndex("WebhookRuleId");
+
+                    b.HasIndex("TenantId", "Resource");
+
+                    b.ToTable("GraphWebhookSubscriptions", (string)null);
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Alerts.Models.WebhookRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Actions")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AlertComment")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Conditions")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ExcludedTenants")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastTriggered")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LogType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TenantFilter")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TriggerCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("LogType");
+
+                    b.HasIndex("TenantFilter");
+
+                    b.ToTable("WebhookRules", (string)null);
                 });
 
             modelBuilder.Entity("CIPP.Api.Modules.Applications.Models.AppPermissionSet", b =>
@@ -1023,6 +1302,26 @@ namespace CIPP.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("TenantProperty");
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Alerts.Models.AuditLog", b =>
+                {
+                    b.HasOne("CIPP.Api.Modules.Alerts.Models.WebhookRule", "WebhookRule")
+                        .WithMany()
+                        .HasForeignKey("WebhookRuleId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("WebhookRule");
+                });
+
+            modelBuilder.Entity("CIPP.Api.Modules.Alerts.Models.GraphWebhookSubscription", b =>
+                {
+                    b.HasOne("CIPP.Api.Modules.Alerts.Models.WebhookRule", "WebhookRule")
+                        .WithMany()
+                        .HasForeignKey("WebhookRuleId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("WebhookRule");
                 });
 
             modelBuilder.Entity("CIPP.Api.Modules.Authorization.Models.ApiKeyRole", b =>

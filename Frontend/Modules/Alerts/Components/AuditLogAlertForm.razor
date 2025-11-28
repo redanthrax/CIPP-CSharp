@@ -181,6 +181,12 @@
                             }
                         </MudStack>
                     }
+
+                    <MudTextField @bind-Value="_formModel.AlertComment"
+                                Label="Alert Comment"
+                                Placeholder="Add documentation, FAQ links, or instructions for when this alert triggers..."
+                                Lines="3"
+                                Variant="Variant.Outlined" />
                 </MudStack>
             </MudPaper>
         </MudItem>

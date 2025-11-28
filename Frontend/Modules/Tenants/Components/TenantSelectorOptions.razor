@@ -61,6 +61,7 @@
     private bool _previousIncludeGroups;
     private bool _previousIncludeOffboardingDefaults;
     private bool _isInitialized = false;
+    private bool _allTenantsLoaded = false;
 
     protected override async Task OnInitializedAsync() {
         await LoadTenantOptionsAsync();
@@ -92,16 +93,18 @@
         var wasLoading = _isLoading;
         _isLoading = true;
         _hasError = false;
+        _allTenantsLoaded = false;
         
         if (!wasLoading) {
-            StateHasChanged(); // Only trigger re-render if we weren't already loading
+            StateHasChanged();
         }
 
         try {
             var response = await TenantService.GetTenantSelectorOptionsAsync(
                 allTenants: IncludeAllTenants, 
                 includeGroups: IncludeGroups, 
-                includeOffboardingDefaults: IncludeOffboardingDefaults
+                includeOffboardingDefaults: IncludeOffboardingDefaults,
+                pageNumber: 1
             );
 
             if (response?.Success == true && response.Data != null) {
@@ -116,22 +119,49 @@
             _hasError = true;
         } finally {
             _isLoading = false;
-            StateHasChanged(); // Force re-render when loading completes
+            StateHasChanged();
         }
     }
 
-    private Task<IEnumerable<TenantSelectorOptionDto>> SearchTenantOptions(string value, CancellationToken token) {
+    private async Task LoadAllTenantsAsync() {
+        if (_allTenantsLoaded || _isLoading) {
+            return;
+        }
+
+        try {
+            var response = await TenantService.GetTenantSelectorOptionsAsync(
+                allTenants: IncludeAllTenants,
+                includeGroups: IncludeGroups,
+                includeOffboardingDefaults: IncludeOffboardingDefaults,
+                pageNumber: 0,
+                noCache: false);
+
+            if (response?.Success == true && response.Data != null && response.Data.Any()) {
+                _tenantOptions = response.Data;
+                _allTenantsLoaded = true;
+            }
+        } catch {
+        } finally {
+            StateHasChanged();
+        }
+    }
+
+    private async Task<IEnumerable<TenantSelectorOptionDto>> SearchTenantOptions(string value, CancellationToken token) {
+        if (!_allTenantsLoaded) {
+            await LoadAllTenantsAsync();
+        }
+
         if (string.IsNullOrWhiteSpace(value)) {
-            return Task.FromResult<IEnumerable<TenantSelectorOptionDto>>(_tenantOptions);
+            return _tenantOptions;
         }
 
         var searchTerm = value.ToLowerInvariant();
-        return Task.FromResult(_tenantOptions.Where(t => 
+        return _tenantOptions.Where(t => 
             t.Label.ToLowerInvariant().Contains(searchTerm) ||
             t.DisplayName.ToLowerInvariant().Contains(searchTerm) ||
             t.DefaultDomainName.ToLowerInvariant().Contains(searchTerm) ||
             t.Value.ToLowerInvariant().Contains(searchTerm)
-        ));
+        );
     }
 
 

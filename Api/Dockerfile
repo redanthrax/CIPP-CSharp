@@ -24,6 +24,9 @@ RUN dotnet publish "CIPP.Api.csproj" -c Release -o /app/publish /p:UseAppHost=fa
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 
+# Install curl for healthcheck
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 # Create non-root user
 RUN adduser --disabled-password --home /app --gecos '' cippuser && chown -R cippuser /app
 USER cippuser
